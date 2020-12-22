@@ -4,6 +4,9 @@
  */
 
 import React, { useCallback } from 'react';
+import { NativeModules } from 'react-native';
+const ShareExtension = NativeModules.ShareExtension;
+
 import {
   SafeAreaView,
   ScrollView,
@@ -21,7 +24,7 @@ import {styles} from './styles';
 
 const App = () => {
   const URL = '#test';
-  const { status, article, error } = useArticle(URL);
+  const { status, article, error } = useArticle(ShareExtension);
   const {trustingResources, distrustingResources, trustValue} = useEvaluation(article);
   // const {send} = useServer();
 
@@ -35,11 +38,15 @@ const App = () => {
           <View style={styles.body}>
             <View>
               <Text style={styles.header}>
-                Inspect: Source
+                Inspect {/* TODO: create an actual header image */}
               </Text>
-              <Text>
-                {error && <Text>Error! - ${error}</Text>}
-              </Text>
+
+              {/* TODO: add a progress gif */}
+
+              {error && 
+                <Text>Error! - ${error}</Text>
+              }
+
               {article && 
                 <SimpleVisualization 
                   article={article} 

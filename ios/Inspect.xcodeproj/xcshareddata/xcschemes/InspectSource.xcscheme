@@ -57,9 +57,18 @@
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
             BuildableName = "InspectSource.app"
             BlueprintName = "InspectSource"
-            ReferencedContainer = "container:InspectSource.xcodeproj">
+            ReferencedContainer = "container:Inspect.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
+            BuildableName = "InspectSource.app"
+            BlueprintName = "InspectSource"
+            ReferencedContainer = "container:InspectSource.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

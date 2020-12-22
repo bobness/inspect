@@ -12,19 +12,28 @@ export class Article {
 }
 
 // TODO: get an article from a 'share' on iOS
-const useArticle = (url) => {
+const useArticle = (ShareExtension) => {
     const [status, setStatus] = useState('idling');
     const [article, setArticle] = useState();
     const [error, setError] = useState();
 
     useEffect(() => {
-        if (url) {
-            setArticle(new Article({
-                title: 'Test Article',
-                source: 'Fox News'
-            }));
+        if (ShareExtension) {
+            try {
+                setStatus('active');
+                console.log('got data: ', ShareExtension.data());
+                setArticle(new Article({
+                    title: 'Test Article',
+                    source: 'Fox News'
+                }));
+                ShareExtension.close();
+            } catch (err) {
+                setError(err);
+            } finally {
+                setStatus('idling');
+            }
         }
-    }, [url]);
+    }, [ShareExtension]);
 
     return {
         status,

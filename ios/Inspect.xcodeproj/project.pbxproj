@@ -20,6 +20,7 @@
 		5B09BBEFA317D17CF30FE116 /* libPods-InspectSource.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4C86A8E2172F5726C009D9E /* libPods-InspectSource.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		A5AFAFE769E7319CFA0EF6A6 /* libPods-InspectSource-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D866F1185DA19224CBCBDED0 /* libPods-InspectSource-tvOSTests.a */; };
+		C41E28D02591D9230080F690 /* InspectSource.app in Resources */ = {isa = PBXBuildFile; fileRef = 13B07F961A680F5B00A75B9A /* InspectSource.app */; };
 		C44B337D258881F100CDC424 /* libRNCPicker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C44B337C258881F100CDC424 /* libRNCPicker.a */; };
 /* End PBXBuildFile section */
 
@@ -116,13 +117,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		00E356EF1AD99517003FC87E /* InspectSourceTests */ = {
+		00E356EF1AD99517003FC87E /* InspectTests */ = {
 			isa = PBXGroup;
 			children = (
 				00E356F21AD99517003FC87E /* InspectSourceTests.m */,
 				00E356F01AD99517003FC87E /* Supporting Files */,
 			);
-			path = InspectSourceTests;
+			path = InspectTests;
 			sourceTree = "<group>";
 		};
 		00E356F01AD99517003FC87E /* Supporting Files */ = {
@@ -148,7 +149,7 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
-		13B07FAE1A68108700A75B9A /* InspectSource */ = {
+		13B07FAE1A68108700A75B9A /* Inspect */ = {
 			isa = PBXGroup;
 			children = (
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
@@ -159,7 +160,7 @@
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 			);
-			name = InspectSource;
+			name = Inspect;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
@@ -187,9 +188,9 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				13B07FAE1A68108700A75B9A /* InspectSource */,
+				13B07FAE1A68108700A75B9A /* Inspect */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
-				00E356EF1AD99517003FC87E /* InspectSourceTests */,
+				00E356EF1AD99517003FC87E /* InspectTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				056DA9C16551493EA47DACDE /* Pods */,
@@ -328,7 +329,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "InspectSource" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Inspect" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -378,6 +379,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
+				C41E28D02591D9230080F690 /* InspectSource.app in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -412,7 +414,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
+			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
 		084EFBCAB9F5F5C569BECCBE /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -704,10 +706,11 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = net.datagtochi.inspect;
 				PRODUCT_NAME = InspectSource;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -727,9 +730,10 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = net.datagtochi.inspect;
 				PRODUCT_NAME = InspectSource;
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
@@ -998,7 +1002,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "InspectSource" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Inspect" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
