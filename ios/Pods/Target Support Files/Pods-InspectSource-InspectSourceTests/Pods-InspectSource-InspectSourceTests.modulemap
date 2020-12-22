@@ -1,0 +1,6 @@
+module Pods_InspectSource_InspectSourceTests {
+  umbrella header "Pods-InspectSource-InspectSourceTests-umbrella.h"
+
+  export *
+  module * { export * }
+}
