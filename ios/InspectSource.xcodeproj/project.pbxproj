@@ -21,6 +21,9 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		A5AFAFE769E7319CFA0EF6A6 /* libPods-InspectSource-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D866F1185DA19224CBCBDED0 /* libPods-InspectSource-tvOSTests.a */; };
 		C44B337D258881F100CDC424 /* libRNCPicker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C44B337C258881F100CDC424 /* libRNCPicker.a */; };
+		C46369E2259A9044003F7EF6 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46369E1259A9044003F7EF6 /* ShareViewController.swift */; };
+		C46369E5259A9045003F7EF6 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C46369E3259A9044003F7EF6 /* MainInterface.storyboard */; };
+		C46369E9259A9045003F7EF6 /* Share.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C46369DF259A9044003F7EF6 /* Share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,7 +48,28 @@
 			remoteGlobalIDString = 134814201AA4EA6300B7C361;
 			remoteInfo = RNCPicker;
 		};
+		C46369E7259A9045003F7EF6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C46369DE259A9044003F7EF6;
+			remoteInfo = Share;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C46369ED259A9045003F7EF6 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C46369E9259A9045003F7EF6 /* Share.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
@@ -69,6 +93,10 @@
 		BABB2A62013EB9E5FFF9D32E /* Pods-InspectSource-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InspectSource-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-InspectSource-tvOSTests/Pods-InspectSource-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C44B336C2588811B00CDC424 /* RNCPicker.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNCPicker.xcodeproj; path = "../node_modules/@react-native-picker/picker/ios/RNCPicker.xcodeproj"; sourceTree = "<group>"; };
 		C44B337C258881F100CDC424 /* libRNCPicker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRNCPicker.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		C46369DF259A9044003F7EF6 /* Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Share.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C46369E1259A9044003F7EF6 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		C46369E4259A9045003F7EF6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		C46369E6259A9045003F7EF6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C5C87AEBCCC90E065184F03E /* Pods-InspectSource.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InspectSource.debug.xcconfig"; path = "Target Support Files/Pods-InspectSource/Pods-InspectSource.debug.xcconfig"; sourceTree = "<group>"; };
 		D360D52187AB5BB81B74F6AF /* Pods-InspectSource-InspectSourceTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InspectSource-InspectSourceTests.release.xcconfig"; path = "Target Support Files/Pods-InspectSource-InspectSourceTests/Pods-InspectSource-InspectSourceTests.release.xcconfig"; sourceTree = "<group>"; };
 		D866F1185DA19224CBCBDED0 /* libPods-InspectSource-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-InspectSource-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -110,6 +138,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				A5AFAFE769E7319CFA0EF6A6 /* libPods-InspectSource-tvOSTests.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C46369DC259A9044003F7EF6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -190,6 +225,7 @@
 				13B07FAE1A68108700A75B9A /* InspectSource */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* InspectSourceTests */,
+				C46369E0259A9044003F7EF6 /* Share */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				056DA9C16551493EA47DACDE /* Pods */,
@@ -206,6 +242,7 @@
 				00E356EE1AD99517003FC87E /* InspectSourceTests.xctest */,
 				2D02E47B1E0B4A5D006451C7 /* InspectSource-tvOS.app */,
 				2D02E4901E0B4A5D006451C7 /* InspectSource-tvOSTests.xctest */,
+				C46369DF259A9044003F7EF6 /* Share.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -216,6 +253,16 @@
 				C44B33712588811B00CDC424 /* libRNCPicker.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		C46369E0259A9044003F7EF6 /* Share */ = {
+			isa = PBXGroup;
+			children = (
+				C46369E1259A9044003F7EF6 /* ShareViewController.swift */,
+				C46369E3259A9044003F7EF6 /* MainInterface.storyboard */,
+				C46369E6259A9045003F7EF6 /* Info.plist */,
+			);
+			path = Share;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -252,10 +299,12 @@
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				C0E626D78D1D48E0D8DB483F /* [CP] Copy Pods Resources */,
+				C46369ED259A9045003F7EF6 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				C46369E8259A9045003F7EF6 /* PBXTargetDependency */,
 			);
 			name = InspectSource;
 			productName = InspectSource;
@@ -301,12 +350,30 @@
 			productReference = 2D02E4901E0B4A5D006451C7 /* InspectSource-tvOSTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		C46369DE259A9044003F7EF6 /* Share */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C46369EA259A9045003F7EF6 /* Build configuration list for PBXNativeTarget "Share" */;
+			buildPhases = (
+				C46369DB259A9044003F7EF6 /* Sources */,
+				C46369DC259A9044003F7EF6 /* Frameworks */,
+				C46369DD259A9044003F7EF6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Share;
+			productName = Share;
+			productReference = C46369DF259A9044003F7EF6 /* Share.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 1230;
 				LastUpgradeCheck = 1220;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
@@ -325,6 +392,11 @@
 						CreatedOnToolsVersion = 8.2.1;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 2D02E47A1E0B4A5D006451C7;
+					};
+					C46369DE259A9044003F7EF6 = {
+						CreatedOnToolsVersion = 12.3;
+						DevelopmentTeam = 77L3RUTG3X;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -351,6 +423,7 @@
 				00E356ED1AD99517003FC87E /* InspectSourceTests */,
 				2D02E47A1E0B4A5D006451C7 /* InspectSource-tvOS */,
 				2D02E48F1E0B4A5D006451C7 /* InspectSource-tvOSTests */,
+				C46369DE259A9044003F7EF6 /* Share */,
 			);
 		};
 /* End PBXProject section */
@@ -394,6 +467,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C46369DD259A9044003F7EF6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C46369E5259A9045003F7EF6 /* MainInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -627,6 +708,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C46369DB259A9044003F7EF6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C46369E2259A9044003F7EF6 /* ShareViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -640,7 +729,23 @@
 			target = 2D02E47A1E0B4A5D006451C7 /* InspectSource-tvOS */;
 			targetProxy = 2D02E4911E0B4A5D006451C7 /* PBXContainerItemProxy */;
 		};
+		C46369E8259A9045003F7EF6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C46369DE259A9044003F7EF6 /* Share */;
+			targetProxy = C46369E7259A9045003F7EF6 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		C46369E3259A9044003F7EF6 /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C46369E4259A9045003F7EF6 /* Base */,
+			);
+			name = MainInterface.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
@@ -692,6 +797,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C5C87AEBCCC90E065184F03E /* Pods-InspectSource.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -708,6 +814,7 @@
 				PRODUCT_NAME = InspectSource;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -716,6 +823,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 193A9D9B07E3FA84E494FFF6 /* Pods-InspectSource.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -730,6 +838,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = InspectSource;
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
@@ -959,6 +1068,61 @@
 			};
 			name = Release;
 		};
+		C46369EB259A9045003F7EF6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 77L3RUTG3X;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Share/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.InspectSource.Share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C46369EC259A9045003F7EF6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 77L3RUTG3X;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Share/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.InspectSource.Share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1003,6 +1167,15 @@
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
 				83CBBA211A601CBA00E9B192 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C46369EA259A9045003F7EF6 /* Build configuration list for PBXNativeTarget "Share" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C46369EB259A9045003F7EF6 /* Debug */,
+				C46369EC259A9045003F7EF6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
