@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 
 import commonStyle from "../styles/CommonStyle";
-import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList } from "react-native";
-import { ListItem, Avatar } from "react-native-elements";
+import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList, TouchableOpacity } from "react-native";
+import { Avatar, Overlay } from "react-native-elements";
+import EmojiSelector, { Categories } from "react-native-emoji-selector";
 const list = [
     {
         name: 'The super rich often pay < 1% in taxes',
@@ -89,21 +90,32 @@ const list = [
         subtitle: 'Vice Chairman'
     },
 ];
-export default function HomeScreen({ navigation }: any) {
+export default function NewsViewScreen(props: any) {
+    const {
+        route: {
+            params: {
+                data
+            }
+        },
+        navigation
+    } = props;
+    const [visible, setVisible] = useState(false);
+    const [emoji, setEmoji] = useState('');
+
+    const toggleOverlay = () => {
+        setVisible(!visible);
+    };
+
     const renderItem = ({ item }: any) => (
-        <ListItem
-            bottomDivider
-            hasTVPreferredFocus={undefined}
-            tvParallaxProperties={undefined}
-            style={{ flex: 1, width: '100%' }}
-            onPress={() => { navigation.navigate('NewsView', { data: item }) }}
-        >
-            <Avatar title={item.name[0]} source={item.avatar_url && { uri: item.avatar_url }} />
-            <ListItem.Content>
-                <ListItem.Title>{item.name}</ListItem.Title>
-            </ListItem.Content>
-            <Avatar title={item.name[0]} source={item.site_link && { uri: item.site_link }} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
-        </ListItem>
+        <TouchableOpacity onPress={() => setVisible(!visible)}>
+            <View style={{ flexDirection: 'row', paddingVertical: 5, }}>
+                <Text>emoji</Text>
+                <Text>In 2007, Jeff Bezos, then a multibillionaire and now the world’s richest man, did not pay a penny in federal income taxes.</Text>
+            </View>
+            <View>
+                <Text>{emoji}</Text>
+            </View>
+        </TouchableOpacity>
     );
 
     return (
@@ -111,11 +123,27 @@ export default function HomeScreen({ navigation }: any) {
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={commonStyle.pageContainer}>
                     <Text style={commonStyle.logoText}>INSPECTION</Text>
+                    <View style={{ justifyContent: 'space-between', flexDirection: 'row', paddingBottom: 10 }}>
+                        <Avatar title={data.name[0]} source={data.avatar_url ? { uri: data.avatar_url } : undefined} />
+                        <Text>{data.name}</Text>
+                        <Avatar title={data.name[0]} source={data.site_link ? { uri: data.site_link } : undefined} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
+                    </View>
                     <FlatList
                         data={list}
                         renderItem={renderItem}
                         style={{ flex: 1, width: '100%' }}
                     />
+
+                    <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
+                        <EmojiSelector
+                            onEmojiSelected={emoji => { setEmoji(emoji); setVisible(false); }}
+                            showSearchBar={false}
+                            showTabs={true}
+                            showHistory={true}
+                            showSectionTitles={true}
+                            category={Categories.all}
+                        />
+                    </Overlay>
                 </View>
             </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
