@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import commonStyle from "../styles/CommonStyle";
 import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList, TouchableOpacity } from "react-native";
-import { Avatar, Overlay } from "react-native-elements";
+import { Avatar, Overlay, Icon } from "react-native-elements";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
 const list = [
     {
@@ -100,32 +100,42 @@ export default function NewsViewScreen(props: any) {
         navigation
     } = props;
     const [visible, setVisible] = useState(false);
-    const [emoji, setEmoji] = useState('');
+    const [emoji, setEmoji] = useState('🤔');
 
     const toggleOverlay = () => {
         setVisible(!visible);
     };
 
     const renderItem = ({ item }: any) => (
-        <TouchableOpacity onPress={() => setVisible(!visible)}>
-            <View style={{ flexDirection: 'row', paddingVertical: 5, }}>
-                <Text>emoji</Text>
-                <Text>In 2007, Jeff Bezos, then a multibillionaire and now the world’s richest man, did not pay a penny in federal income taxes.</Text>
+        <View>
+            <TouchableOpacity onPress={() => setVisible(!visible)}>
+                <View style={{ flexDirection: 'row', paddingVertical: 5, }}>
+                    <Text style={{ paddingRight: 10, fontSize: 20 }}>{emoji}</Text>
+                    <Text>In 2007, Jeff Bezos, then a multibillionaire and now the world's richest man, did not pay a penny in federal income taxes.</Text>
+                </View>
+            </TouchableOpacity>
+            <View style={{ paddingLeft: 36, flexDirection: 'row' }}>
+                <Text style={{ fontSize: 18 }}>{emoji}2</Text>
+                <TouchableOpacity onPress={() => console.log('reason')}>
+                    <Icon
+                        name='comment-dots'
+                        type='font-awesome-5'
+                        color='#ccc'
+                        style={{ paddingHorizontal: 10 }}
+                        tvParallaxProperties={undefined} />
+                </TouchableOpacity>
             </View>
-            <View>
-                <Text>{emoji}</Text>
-            </View>
-        </TouchableOpacity>
+        </View>
     );
 
     return (
         <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={commonStyle.pageContainer}>
-                    <Text style={commonStyle.logoText}>INSPECTION</Text>
-                    <View style={{ justifyContent: 'space-between', flexDirection: 'row', paddingBottom: 10 }}>
+                    <Text style={commonStyle.logoText}>INSPECT</Text>
+                    <View style={{ justifyContent: 'space-between', flexDirection: 'row', paddingBottom: 10, alignItems: 'center' }}>
                         <Avatar title={data.name[0]} source={data.avatar_url ? { uri: data.avatar_url } : undefined} />
-                        <Text>{data.name}</Text>
+                        <Text style={{ fontSize: 18, flex: 1, paddingHorizontal: 10, textAlign: 'center' }}>{data.name}</Text>
                         <Avatar title={data.name[0]} source={data.site_link ? { uri: data.site_link } : undefined} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
                     </View>
                     <FlatList
@@ -134,9 +144,9 @@ export default function NewsViewScreen(props: any) {
                         style={{ flex: 1, width: '100%' }}
                     />
 
-                    <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
+                    <Overlay isVisible={visible} onBackdropPress={toggleOverlay} style={{ width: '100%', height: '100%' }}>
                         <EmojiSelector
-                            onEmojiSelected={emoji => { setEmoji(emoji); setVisible(false); }}
+                            onEmojiSelected={emoji => { setEmoji(emoji); setVisible(false); console.log(emoji) }}
                             showSearchBar={false}
                             showTabs={true}
                             showHistory={true}

@@ -1,8 +1,8 @@
 import React from "react";
 
 import commonStyle from "../styles/CommonStyle";
-import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList } from "react-native";
-import { ListItem, Avatar } from "react-native-elements";
+import { Text, View, FlatList, ScrollView } from "react-native";
+import { ListItem, Avatar, Button, Image, Icon } from "react-native-elements";
 const list = [
     {
         name: 'The super rich often pay < 1% in taxes',
@@ -89,16 +89,16 @@ const list = [
         subtitle: 'Vice Chairman'
     },
 ];
-export default function HomeScreen({ navigation }: any) {
+export default function AuthorViewScreen({ navigation }: any) {
     const renderItem = ({ item }: any) => (
         <ListItem
             bottomDivider
             hasTVPreferredFocus={undefined}
             tvParallaxProperties={undefined}
             style={{ flex: 1, width: '100%' }}
-            onPress={() => { navigation.navigate('NewsView', { data: item }) }}
+            onPress={() => { navigation.navigate('AuthorNewsView', { data: item }) }}
         >
-            <Avatar title={item.name[0]} source={item.avatar_url && { uri: item.avatar_url }} />
+            <Icon type="font-awesome" name="file" tvParallaxProperties={undefined} />
             <ListItem.Content>
                 <ListItem.Title>{item.name}</ListItem.Title>
             </ListItem.Content>
@@ -107,17 +107,39 @@ export default function HomeScreen({ navigation }: any) {
     );
 
     return (
-        <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={commonStyle.pageContainer}>
-                    <Text style={commonStyle.logoText}>INSPECT</Text>
-                    <FlatList
-                        data={list}
-                        renderItem={renderItem}
-                        style={{ flex: 1, width: '100%' }}
-                    />
+        <View style={commonStyle.pageContainer}>
+            <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
+                <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 10 }}>
+                    <Avatar title={'Bob'} source={{ uri: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg' }} />
+                    <Text style={{ paddingLeft: 10, fontSize: 18 }}>Bob</Text>
                 </View>
-            </TouchableWithoutFeedback>
-        </KeyboardAvoidingView>
+                <Button
+                    title="Follow"
+                    buttonStyle={{ backgroundColor: '#6AA84F' }}
+                />
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
+                <Text style={{ fontSize: 16, fontWeight: '700' }}>Trusted sources: </Text>
+                <ScrollView contentContainerStyle={{ flexDirection: 'row', }}>
+                    <Image
+                        source={{ uri: 'https://www.logodesign.net/logo/eye-and-house-5806ld.png' }}
+                        style={{ width: 30, height: 30, borderWidth: 2, borderColor: '#6AA84F', marginHorizontal: 2 }}
+                    />
+                    <Image
+                        source={{ uri: 'https://www.logodesign.net/logo/eye-and-house-5806ld.png' }}
+                        style={{ width: 30, height: 30, borderWidth: 2, borderColor: '#6AA84F', marginHorizontal: 2 }}
+                    />
+                    <Image
+                        source={{ uri: 'https://www.logodesign.net/logo/eye-and-house-5806ld.png' }}
+                        style={{ width: 30, height: 30, borderWidth: 2, borderColor: '#6AA84F', marginHorizontal: 2 }}
+                    />
+                </ScrollView>
+            </View>
+            <FlatList
+                data={list}
+                renderItem={renderItem}
+                style={{ flex: 1, width: '100%' }}
+            />
+        </View>
     );
 }
