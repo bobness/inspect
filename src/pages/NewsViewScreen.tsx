@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 import commonStyle from "../styles/CommonStyle";
-import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList, TouchableOpacity } from "react-native";
+import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList, TouchableOpacity, SafeAreaView, ScrollView, Platform } from "react-native";
 import { Avatar, Overlay, Icon } from "react-native-elements";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import BottomToolbar from "../components/BottomToolbar";
+import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
+
 const list = [
     {
         name: 'The super rich often pay < 1% in taxes',
@@ -91,6 +93,7 @@ const list = [
         subtitle: 'Vice Chairman'
     },
 ];
+
 export default function NewsViewScreen(props: any) {
     const {
         route: {
@@ -100,11 +103,17 @@ export default function NewsViewScreen(props: any) {
         },
         navigation
     } = props;
+    let richText = useRef(null);
     const [visible, setVisible] = useState(false);
+    const [visibleCommentModal, setVisibleCommentModal] = useState(false);
     const [emoji, setEmoji] = useState('🤔');
 
     const toggleOverlay = () => {
         setVisible(!visible);
+    };
+
+    const toggleCommentOverlay = () => {
+        setVisibleCommentModal(!visibleCommentModal);
     };
 
     const renderItem = ({ item }: any) => (
@@ -117,7 +126,7 @@ export default function NewsViewScreen(props: any) {
             </TouchableOpacity>
             <View style={{ paddingLeft: 36, flexDirection: 'row' }}>
                 <Text style={{ fontSize: 18 }}>{emoji}2</Text>
-                <TouchableOpacity onPress={() => console.log('reason')}>
+                <TouchableOpacity onPress={() => toggleCommentOverlay()}>
                     <Icon
                         name='comment-dots'
                         type='font-awesome-5'
@@ -134,20 +143,20 @@ export default function NewsViewScreen(props: any) {
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={commonStyle.pageContainer}>
                     <View style={{ flex: 1, padding: 10 }}>
-                    <Text style={commonStyle.logoText}>INSPECT</Text>
-                    <View style={{ justifyContent: 'space-between', flexDirection: 'row', paddingBottom: 10, alignItems: 'center' }}>
-                        <Avatar title={data.name[0]} source={data.avatar_url ? { uri: data.avatar_url } : undefined} />
-                        <Text style={{ fontSize: 18, flex: 1, paddingHorizontal: 10, textAlign: 'center' }}>{data.name}</Text>
-                        <Avatar title={data.name[0]} source={data.site_link ? { uri: data.site_link } : undefined} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
-                    </View>
-                    <FlatList
-                        data={list}
-                        renderItem={renderItem}
-                        style={{ flex: 1, width: '100%' }}
-                    />
+                        <Text style={commonStyle.logoText}>INSPECT</Text>
+                        <View style={{ justifyContent: 'space-between', flexDirection: 'row', paddingBottom: 10, alignItems: 'center' }}>
+                            <Avatar title={data.name[0]} source={data.avatar_url ? { uri: data.avatar_url } : undefined} />
+                            <Text style={{ fontSize: 18, flex: 1, paddingHorizontal: 10, textAlign: 'center' }}>{data.name}</Text>
+                            <Avatar title={data.name[0]} source={data.site_link ? { uri: data.site_link } : undefined} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
+                        </View>
+                        <FlatList
+                            data={list}
+                            renderItem={renderItem}
+                            style={{ flex: 1, width: '100%' }}
+                        />
                     </View>
                     <BottomToolbar {...props} />
-                    <Overlay isVisible={visible} onBackdropPress={toggleOverlay} style={{ width: '100%', height: '100%' }}>
+                    <Overlay isVisible={visible} onBackdropPress={toggleOverlay} fullScreen={true}>
                         <EmojiSelector
                             onEmojiSelected={emoji => { setEmoji(emoji); setVisible(false); console.log(emoji) }}
                             showSearchBar={false}
@@ -156,6 +165,36 @@ export default function NewsViewScreen(props: any) {
                             showSectionTitles={true}
                             category={Categories.all}
                         />
+                    </Overlay>
+
+                    <Overlay isVisible={visibleCommentModal} onBackdropPress={toggleCommentOverlay} overlayStyle={{ height: 200 }}>
+                        <SafeAreaView>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Text>Feedback:</Text>
+                                <TouchableOpacity onPress={() => console.log('put Feedback')} style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, padding: 2, borderRadius: 3, paddingRight: 10, borderColor: 'grey' }}>
+                                    <Icon
+                                        name='save'
+                                        type='font-awesome-5'
+                                        color='#ccc'
+                                        style={{ paddingHorizontal: 10 }}
+                                        tvParallaxProperties={undefined} />
+                                    <Text style={{ color: 'grey', fontWeight: 'bold' }}>Save</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+                                <RichEditor
+                                    ref={richText}
+                                    onChange={descriptionText => {
+                                        console.log("descriptionText:", descriptionText);
+                                    }}
+                                />
+                            </KeyboardAvoidingView>
+                            <RichToolbar
+                                editor={richText}
+                                actions={[actions.setBold, actions.setItalic, actions.setUnderline, actions.insertBulletsList, actions.insertOrderedList, actions.insertLink, actions.heading1]}
+                                iconMap={{ [actions.heading1]: ({ tintColor }) => (<Text style={[{ color: tintColor }]}>H1</Text>), }}
+                            />
+                        </SafeAreaView>
                     </Overlay>
                 </View>
             </TouchableWithoutFeedback>

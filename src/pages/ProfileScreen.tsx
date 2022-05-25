@@ -89,10 +89,10 @@ export default function ProfileScreen(props: any) {
                                     />
                                 }
                                 buttonStyle={{ marginHorizontal: 10, backgroundColor: '#DD4A48' }}
+                                onPress={() => navigation.navigate('Home')}
                             />
                         </View>
                     </View>
-                    <BottomToolbar {...props} />
                 </View>
             </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
