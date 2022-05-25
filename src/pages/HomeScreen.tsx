@@ -3,6 +3,7 @@ import React from "react";
 import commonStyle from "../styles/CommonStyle";
 import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList } from "react-native";
 import { ListItem, Avatar } from "react-native-elements";
+import BottomToolbar from "../components/BottomToolbar";
 const list = [
     {
         name: 'The super rich often pay < 1% in taxes',
@@ -89,7 +90,8 @@ const list = [
         subtitle: 'Vice Chairman'
     },
 ];
-export default function HomeScreen({ navigation }: any) {
+export default function HomeScreen(props: any) {
+    const { navigation } = props;
     const renderItem = ({ item }: any) => (
         <ListItem
             bottomDivider
@@ -110,12 +112,15 @@ export default function HomeScreen({ navigation }: any) {
         <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={commonStyle.pageContainer}>
-                    <Text style={commonStyle.logoText}>INSPECT</Text>
-                    <FlatList
-                        data={list}
-                        renderItem={renderItem}
-                        style={{ flex: 1, width: '100%' }}
-                    />
+                    <View style={{ flex: 1, padding: 10 }}>
+                        <Text style={commonStyle.logoText}>INSPECT</Text>
+                        <FlatList
+                            data={list}
+                            renderItem={renderItem}
+                            style={{ flex: 1, width: '100%' }}
+                        />
+                    </View>
+                    <BottomToolbar {...props} />
                 </View>
             </TouchableWithoutFeedback>
         </KeyboardAvoidingView>

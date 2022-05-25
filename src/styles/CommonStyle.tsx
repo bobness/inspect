@@ -11,7 +11,6 @@ const styles = StyleSheet.create({
   pageContainer: {
     flex: 1,
     width: '100%',
-    padding: 10
   },
   logoText: {
     fontSize: 40,

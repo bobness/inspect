@@ -4,6 +4,7 @@ import commonStyle from "../styles/CommonStyle";
 import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList, TouchableOpacity } from "react-native";
 import { Avatar, Overlay, Icon } from "react-native-elements";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
+import BottomToolbar from "../components/BottomToolbar";
 const list = [
     {
         name: 'The super rich often pay < 1% in taxes',
@@ -132,6 +133,7 @@ export default function NewsViewScreen(props: any) {
         <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={commonStyle.pageContainer}>
+                    <View style={{ flex: 1, padding: 10 }}>
                     <Text style={commonStyle.logoText}>INSPECT</Text>
                     <View style={{ justifyContent: 'space-between', flexDirection: 'row', paddingBottom: 10, alignItems: 'center' }}>
                         <Avatar title={data.name[0]} source={data.avatar_url ? { uri: data.avatar_url } : undefined} />
@@ -143,7 +145,8 @@ export default function NewsViewScreen(props: any) {
                         renderItem={renderItem}
                         style={{ flex: 1, width: '100%' }}
                     />
-
+                    </View>
+                    <BottomToolbar {...props} />
                     <Overlay isVisible={visible} onBackdropPress={toggleOverlay} style={{ width: '100%', height: '100%' }}>
                         <EmojiSelector
                             onEmojiSelected={emoji => { setEmoji(emoji); setVisible(false); console.log(emoji) }}

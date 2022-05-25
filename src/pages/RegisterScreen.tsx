@@ -12,7 +12,7 @@ export default function RegisterScreen({ navigation }: any) {
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={styles.registerScreenContainer}>
                     <View style={styles.registerFormView}>
-                        <Text style={styles.logoText}>INSPECTION</Text>
+                        <Text style={styles.logoText}>INSPECT</Text>
                         <TextInput placeholder="Username" placeholderTextColor="#c4c3cb" style={styles.registerFormTextInput} />
                         <TextInput placeholder="Email" placeholderTextColor="#c4c3cb" style={styles.registerFormTextInput} />
                         <TextInput placeholder="Password" placeholderTextColor="#c4c3cb" style={styles.registerFormTextInput} secureTextEntry={true} />

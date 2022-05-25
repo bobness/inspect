@@ -32,7 +32,7 @@ export default function LoginScreen({ navigation }: any) {
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={styles.loginScreenContainer}>
                     <View style={styles.loginFormView}>
-                        <Text style={styles.logoText}>INSPECTION</Text>
+                        <Text style={styles.logoText}>INSPECT</Text>
                         <TextInput placeholder="Username" placeholderTextColor="#c4c3cb" style={styles.loginFormTextInput} />
                         <TextInput placeholder="Password" placeholderTextColor="#c4c3cb" style={styles.loginFormTextInput} secureTextEntry={true} />
                         <Button buttonStyle={styles.loginButton} onPress={() => onLoginPress()} title="Login" />

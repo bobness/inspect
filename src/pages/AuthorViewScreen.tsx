@@ -3,6 +3,7 @@ import React from "react";
 import commonStyle from "../styles/CommonStyle";
 import { Text, View, FlatList, ScrollView } from "react-native";
 import { ListItem, Avatar, Button, Image, Icon } from "react-native-elements";
+import BottomToolbar from "../components/BottomToolbar";
 const list = [
     {
         name: 'The super rich often pay < 1% in taxes',
@@ -89,7 +90,8 @@ const list = [
         subtitle: 'Vice Chairman'
     },
 ];
-export default function AuthorViewScreen({ navigation }: any) {
+export default function AuthorViewScreen(props: any) {
+    const { navigation } = props;
     const renderItem = ({ item }: any) => (
         <ListItem
             bottomDivider
@@ -108,38 +110,41 @@ export default function AuthorViewScreen({ navigation }: any) {
 
     return (
         <View style={commonStyle.pageContainer}>
-            <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
-                <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 10 }}>
-                    <Avatar title={'Bob'} source={{ uri: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg' }} />
-                    <Text style={{ paddingLeft: 10, fontSize: 18 }}>Bob</Text>
+            <View style={{ flex: 1, padding: 10 }}>
+                <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
+                    <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 10 }}>
+                        <Avatar title={'Bob'} source={{ uri: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg' }} />
+                        <Text style={{ paddingLeft: 10, fontSize: 18 }}>Bob</Text>
+                    </View>
+                    <Button
+                        title="Follow"
+                        buttonStyle={{ backgroundColor: '#6AA84F' }}
+                    />
                 </View>
-                <Button
-                    title="Follow"
-                    buttonStyle={{ backgroundColor: '#6AA84F' }}
+                <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
+                    <Text style={{ fontSize: 16, fontWeight: '700' }}>Trusted sources: </Text>
+                    <ScrollView contentContainerStyle={{ flexDirection: 'row', }}>
+                        <Image
+                            source={{ uri: 'https://www.logodesign.net/logo/eye-and-house-5806ld.png' }}
+                            style={{ width: 30, height: 30, borderWidth: 2, borderColor: '#6AA84F', marginHorizontal: 2 }}
+                        />
+                        <Image
+                            source={{ uri: 'https://www.logodesign.net/logo/eye-and-house-5806ld.png' }}
+                            style={{ width: 30, height: 30, borderWidth: 2, borderColor: '#6AA84F', marginHorizontal: 2 }}
+                        />
+                        <Image
+                            source={{ uri: 'https://www.logodesign.net/logo/eye-and-house-5806ld.png' }}
+                            style={{ width: 30, height: 30, borderWidth: 2, borderColor: '#6AA84F', marginHorizontal: 2 }}
+                        />
+                    </ScrollView>
+                </View>
+                <FlatList
+                    data={list}
+                    renderItem={renderItem}
+                    style={{ flex: 1, width: '100%' }}
                 />
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
-                <Text style={{ fontSize: 16, fontWeight: '700' }}>Trusted sources: </Text>
-                <ScrollView contentContainerStyle={{ flexDirection: 'row', }}>
-                    <Image
-                        source={{ uri: 'https://www.logodesign.net/logo/eye-and-house-5806ld.png' }}
-                        style={{ width: 30, height: 30, borderWidth: 2, borderColor: '#6AA84F', marginHorizontal: 2 }}
-                    />
-                    <Image
-                        source={{ uri: 'https://www.logodesign.net/logo/eye-and-house-5806ld.png' }}
-                        style={{ width: 30, height: 30, borderWidth: 2, borderColor: '#6AA84F', marginHorizontal: 2 }}
-                    />
-                    <Image
-                        source={{ uri: 'https://www.logodesign.net/logo/eye-and-house-5806ld.png' }}
-                        style={{ width: 30, height: 30, borderWidth: 2, borderColor: '#6AA84F', marginHorizontal: 2 }}
-                    />
-                </ScrollView>
-            </View>
-            <FlatList
-                data={list}
-                renderItem={renderItem}
-                style={{ flex: 1, width: '100%' }}
-            />
+            <BottomToolbar {...props} />
         </View>
     );
 }

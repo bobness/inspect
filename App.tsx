@@ -8,6 +8,7 @@ import HomeScreen from './src/pages/HomeScreen';
 import NewsViewScreen from './src/pages/NewsViewScreen';
 import AuthorViewScreen from './src/pages/AuthorViewScreen';
 import AuthorNewsViewScreen from './src/pages/AuthorNewsViewScreen';
+import ProfileScreen from './src/pages/ProfileScreen';
 
 const Stack: any = createNativeStackNavigator();
 
@@ -21,6 +22,7 @@ export default function App() {
         <Stack.Screen name="NewsView" component={NewsViewScreen} options={{ headerShown: false }} />
         <Stack.Screen name="AuthorView" component={AuthorViewScreen} options={{ headerShown: false }} />
         <Stack.Screen name="AuthorNewsView" component={AuthorNewsViewScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: true }} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

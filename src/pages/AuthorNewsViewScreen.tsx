@@ -4,6 +4,7 @@ import commonStyle from "../styles/CommonStyle";
 import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList, TouchableOpacity, Image } from "react-native";
 import { Avatar, Overlay, Icon, Button, } from "react-native-elements";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
+import BottomToolbar from "../components/BottomToolbar";
 const list = [
     {
         name: 'The super rich often pay < 1% in taxes',
@@ -132,31 +133,35 @@ export default function AuthorNewsViewScreen(props: any) {
         <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={commonStyle.pageContainer}>
-                    <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
-                        <Icon type="font-awesome" name="file" tvParallaxProperties={undefined} />
-                        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 10 }}>
-                            <Avatar title={'Bob'} source={{ uri: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg' }} />
-                            <Text style={{ paddingLeft: 10, fontSize: 18 }}>Bob</Text>
+
+                    <View style={{ flex: 1, padding: 10 }}>
+                        <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
+                            <Icon type="font-awesome" name="file" tvParallaxProperties={undefined} />
+                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 10 }}>
+                                <Avatar title={'Bob'} source={{ uri: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg' }} />
+                                <Text style={{ paddingLeft: 10, fontSize: 18 }}>Bob</Text>
+                            </View>
+                            <Button
+                                title="Follow"
+                                buttonStyle={{ backgroundColor: '#6AA84F' }}
+                            />
                         </View>
-                        <Button
-                            title="Follow"
-                            buttonStyle={{ backgroundColor: '#6AA84F' }}
+                        <View style={{ alignItems: 'center', padding: 10 }}>
+                            <Image
+                                source={{ uri: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg' }}
+                                style={{ height: 40, width: 80, }}
+                                resizeMode={'contain'} />
+                        </View>
+                        <View style={{ justifyContent: 'space-between', flexDirection: 'row', paddingBottom: 10, alignItems: 'center' }}>
+                            <Text style={{ fontSize: 18, flex: 1, paddingHorizontal: 10, textAlign: 'center' }}>{data.name}</Text>
+                        </View>
+                        <FlatList
+                            data={list}
+                            renderItem={renderItem}
+                            style={{ flex: 1, width: '100%' }}
                         />
                     </View>
-                    <View style={{ alignItems: 'center', padding: 10 }}>
-                        <Image
-                            source={{ uri: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg' }}
-                            style={{ height: 40, width: 80, }}
-                            resizeMode={'contain'} />
-                    </View>
-                    <View style={{ justifyContent: 'space-between', flexDirection: 'row', paddingBottom: 10, alignItems: 'center' }}>
-                        <Text style={{ fontSize: 18, flex: 1, paddingHorizontal: 10, textAlign: 'center' }}>{data.name}</Text>
-                    </View>
-                    <FlatList
-                        data={list}
-                        renderItem={renderItem}
-                        style={{ flex: 1, width: '100%' }}
-                    />
+                    <BottomToolbar {...props} />
 
                     <Overlay isVisible={visible} onBackdropPress={toggleOverlay} style={{ width: '100%', height: '100%' }}>
                         <EmojiSelector
