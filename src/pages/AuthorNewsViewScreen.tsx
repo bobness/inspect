@@ -111,7 +111,7 @@ export default function AuthorNewsViewScreen(props: any) {
         <View>
             <TouchableOpacity onPress={() => setVisible(!visible)}>
                 <View style={{ flexDirection: 'row', paddingVertical: 5, }}>
-                    <Text style={{ paddingRight: 10, fontSize: 20 }}>{emoji}</Text>
+                    <Text style={{ paddingRight: 10, fontSize: 20 }}>🤔</Text>
                     <Text>In 2007, Jeff Bezos, then a multibillionaire and now the world's richest man, did not pay a penny in federal income taxes.</Text>
                 </View>
             </TouchableOpacity>
