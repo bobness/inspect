@@ -109,7 +109,7 @@ export default function ProfileScreen(props: any) {
                             style={{ marginRight: 5 }}
                         />
                     }
-                    onPress={() => navigation.navigate('Home')}
+                    onPress={() => navigation.goBack()}
                     containerStyle={{ justifyContent: 'center', alignItems: 'center' }}
                 />
             ),
@@ -136,10 +136,10 @@ export default function ProfileScreen(props: any) {
         <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={commonStyle.pageContainer}>
-                    <Tab value={tabIndex} onChange={setTabIndex}>
-                        <Tab.Item title="Info" />
-                        <Tab.Item title="Articles" />
-                        <Tab.Item title="Follow" />
+                    <Tab value={tabIndex} onChange={setTabIndex} indicatorStyle={{ backgroundColor: 'green' }}>
+                        <Tab.Item title="Info" titleStyle={{ color: 'black' }} />
+                        <Tab.Item title="Articles" titleStyle={{ color: 'black' }} />
+                        <Tab.Item title="Follow" titleStyle={{ color: 'black' }} />
                     </Tab>
                     <TabView value={tabIndex} onChange={setTabIndex}>
                         <TabView.Item style={{ width: '100%' }}>
@@ -200,7 +200,7 @@ export default function ProfileScreen(props: any) {
                                             />
                                         }
                                         buttonStyle={{ marginHorizontal: 10, backgroundColor: '#DD4A48' }}
-                                        onPress={() => navigation.navigate('Home')}
+                                        onPress={() => navigation.goBack()}
                                     />
                                 </View>
                             </View>

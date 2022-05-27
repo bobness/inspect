@@ -1,7 +1,7 @@
 import React from "react";
 
 import commonStyle from "../styles/CommonStyle";
-import { Text, View, FlatList, ScrollView } from "react-native";
+import { Text, View, FlatList, ScrollView, TouchableOpacity } from "react-native";
 import { ListItem, Avatar, Button, Image, Icon } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
 const list = [
@@ -112,6 +112,11 @@ export default function AuthorViewScreen(props: any) {
         <View style={commonStyle.pageContainer}>
             <View style={{ flex: 1, padding: 10 }}>
                 <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
+                    <View>
+                        <TouchableOpacity onPress={() => { navigation.goBack() }}>
+                            <Icon type="material" name="chevron-left" tvParallaxProperties={undefined} />
+                        </TouchableOpacity>
+                    </View>
                     <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 10 }}>
                         <Avatar title={'Bob'} source={{ uri: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg' }} />
                         <Text style={{ paddingLeft: 10, fontSize: 18 }}>Bob</Text>

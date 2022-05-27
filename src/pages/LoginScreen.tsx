@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 
 import styles from "../styles/LoginStyle";
 import { Alert, Keyboard, KeyboardAvoidingView, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
@@ -8,7 +8,27 @@ import * as Facebook from "expo-facebook";
 const appId = "1047121222092614";
 
 export default function LoginScreen({ navigation }: any) {
-    const onLoginPress = () => { navigation.navigate('Home') };
+    const usernameRef: any = useRef(null);
+    const passwordRef: any = useRef(null);
+    const [username, setUserName] = useState('');
+    const [password, setPassword] = useState('');
+    const onLoginPress = () => {
+        if (!username) {
+            Alert.alert('Username is required.');
+            usernameRef.current.focus();
+            return;
+        }
+        if (!password) {
+            Alert.alert('Password is required.');
+            passwordRef.current.focus();
+            return;
+        }
+        const postData = {
+            username,
+            password,
+        };
+        navigation.navigate('Home');
+    };
 
     const onFbLoginPress = async () => {
         try {
@@ -33,8 +53,23 @@ export default function LoginScreen({ navigation }: any) {
                 <View style={styles.loginScreenContainer}>
                     <View style={styles.loginFormView}>
                         <Text style={styles.logoText}>INSPECT</Text>
-                        <TextInput placeholder="Username" placeholderTextColor="#c4c3cb" style={styles.loginFormTextInput} />
-                        <TextInput placeholder="Password" placeholderTextColor="#c4c3cb" style={styles.loginFormTextInput} secureTextEntry={true} />
+                        <TextInput
+                            ref={usernameRef}
+                            placeholder="Username"
+                            placeholderTextColor="#c4c3cb"
+                            style={styles.loginFormTextInput}
+                            value={username}
+                            onChangeText={(value: string) => setUserName(value)}
+                        />
+                        <TextInput
+                            ref={passwordRef}
+                            placeholder="Password"
+                            placeholderTextColor="#c4c3cb"
+                            style={styles.loginFormTextInput}
+                            secureTextEntry={true}
+                            value={password}
+                            onChangeText={(value: string) => setPassword(value)}
+                        />
                         <Button buttonStyle={styles.loginButton} onPress={() => onLoginPress()} title="Login" />
                         <View style={[{ marginTop: 10, alignItems: 'center', }]}>
                             <Text style={{ color: '#c4c3cb', fontSize: 16, fontWeight: '700' }}>Login with</Text>

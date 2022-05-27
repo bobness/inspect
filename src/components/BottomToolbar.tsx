@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TouchableOpacity, FlatList, Text, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, FlatList, Text, ActivityIndicator, Alert } from 'react-native';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Overlay, SearchBar, ListItem, Avatar } from 'react-native-elements';
@@ -111,6 +111,32 @@ export default function BottomToolbar({ navigation }: any) {
     const [keyword, setKeyword] = useState('');
     const [searchData, setSearchData] = useState(list);
 
+    const confirmLogout = () => {
+        Alert.alert(
+            "Confirm Logout",
+            "Are you sure you want to Logout?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel",
+                },
+                {
+                    text: "Logout",
+                    onPress: () => {
+                        navigation.navigate('Login');
+                    },
+                },
+            ],
+            {
+                cancelable: true,
+                onDismiss: () =>
+                    Alert.alert(
+                        "This alert was dismissed by tapping outside of the alert dialog."
+                    ),
+            }
+        );
+    }
+
     const toggleOverlay = () => {
         if (!visible) {
             setTimeout(() => {
@@ -124,7 +150,7 @@ export default function BottomToolbar({ navigation }: any) {
 
     const updateSearch: any = (word: string) => {
         setKeyword(word);
-        if(word) {
+        if (word) {
             setSearchData(list.filter(item => item.name.indexOf(word) > -1 || item.site_link.indexOf(word) > -1))
         } else {
             setSearchData(list);
@@ -139,6 +165,7 @@ export default function BottomToolbar({ navigation }: any) {
             tvParallaxProperties={undefined}
             style={{ flex: 1, width: '100%' }}
             onPress={() => {
+                setVisible(false);
                 if (item.type === 'news') {
                     navigation.navigate('NewsView', { data: item })
                 } else if (item.type === 'profile') {
@@ -169,7 +196,20 @@ export default function BottomToolbar({ navigation }: any) {
     );
 
     return (
-        <View style={{ backgroundColor: 'white', height: 50, flexDirection: 'row' }}>
+        <View style={{ backgroundColor: 'white', height: 60, flexDirection: 'row' }}>
+            <TouchableOpacity
+                style={{
+                    height: 60,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flex: 1,
+                }}
+                onPress={() => {
+                    navigation.navigate('Home')
+                }}
+            >
+                <FontAwesomeIcon name="home" size={20} color="black" />
+            </TouchableOpacity>
             <TouchableOpacity
                 style={{
                     height: 60,
@@ -186,7 +226,6 @@ export default function BottomToolbar({ navigation }: any) {
             <TouchableOpacity
                 style={{
                     height: 60,
-                    backgroundColor: '#238636',
                     justifyContent: 'center',
                     alignItems: 'center',
                     flex: 1,
@@ -195,7 +234,20 @@ export default function BottomToolbar({ navigation }: any) {
                     navigation.navigate('Profile');
                 }}
             >
-                <FontAwesomeIcon name="user" size={20} color="white" />
+                <FontAwesomeIcon name="user" size={20} color="black" />
+            </TouchableOpacity>
+            <TouchableOpacity
+                style={{
+                    height: 60,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flex: 1,
+                }}
+                onPress={() => {
+                    confirmLogout();
+                }}
+            >
+                <FontAwesomeIcon name="sign-out" size={20} color="black" />
             </TouchableOpacity>
 
             <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>

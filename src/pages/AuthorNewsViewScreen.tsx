@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { ComponentProps, Props, useState } from "react";
 
 import commonStyle from "../styles/CommonStyle";
 import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList, TouchableOpacity, Image } from "react-native";
 import { Avatar, Overlay, Icon, Button, } from "react-native-elements";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
-import BottomToolbar from "../components/BottomToolbar";
+import { BottomToolbar, BottomAction } from "../components";
+
 const list = [
     {
         name: 'The super rich often pay < 1% in taxes',
@@ -91,7 +92,7 @@ const list = [
         subtitle: 'Vice Chairman'
     },
 ];
-export default function AuthorNewsViewScreen(props: any) {
+export default function AuthorNewsViewScreen(props: ComponentProps<any>) {
     const {
         route: {
             params: {
@@ -105,6 +106,10 @@ export default function AuthorNewsViewScreen(props: any) {
 
     const toggleOverlay = () => {
         setVisible(!visible);
+    };
+
+    const getContent = () => {
+        return `In 2007, Jeff Bezos, then a multibillionaire and now the world's richest man, did not pay a penny in federal income taxes.`;
     };
 
     const renderItem = ({ item }: any) => (
@@ -136,7 +141,12 @@ export default function AuthorNewsViewScreen(props: any) {
 
                     <View style={{ flex: 1, padding: 10 }}>
                         <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
-                            <Icon type="font-awesome" name="file" tvParallaxProperties={undefined} />
+                            <View style={{ flexDirection: 'row' }}>
+                                <TouchableOpacity onPress={() => { navigation.goBack() }} style={{ marginRight: 10 }}>
+                                    <Icon type="material" name="chevron-left" tvParallaxProperties={undefined} />
+                                </TouchableOpacity>
+                                <Icon type="font-awesome" name="file" tvParallaxProperties={undefined} />
+                            </View>
                             <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 10 }}>
                                 <Avatar title={'Bob'} source={{ uri: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg' }} />
                                 <Text style={{ paddingLeft: 10, fontSize: 18 }}>Bob</Text>
@@ -160,6 +170,7 @@ export default function AuthorNewsViewScreen(props: any) {
                             renderItem={renderItem}
                             style={{ flex: 1, width: '100%' }}
                         />
+                        <BottomAction title={data.name} content={getContent()} url={data.site_link} />
                     </View>
                     <BottomToolbar {...props} />
 

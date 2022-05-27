@@ -6,6 +6,7 @@ import { Avatar, Overlay, Icon } from "react-native-elements";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import BottomToolbar from "../components/BottomToolbar";
 import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
+import BottomAction from "../components/BottomAction";
 
 const list = [
     {
@@ -116,6 +117,10 @@ export default function NewsViewScreen(props: any) {
         setVisibleCommentModal(!visibleCommentModal);
     };
 
+    const getContent = () => {
+        return `In 2007, Jeff Bezos, then a multibillionaire and now the world's richest man, did not pay a penny in federal income taxes.`;
+    };
+
     const renderItem = ({ item }: any) => (
         <View>
             <TouchableOpacity onPress={() => setVisible(!visible)}>
@@ -138,12 +143,22 @@ export default function NewsViewScreen(props: any) {
         </View>
     );
 
+    React.useLayoutEffect(() => {
+        navigation.setOptions({
+            headerLeft: () => (
+                <TouchableOpacity onPress={() => { navigation.goBack() }}>
+                    <Icon type="material" name="chevron-left" tvParallaxProperties={undefined} />
+                </TouchableOpacity>
+            ),
+            title: 'INSPECT'
+        });
+    }, [navigation]);
+
     return (
         <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={commonStyle.pageContainer}>
                     <View style={{ flex: 1, padding: 10 }}>
-                        <Text style={commonStyle.logoText}>INSPECT</Text>
                         <View style={{ justifyContent: 'space-between', flexDirection: 'row', paddingBottom: 10, alignItems: 'center' }}>
                             <Avatar title={data.name[0]} source={data.avatar_url ? { uri: data.avatar_url } : undefined} />
                             <Text style={{ fontSize: 18, flex: 1, paddingHorizontal: 10, textAlign: 'center' }}>{data.name}</Text>
@@ -154,6 +169,7 @@ export default function NewsViewScreen(props: any) {
                             renderItem={renderItem}
                             style={{ flex: 1, width: '100%' }}
                         />
+                        <BottomAction title={data.name} content={getContent()} url={data.site_link} />
                     </View>
                     <BottomToolbar {...props} />
                     <Overlay isVisible={visible} onBackdropPress={toggleOverlay} fullScreen={true}>

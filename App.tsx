@@ -19,7 +19,7 @@ export default function App() {
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="NewsView" component={NewsViewScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="NewsView" component={NewsViewScreen} options={{ headerShown: true }} />
         <Stack.Screen name="AuthorView" component={AuthorViewScreen} options={{ headerShown: false }} />
         <Stack.Screen name="AuthorNewsView" component={AuthorNewsViewScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: true }} />
