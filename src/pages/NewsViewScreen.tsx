@@ -121,12 +121,17 @@ export default function NewsViewScreen(props: any) {
         return `In 2007, Jeff Bezos, then a multibillionaire and now the world's richest man, did not pay a penny in federal income taxes.`;
     };
 
+    const handleSaveFeedback = () => {
+        console.log('put Feedback');
+        toggleCommentOverlay();
+    }
+
     const renderItem = ({ item }: any) => (
         <View>
             <TouchableOpacity onPress={() => setVisible(!visible)}>
                 <View style={{ flexDirection: 'row', paddingVertical: 5, }}>
                     <Text style={{ paddingRight: 10, fontSize: 20 }}>{emoji}</Text>
-                    <Text>In 2007, Jeff Bezos, then a multibillionaire and now the world's richest man, did not pay a penny in federal income taxes.</Text>
+                    <Text>{getContent()}</Text>
                 </View>
             </TouchableOpacity>
             <View style={{ paddingLeft: 36, flexDirection: 'row' }}>
@@ -187,7 +192,7 @@ export default function NewsViewScreen(props: any) {
                         <SafeAreaView>
                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Text>Feedback:</Text>
-                                <TouchableOpacity onPress={() => console.log('put Feedback')} style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, padding: 2, borderRadius: 3, paddingRight: 10, borderColor: 'grey' }}>
+                                <TouchableOpacity onPress={handleSaveFeedback} style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, padding: 2, borderRadius: 3, paddingRight: 10, borderColor: 'grey' }}>
                                     <Icon
                                         name='save'
                                         type='font-awesome-5'
