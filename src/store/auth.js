@@ -13,11 +13,11 @@ const userLogout = () => {
 };
 
 const getAuthUser = () => {
-    return instance.get('/auth').then(res => res.data);
+    return instance.get('/users').then(res => res.data);
 };
 
 const getProfileInformation = (userId) => {
-    return instance.get('/user/' + userId).then(res => res.data);
+    return instance.get('/users/' + userId).then(res => res.data);
 };
 
 export {

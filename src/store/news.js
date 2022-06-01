@@ -1,7 +1,7 @@
 import { instance } from "./api";
 
 const getAllNews = () => {
-    return instance.get('/news').then(res => res.data);
+    return instance.get('/summaries').then(res => res.data);
 };
 
 const searchInformation = (keyword) => {
@@ -9,19 +9,15 @@ const searchInformation = (keyword) => {
 };
 
 const getNewsById = (newsId) => {
-    return instance.get('/news/' + newsId).then(res => res.data);
+    return instance.get('/summaries/' + newsId).then(res => res.data);
 };
 
 const postComment = (newsId, commentData) => {
     return instance.post('/comments/' + newsId, commentData);
 };
 
-const getAllComments = (newsId) => {
-    return instance.get('/comments/' + newsId).then(res => res.data);
-};
-
 const addReaction = (newsId, reaction) => {
-    return instance.post('/news/' + newsId + '/reaction', { reaction });
+    return instance.post('/reactions/' + newsId, { reaction });
 };
 
 export {

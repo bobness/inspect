@@ -1,5 +1,5 @@
 import axios from 'axios';
-const baseUrl = 'https://api.inspection.com';
+const baseUrl = 'https://api.inspect.com';
 
 const instance = axios.create({ baseURL: baseUrl });
 
