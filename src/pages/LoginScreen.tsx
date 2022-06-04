@@ -4,12 +4,15 @@ import styles from "../styles/LoginStyle";
 import { Alert, Keyboard, KeyboardAvoidingView, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import { Button, SocialIcon } from "react-native-elements";
 import * as Facebook from "expo-facebook";
+import { userLogin } from "../store/auth";
+import { setToken } from "../store/api";
 
 const appId = "1047121222092614";
 
 export default function LoginScreen({ navigation }: any) {
     const usernameRef: any = useRef(null);
     const passwordRef: any = useRef(null);
+    const [loading, setLoading] = useState(false);
     const [username, setUserName] = useState('');
     const [password, setPassword] = useState('');
     const onLoginPress = () => {
@@ -27,7 +30,18 @@ export default function LoginScreen({ navigation }: any) {
             username,
             password,
         };
-        navigation.navigate('Home');
+        setLoading(true);
+        userLogin(postData).then(res => {
+            setLoading(false);
+            if (res.code !== 200) {
+                Alert.alert(res.message);
+                return;
+            }
+            localStorage.setItem('access_token', res.token);
+            localStorage.setItem('user', JSON.stringify(res));
+            setToken(res.token);
+            navigation.navigate('Home');
+        });
     };
 
     const onFbLoginPress = async () => {
@@ -60,6 +74,7 @@ export default function LoginScreen({ navigation }: any) {
                             style={styles.loginFormTextInput}
                             value={username}
                             onChangeText={(value: string) => setUserName(value)}
+                            editable={!loading}
                         />
                         <TextInput
                             ref={passwordRef}
@@ -69,22 +84,23 @@ export default function LoginScreen({ navigation }: any) {
                             secureTextEntry={true}
                             value={password}
                             onChangeText={(value: string) => setPassword(value)}
+                            editable={!loading}
                         />
-                        <Button buttonStyle={styles.loginButton} onPress={() => onLoginPress()} title="Login" />
+                        <Button buttonStyle={styles.loginButton} onPress={() => onLoginPress()} title="Login" disabled={loading} />
                         <View style={[{ marginTop: 10, alignItems: 'center', }]}>
                             <Text style={{ color: '#c4c3cb', fontSize: 16, fontWeight: '700' }}>Login with</Text>
                             <View style={styles.row}>
-                                <TouchableOpacity onPress={onFbLoginPress}>
+                                <TouchableOpacity onPress={onFbLoginPress} disabled={loading}>
                                     <SocialIcon
                                         type='facebook'
                                     />
                                 </TouchableOpacity>
-                                <TouchableOpacity>
+                                <TouchableOpacity disabled={loading}>
                                     <SocialIcon
                                         type='google'
                                     />
                                 </TouchableOpacity>
-                                <TouchableOpacity>
+                                <TouchableOpacity disabled={loading}>
                                     <SocialIcon
                                         type='linkedin'
                                     />
@@ -94,7 +110,7 @@ export default function LoginScreen({ navigation }: any) {
                         <View style={[{ marginTop: 10, alignItems: 'center', }]}>
                             <Text style={{ color: '#c4c3cb', fontSize: 16, fontWeight: '700' }}> - OR - </Text>
                             <View style={styles.row}>
-                                <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                                <TouchableOpacity onPress={() => navigation.navigate('Register')} disabled={loading}>
                                     <Text>Signup with manually</Text>
                                 </TouchableOpacity>
                             </View>
