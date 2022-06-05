@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import commonStyle from "../styles/CommonStyle";
 import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Input, Button, Tab, TabView, ListItem, Avatar } from "react-native-elements";
+import { getAuthUser } from "../store/auth";
 
 const list = [
     {
@@ -94,7 +95,14 @@ const list = [
 
 export default function ProfileScreen(props: any) {
     const { navigation } = props;
+    const [profileData, setProfileData] = useState(null);
     const [tabIndex, setTabIndex] = useState(0);
+
+    useEffect(() => {
+        getAuthUser().then(data => {
+            setProfileData(data);
+        });
+    }, []);
 
     React.useLayoutEffect(() => {
         navigation.setOptions({

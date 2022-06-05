@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import commonStyle from "../styles/CommonStyle";
 import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList } from "react-native";
 import { ListItem, Avatar } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
+import { getAllNews } from "../store/news";
 const list = [
     {
         name: 'The super rich often pay < 1% in taxes',
@@ -92,6 +93,14 @@ const list = [
 ];
 export default function HomeScreen(props: any) {
     const { navigation } = props;
+    const [newsData, setNewsData] = useState([]);
+
+    useEffect(() => {
+        getAllNews().then(data => {
+            setNewsData(data);
+        });
+    }, []);
+
     const renderItem = ({ item }: any) => (
         <ListItem
             bottomDivider

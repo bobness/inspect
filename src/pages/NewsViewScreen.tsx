@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import commonStyle from "../styles/CommonStyle";
 import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList, TouchableOpacity, SafeAreaView, ScrollView, Platform } from "react-native";
@@ -7,6 +7,7 @@ import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import BottomToolbar from "../components/BottomToolbar";
 import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
 import BottomAction from "../components/BottomAction";
+import { getNewsById } from "../store/news";
 
 const list = [
     {
@@ -105,9 +106,16 @@ export default function NewsViewScreen(props: any) {
         navigation
     } = props;
     let richText = useRef(null);
+    const [newsData, setNewsData] = useState(null);
     const [visible, setVisible] = useState(false);
     const [visibleCommentModal, setVisibleCommentModal] = useState(false);
     const [emoji, setEmoji] = useState('🤔');
+
+    useEffect(() => {
+        getNewsById(data.id).then(result => {
+            setNewsData(result);
+        });
+    }, [data]);
 
     const toggleOverlay = () => {
         setVisible(!visible);

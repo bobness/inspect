@@ -3,6 +3,7 @@ import { View, TouchableOpacity, FlatList, Text, ActivityIndicator, Alert } from
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Overlay, SearchBar, ListItem, Avatar } from 'react-native-elements';
+import { searchInformation } from "../store/news";
 
 const list = [
     {
@@ -105,6 +106,8 @@ const list = [
     },
 ];
 
+let timeout: any = null;
+
 export default function BottomToolbar({ navigation }: any) {
     const [viewLayout, setViewLayout] = useState(false);
     const [visible, setVisible] = useState(false);
@@ -150,6 +153,12 @@ export default function BottomToolbar({ navigation }: any) {
 
     const updateSearch: any = (word: string) => {
         setKeyword(word);
+        timeout && clearTimeout(timeout);
+        timeout = setTimeout(function() {
+            searchInformation(word).then(data => {
+                setSearchData(data);
+            });
+        }, 300);
         if (word) {
             setSearchData(list.filter(item => item.name.indexOf(word) > -1 || item.site_link.indexOf(word) > -1))
         } else {
