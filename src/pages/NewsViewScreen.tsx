@@ -7,91 +7,91 @@ import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import BottomToolbar from "../components/BottomToolbar";
 import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
 import BottomAction from "../components/BottomAction";
-import { getNewsById } from "../store/news";
+import { getNewsById, postComment } from "../store/news";
 
 const list = [
     {
-        name: 'The super rich often pay < 1% in taxes',
+        title: 'The super rich often pay < 1% in taxes',
         subtitle: 'Vice President',
         avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
-        site_link: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
+        website_logo: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
     },
     {
-        name: 'GOP filibusters Jan 6 commission',
+        title: 'GOP filibusters Jan 6 commission',
         avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
-        site_link: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
+        website_logo: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
         subtitle: 'Vice Chairman'
     },
     {
-        name: 'The super rich often pay < 1% in taxes',
+        title: 'The super rich often pay < 1% in taxes',
         subtitle: 'Vice President',
         avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
-        site_link: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
+        website_logo: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
     },
     {
-        name: 'GOP filibusters Jan 6 commission',
+        title: 'GOP filibusters Jan 6 commission',
         avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
-        site_link: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
+        website_logo: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
         subtitle: 'Vice Chairman'
     },
     {
-        name: 'The super rich often pay < 1% in taxes',
+        title: 'The super rich often pay < 1% in taxes',
         subtitle: 'Vice President',
         avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
-        site_link: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
+        website_logo: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
     },
     {
-        name: 'GOP filibusters Jan 6 commission',
+        title: 'GOP filibusters Jan 6 commission',
         avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
-        site_link: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
+        website_logo: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
         subtitle: 'Vice Chairman'
     },
     {
-        name: 'The super rich often pay < 1% in taxes',
+        title: 'The super rich often pay < 1% in taxes',
         subtitle: 'Vice President',
         avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
-        site_link: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
+        website_logo: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
     },
     {
-        name: 'GOP filibusters Jan 6 commission',
+        title: 'GOP filibusters Jan 6 commission',
         avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
-        site_link: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
+        website_logo: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
         subtitle: 'Vice Chairman'
     },
     {
-        name: 'The super rich often pay < 1% in taxes',
+        title: 'The super rich often pay < 1% in taxes',
         subtitle: 'Vice President',
         avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
-        site_link: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
+        website_logo: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
     },
     {
-        name: 'GOP filibusters Jan 6 commission',
+        title: 'GOP filibusters Jan 6 commission',
         avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
-        site_link: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
+        website_logo: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
         subtitle: 'Vice Chairman'
     },
     {
-        name: 'The super rich often pay < 1% in taxes',
+        title: 'The super rich often pay < 1% in taxes',
         subtitle: 'Vice President',
         avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
-        site_link: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
+        website_logo: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
     },
     {
-        name: 'GOP filibusters Jan 6 commission',
+        title: 'GOP filibusters Jan 6 commission',
         avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
-        site_link: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
+        website_logo: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
         subtitle: 'Vice Chairman'
     },
     {
-        name: 'The super rich often pay < 1% in taxes',
+        title: 'The super rich often pay < 1% in taxes',
         subtitle: 'Vice President',
         avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
-        site_link: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
+        website_logo: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
     },
     {
-        name: 'GOP filibusters Jan 6 commission',
+        title: 'GOP filibusters Jan 6 commission',
         avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
-        site_link: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
+        website_logo: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
         subtitle: 'Vice Chairman'
     },
 ];
@@ -105,8 +105,10 @@ export default function NewsViewScreen(props: any) {
         },
         navigation
     } = props;
-    let richText = useRef(null);
-    const [newsData, setNewsData] = useState(null);
+    let richText: any = useRef(null);
+    const [newsData, setNewsData]: any = useState(null);
+    const [selectedCommentId, selectCommentId]: any = useState(null);
+    const [commentText, setCommentText] = useState('');
     const [visible, setVisible] = useState(false);
     const [visibleCommentModal, setVisibleCommentModal] = useState(false);
     const [emoji, setEmoji] = useState('🤔');
@@ -122,6 +124,10 @@ export default function NewsViewScreen(props: any) {
     };
 
     const toggleCommentOverlay = () => {
+        if(visibleCommentModal) {
+            setCommentText('');
+            selectCommentId(null);
+        }
         setVisibleCommentModal(!visibleCommentModal);
     };
 
@@ -131,7 +137,14 @@ export default function NewsViewScreen(props: any) {
 
     const handleSaveFeedback = () => {
         console.log('put Feedback');
-        toggleCommentOverlay();
+        const commentData = {
+            snippet_id: selectedCommentId,
+            comment: commentText,
+            summary_id: data.id,
+        }
+        postComment(data.id, commentData).then(res => {
+            toggleCommentOverlay();
+        })
     }
 
     const renderItem = ({ item }: any) => (
@@ -139,12 +152,12 @@ export default function NewsViewScreen(props: any) {
             <TouchableOpacity onPress={() => setVisible(!visible)}>
                 <View style={{ flexDirection: 'row', paddingVertical: 5, }}>
                     <Text style={{ paddingRight: 10, fontSize: 20 }}>{emoji}</Text>
-                    <Text>{getContent()}</Text>
+                    <Text>{item.value}</Text>
                 </View>
             </TouchableOpacity>
             <View style={{ paddingLeft: 36, flexDirection: 'row' }}>
                 <Text style={{ fontSize: 18 }}>{emoji}2</Text>
-                <TouchableOpacity onPress={() => toggleCommentOverlay()}>
+                <TouchableOpacity onPress={() => { selectCommentId(item.id); toggleCommentOverlay() }}>
                     <Icon
                         name='comment-dots'
                         type='font-awesome-5'
@@ -173,16 +186,16 @@ export default function NewsViewScreen(props: any) {
                 <View style={commonStyle.pageContainer}>
                     <View style={{ flex: 1, padding: 10 }}>
                         <View style={{ justifyContent: 'space-between', flexDirection: 'row', paddingBottom: 10, alignItems: 'center' }}>
-                            <Avatar title={data.name[0]} source={data.avatar_url ? { uri: data.avatar_url } : undefined} />
-                            <Text style={{ fontSize: 18, flex: 1, paddingHorizontal: 10, textAlign: 'center' }}>{data.name}</Text>
-                            <Avatar title={data.name[0]} source={data.site_link ? { uri: data.site_link } : undefined} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
+                            <Avatar title={newsData.name[0]} source={newsData.avatar_url ? { uri: newsData.avatar_url } : undefined} />
+                            <Text style={{ fontSize: 18, flex: 1, paddingHorizontal: 10, textAlign: 'center' }}>{newsData.title}</Text>
+                            <Avatar title={newsData.name[0]} source={newsData.website_logo ? { uri: newsData.website_logo } : undefined} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
                         </View>
                         <FlatList
-                            data={list}
+                            data={newsData.snippets || []}
                             renderItem={renderItem}
                             style={{ flex: 1, width: '100%' }}
                         />
-                        <BottomAction title={data.name} content={getContent()} url={data.site_link} />
+                        <BottomAction title={newsData.title} content={getContent()} url={newsData.website_logo} />
                     </View>
                     <BottomToolbar {...props} />
                     <Overlay isVisible={visible} onBackdropPress={toggleOverlay} fullScreen={true}>
@@ -214,6 +227,7 @@ export default function NewsViewScreen(props: any) {
                                 <RichEditor
                                     ref={richText}
                                     onChange={descriptionText => {
+                                        setCommentText(descriptionText);
                                         console.log("descriptionText:", descriptionText);
                                     }}
                                 />

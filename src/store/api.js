@@ -1,5 +1,5 @@
 import axios from 'axios';
-const baseUrl = 'https://api.inspect.com';
+const baseUrl = 'http://localhost:5000';
 
 const instance = axios.create({ baseURL: baseUrl });
 

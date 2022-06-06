@@ -50,6 +50,7 @@ export default function RegisterScreen({ navigation }: any) {
             password,
         };
         setLoading(true);
+        console.log(postData);
         userRegister(postData).then(res => {
             setLoading(false);
             if (res.code !== 200) {

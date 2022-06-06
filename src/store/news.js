@@ -9,15 +9,15 @@ const searchInformation = (keyword) => {
 };
 
 const getNewsById = (newsId) => {
-    return instance.get('/summaries/' + newsId).then(res => res.data);
+    return instance.get('/summaries/id/' + newsId).then(res => res.data);
 };
 
 const postComment = (newsId, commentData) => {
-    return instance.post('/comments/' + newsId, commentData);
+    return instance.post('/summaires/comment/' + newsId, commentData);
 };
 
-const addReaction = (newsId, reaction) => {
-    return instance.post('/reactions/' + newsId, { reaction });
+const postReaction = (newsId, reaction) => {
+    return instance.post('/summaries/reaction/' + newsId, { reaction });
 };
 
 export {
@@ -25,6 +25,5 @@ export {
     searchInformation,
     getNewsById,
     postComment,
-    getAllComments,
-    addReaction,
+    postReaction,
 }

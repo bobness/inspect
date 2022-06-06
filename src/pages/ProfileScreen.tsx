@@ -6,96 +6,104 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { Input, Button, Tab, TabView, ListItem, Avatar } from "react-native-elements";
 import { getAuthUser } from "../store/auth";
 
-const list = [
-    {
-        name: 'The super rich often pay < 1% in taxes',
-        subtitle: 'Vice President',
-        avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
-        site_link: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
-    },
-    {
-        name: 'GOP filibusters Jan 6 commission',
-        avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
-        site_link: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
-        subtitle: 'Vice Chairman'
-    },
-    {
-        name: 'The super rich often pay < 1% in taxes',
-        subtitle: 'Vice President',
-        avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
-        site_link: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
-    },
-    {
-        name: 'GOP filibusters Jan 6 commission',
-        avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
-        site_link: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
-        subtitle: 'Vice Chairman'
-    },
-    {
-        name: 'The super rich often pay < 1% in taxes',
-        subtitle: 'Vice President',
-        avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
-        site_link: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
-    },
-    {
-        name: 'GOP filibusters Jan 6 commission',
-        avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
-        site_link: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
-        subtitle: 'Vice Chairman'
-    },
-    {
-        name: 'The super rich often pay < 1% in taxes',
-        subtitle: 'Vice President',
-        avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
-        site_link: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
-    },
-    {
-        name: 'GOP filibusters Jan 6 commission',
-        avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
-        site_link: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
-        subtitle: 'Vice Chairman'
-    },
-    {
-        name: 'The super rich often pay < 1% in taxes',
-        subtitle: 'Vice President',
-        avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
-        site_link: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
-    },
-    {
-        name: 'GOP filibusters Jan 6 commission',
-        avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
-        site_link: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
-        subtitle: 'Vice Chairman'
-    },
-    {
-        name: 'The super rich often pay < 1% in taxes',
-        subtitle: 'Vice President',
-        avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
-        site_link: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
-    },
-    {
-        name: 'GOP filibusters Jan 6 commission',
-        avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
-        site_link: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
-        subtitle: 'Vice Chairman'
-    },
-    {
-        name: 'The super rich often pay < 1% in taxes',
-        subtitle: 'Vice President',
-        avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
-        site_link: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
-    },
-    {
-        name: 'GOP filibusters Jan 6 commission',
-        avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
-        site_link: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
-        subtitle: 'Vice Chairman'
-    },
-];
+const list = {
+    email: 'test@test.com',
+    username: 'TEst',
+    summaries: [
+        {
+            title: 'The super rich often pay < 1% in taxes',
+            subtitle: 'Vice President',
+            avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
+            website_logo: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
+        },
+        {
+            title: 'GOP filibusters Jan 6 commission',
+            avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
+            website_logo: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
+            subtitle: 'Vice Chairman'
+        },
+        {
+            title: 'The super rich often pay < 1% in taxes',
+            subtitle: 'Vice President',
+            avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
+            website_logo: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
+        },
+        {
+            title: 'GOP filibusters Jan 6 commission',
+            avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
+            website_logo: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
+            subtitle: 'Vice Chairman'
+        },
+        {
+            title: 'The super rich often pay < 1% in taxes',
+            subtitle: 'Vice President',
+            avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
+            website_logo: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
+        },
+        {
+            title: 'GOP filibusters Jan 6 commission',
+            avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
+            website_logo: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
+            subtitle: 'Vice Chairman'
+        },
+        {
+            title: 'The super rich often pay < 1% in taxes',
+            subtitle: 'Vice President',
+            avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
+            website_logo: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
+        },
+        {
+            title: 'GOP filibusters Jan 6 commission',
+            avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
+            website_logo: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
+            subtitle: 'Vice Chairman'
+        },
+        {
+            title: 'The super rich often pay < 1% in taxes',
+            subtitle: 'Vice President',
+            avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
+            website_logo: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
+        },
+        {
+            title: 'GOP filibusters Jan 6 commission',
+            avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
+            website_logo: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
+            subtitle: 'Vice Chairman'
+        },
+        {
+            title: 'The super rich often pay < 1% in taxes',
+            subtitle: 'Vice President',
+            avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
+            website_logo: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
+        },
+        {
+            title: 'GOP filibusters Jan 6 commission',
+            avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
+            website_logo: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
+            subtitle: 'Vice Chairman'
+        },
+        {
+            title: 'The super rich often pay < 1% in taxes',
+            subtitle: 'Vice President',
+            avatar_url: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg',
+            website_logo: 'https://laurenpoussard.com/wp-content/uploads/2020/01/logo-BigShotLogos-e1579096728995.jpg',
+        },
+        {
+            title: 'GOP filibusters Jan 6 commission',
+            avatar_url: 'https://pickaface.net/gallery/avatar/unr_sample_161118_2054_ynlrg.png',
+            website_logo: 'https://minitex.umn.edu/sites/default/files/styles/manual_crop_16_9/public/images/2021-02/Ebooks%20Minnesota%20for%20Minitex%20News.png?h=4cf87883&itok=Vmq7vBp9',
+            subtitle: 'Vice Chairman'
+        },
+    ],
+    users: [{
+        username: 'John',
+        email: 'john@test.com',
+    }],
+};
 
 export default function ProfileScreen(props: any) {
     const { navigation } = props;
-    const [profileData, setProfileData] = useState(null);
+    const [profileData, setProfileData]: any = useState(list);
     const [tabIndex, setTabIndex] = useState(0);
 
     useEffect(() => {
@@ -124,7 +132,7 @@ export default function ProfileScreen(props: any) {
         });
     }, [navigation]);
 
-    const renderItem = ({ item }: any) => (
+    const renderNewsItem = ({ item }: any) => (
         <ListItem
             bottomDivider
             hasTVPreferredFocus={undefined}
@@ -132,11 +140,26 @@ export default function ProfileScreen(props: any) {
             style={{ flex: 1, width: '100%' }}
             onPress={() => { navigation.navigate('NewsView', { data: item }) }}
         >
-            <Avatar title={item.name[0]} source={item.avatar_url && { uri: item.avatar_url }} />
+            <Avatar title={item.title[0]} source={item.avatar_url && { uri: item.avatar_url }} />
             <ListItem.Content>
-                <ListItem.Title>{item.name}</ListItem.Title>
+                <ListItem.Title>{item.title}</ListItem.Title>
             </ListItem.Content>
-            <Avatar title={item.name[0]} source={item.site_link && { uri: item.site_link }} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
+            <Avatar title={item.title[0]} source={item.website_logo && { uri: item.website_logo }} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
+        </ListItem>
+    );
+
+    const renderFollowerItem = ({ item }: any) => (
+        <ListItem
+            bottomDivider
+            hasTVPreferredFocus={undefined}
+            tvParallaxProperties={undefined}
+            style={{ flex: 1, width: '100%' }}
+            onPress={() => { navigation.navigate('NewsView', { data: item }) }}
+        >
+            <ListItem.Content>
+                <ListItem.Title>{item.username}</ListItem.Title>
+            </ListItem.Content>
+            <Avatar title={item.username[0]} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
         </ListItem>
     );
 
@@ -159,6 +182,7 @@ export default function ProfileScreen(props: any) {
                                         name='envelope'
                                         size={24}
                                         color='black' />}
+                                    value={profileData?.email}
                                     autoCompleteType={undefined} />
                                 <Input
                                     label='User Name'
@@ -167,6 +191,7 @@ export default function ProfileScreen(props: any) {
                                         name='user'
                                         size={24}
                                         color='black' />}
+                                    value={profileData?.username}
                                     autoCompleteType={undefined} />
                                 <Input
                                     label='Password'
@@ -215,15 +240,15 @@ export default function ProfileScreen(props: any) {
                         </TabView.Item>
                         <TabView.Item style={{ width: '100%' }}>
                             <FlatList
-                                data={list}
-                                renderItem={renderItem}
+                                data={profileData.summaries}
+                                renderItem={renderNewsItem}
                                 style={{ flex: 1, width: '100%' }}
                             />
                         </TabView.Item>
                         <TabView.Item style={{ width: '100%' }}>
                             <FlatList
-                                data={list}
-                                renderItem={renderItem}
+                                data={profileData.followers}
+                                renderItem={renderFollowerItem}
                                 style={{ flex: 1, width: '100%' }}
                             />
                         </TabView.Item>
