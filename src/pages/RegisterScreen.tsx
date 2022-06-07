@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import styles from "../styles/RegisterStyle";
 import { Alert, Keyboard, KeyboardAvoidingView, Text, TextInput, TouchableWithoutFeedback, View } from "react-native";
@@ -50,15 +51,14 @@ export default function RegisterScreen({ navigation }: any) {
             password,
         };
         setLoading(true);
-        console.log(postData);
-        userRegister(postData).then(res => {
+        userRegister(postData).then(async (res) => {
             setLoading(false);
             if (res.code !== 200) {
                 Alert.alert(res.message);
                 return;
             }
-            localStorage.setItem('access_token', res.token);
-            localStorage.setItem('user', JSON.stringify(res));
+            await AsyncStorage.setItem('access_token', res.token);
+            await AsyncStorage.setItem('user', JSON.stringify(res));
             setToken(res.token);
             navigation.navigate('Home');
         })

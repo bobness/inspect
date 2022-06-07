@@ -20,10 +20,15 @@ const getProfileInformation = (userId) => {
     return instance.get('/users/' + userId).then(res => res.data);
 };
 
+const updateProfile = (data) => {
+    return instance.put('/users', data).then(res => res.data);
+}
+
 export {
     userLogin,
     userRegister,
     userLogout,
     getAuthUser,
     getProfileInformation,
+    updateProfile,
 }

@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import commonStyle from "../styles/CommonStyle";
-import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList, TouchableOpacity, SafeAreaView, ScrollView, Platform } from "react-native";
+import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList, TouchableOpacity, SafeAreaView, ActivityIndicator, Platform } from "react-native";
 import { Avatar, Overlay, Icon } from "react-native-elements";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import BottomToolbar from "../components/BottomToolbar";
 import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
 import BottomAction from "../components/BottomAction";
-import { getNewsById, postComment } from "../store/news";
+import { getNewsById, postComment, postReaction } from "../store/news";
 
 const list = [
     {
@@ -113,10 +113,16 @@ export default function NewsViewScreen(props: any) {
     const [visibleCommentModal, setVisibleCommentModal] = useState(false);
     const [emoji, setEmoji] = useState('🤔');
 
-    useEffect(() => {
-        getNewsById(data.id).then(result => {
+    const getNewsDataById = (id: number) => {
+        getNewsById(id).then(result => {
+            console.log(id);
+            console.log(result);
             setNewsData(result);
         });
+    }
+
+    useEffect(() => {
+        getNewsDataById(data.id);
     }, [data]);
 
     const toggleOverlay = () => {
@@ -124,7 +130,7 @@ export default function NewsViewScreen(props: any) {
     };
 
     const toggleCommentOverlay = () => {
-        if(visibleCommentModal) {
+        if (visibleCommentModal) {
             setCommentText('');
             selectCommentId(null);
         }
@@ -132,24 +138,41 @@ export default function NewsViewScreen(props: any) {
     };
 
     const getContent = () => {
-        return `In 2007, Jeff Bezos, then a multibillionaire and now the world's richest man, did not pay a penny in federal income taxes.`;
+        let content = '';
+        if (newsData && newsData?.snippets) {
+            content = newsData?.snippets.join(' ');
+        }
+        return content;
     };
 
     const handleSaveFeedback = () => {
-        console.log('put Feedback');
         const commentData = {
             snippet_id: selectedCommentId,
             comment: commentText,
             summary_id: data.id,
         }
-        postComment(data.id, commentData).then(res => {
+        postComment(data.id, commentData).then(() => {
             toggleCommentOverlay();
+            getNewsDataById(data.id);
+        })
+    };
+
+    const handleEmojiSelect = (emoji: string) => {
+        setEmoji(emoji);
+        setVisible(false);
+        const reactionData = {
+            snippet_id: selectedCommentId,
+            reaction: emoji,
+            summary_id: data.id,
+        };
+        postReaction(data.id, reactionData).then(() => {
+            getNewsDataById(data.id);
         })
     }
 
     const renderItem = ({ item }: any) => (
-        <View>
-            <TouchableOpacity onPress={() => setVisible(!visible)}>
+        <View style={{ marginTop: 10 }}>
+            <TouchableOpacity onPress={() => { selectCommentId(item.id); setVisible(!visible); }}>
                 <View style={{ flexDirection: 'row', paddingVertical: 5, }}>
                     <Text style={{ paddingRight: 10, fontSize: 20 }}>{emoji}</Text>
                     <Text>{item.value}</Text>
@@ -180,27 +203,35 @@ export default function NewsViewScreen(props: any) {
         });
     }, [navigation]);
 
+    if (!newsData) {
+        return (
+            <View style={{flex: 1, flexDirection: "row", justifyContent: "space-around", padding: 10}}>
+                <ActivityIndicator />
+            </View>
+        )
+    };
+
     return (
         <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={commonStyle.pageContainer}>
                     <View style={{ flex: 1, padding: 10 }}>
                         <View style={{ justifyContent: 'space-between', flexDirection: 'row', paddingBottom: 10, alignItems: 'center' }}>
-                            <Avatar title={newsData.name[0]} source={newsData.avatar_url ? { uri: newsData.avatar_url } : undefined} />
-                            <Text style={{ fontSize: 18, flex: 1, paddingHorizontal: 10, textAlign: 'center' }}>{newsData.title}</Text>
-                            <Avatar title={newsData.name[0]} source={newsData.website_logo ? { uri: newsData.website_logo } : undefined} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
+                            <Avatar title={newsData?.title[0]} titleStyle={{ color: 'black' }} source={newsData?.avatar_url ? { uri: newsData?.avatar_url } : undefined} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
+                            <Text style={{ fontSize: 18, flex: 1, paddingHorizontal: 10, textAlign: 'center' }}>{newsData?.title}</Text>
+                            <Avatar title={newsData?.title[0]} titleStyle={{ color: 'black' }} source={newsData?.website_logo ? { uri: newsData?.website_logo } : undefined} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
                         </View>
                         <FlatList
-                            data={newsData.snippets || []}
+                            data={newsData?.snippets || []}
                             renderItem={renderItem}
                             style={{ flex: 1, width: '100%' }}
                         />
-                        <BottomAction title={newsData.title} content={getContent()} url={newsData.website_logo} />
+                        <BottomAction title={newsData?.title} content={getContent()} url={newsData?.website_logo} />
                     </View>
                     <BottomToolbar {...props} />
                     <Overlay isVisible={visible} onBackdropPress={toggleOverlay} fullScreen={true}>
                         <EmojiSelector
-                            onEmojiSelected={emoji => { setEmoji(emoji); setVisible(false); console.log(emoji) }}
+                            onEmojiSelected={emoji => handleEmojiSelect(emoji)}
                             showSearchBar={false}
                             showTabs={true}
                             showHistory={true}
@@ -228,7 +259,6 @@ export default function NewsViewScreen(props: any) {
                                     ref={richText}
                                     onChange={descriptionText => {
                                         setCommentText(descriptionText);
-                                        console.log("descriptionText:", descriptionText);
                                     }}
                                 />
                             </KeyboardAvoidingView>

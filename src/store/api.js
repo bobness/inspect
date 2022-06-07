@@ -1,15 +1,22 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-const baseUrl = 'http://localhost:5000';
+
+const baseUrl = 'http://1211-66-154-105-197.ngrok.io';
 
 const instance = axios.create({ baseURL: baseUrl });
 
-const setToken = (token) => {
-    axios.defaults.headers.common['Authorization'] = token;
+const setToken = async (token = '') => {
+    if (!token) {
+        token = await AsyncStorage.getItem('@access_token')
+    }
+    instance.defaults.headers.common['x-access-token'] = token;
 };
 
 const removeToken = () => {
-    axios.defaults.headers.common['Authorization'] = '';
+    instance.defaults.headers.common['x-access-token'] = '';
 };
+
+setToken();
 
 export {
     instance,

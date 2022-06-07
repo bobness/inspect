@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import commonStyle from "../styles/CommonStyle";
-import { Text, View, FlatList, ScrollView, TouchableOpacity } from "react-native";
+import { Text, View, FlatList, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { ListItem, Avatar, Button, Image, Icon } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
+import { getProfileInformation } from "../store/auth";
 const list = [
     {
         name: 'The super rich often pay < 1% in taxes',
@@ -91,7 +92,15 @@ const list = [
     },
 ];
 export default function AuthorViewScreen(props: any) {
-    const { navigation } = props;
+    const {
+        route: {
+            params: {
+                data
+            }
+        }, navigation
+    } = props;
+    const [authData, setAuthData]: any = useState(null);
+
     const renderItem = ({ item }: any) => (
         <ListItem
             bottomDivider
@@ -102,11 +111,29 @@ export default function AuthorViewScreen(props: any) {
         >
             <Icon type="font-awesome" name="file" tvParallaxProperties={undefined} />
             <ListItem.Content>
-                <ListItem.Title>{item.name}</ListItem.Title>
+                <ListItem.Title>{item.title}</ListItem.Title>
             </ListItem.Content>
-            <Avatar title={item.name[0]} source={item.website_logo && { uri: item.website_logo }} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
+            <Avatar title={item.title[0]} titleStyle={{ color: 'black' }} source={item.website_logo && { uri: item.website_logo }} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
         </ListItem>
     );
+
+    const getAuthProfileData = (auth_id: number) => {
+        return getProfileInformation(auth_id).then(res => {
+            setAuthData(res);
+        });
+    }
+
+    useEffect(() => {
+        getAuthProfileData(data.id)
+    }, []);
+
+    if (!authData) {
+        return (
+            <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-around", padding: 10 }}>
+                <ActivityIndicator />
+            </View>
+        )
+    };
 
     return (
         <View style={commonStyle.pageContainer}>
@@ -118,8 +145,8 @@ export default function AuthorViewScreen(props: any) {
                         </TouchableOpacity>
                     </View>
                     <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 10 }}>
-                        <Avatar title={'Bob'} source={{ uri: 'https://dominoone.org/storage/user/image/2HnBQwRJPKI2ytcipqhYtnLrcuiayxFGdzxBo3CN.jpeg' }} />
-                        <Text style={{ paddingLeft: 10, fontSize: 18 }}>Bob</Text>
+                        <Avatar title={authData?.username[0]} titleStyle={{ color: 'black' }} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
+                        <Text style={{ paddingLeft: 10, fontSize: 18 }}>{authData?.username}</Text>
                     </View>
                     <Button
                         title="Follow"
@@ -144,7 +171,7 @@ export default function AuthorViewScreen(props: any) {
                     </ScrollView>
                 </View>
                 <FlatList
-                    data={list}
+                    data={authData?.summaries}
                     renderItem={renderItem}
                     style={{ flex: 1, width: '100%' }}
                 />

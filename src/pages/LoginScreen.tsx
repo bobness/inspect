@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import styles from "../styles/LoginStyle";
 import { Alert, Keyboard, KeyboardAvoidingView, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
@@ -10,15 +11,15 @@ import { setToken } from "../store/api";
 const appId = "1047121222092614";
 
 export default function LoginScreen({ navigation }: any) {
-    const usernameRef: any = useRef(null);
+    const emailRef: any = useRef(null);
     const passwordRef: any = useRef(null);
     const [loading, setLoading] = useState(false);
-    const [username, setUserName] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('test@test.com');
+    const [password, setPassword] = useState('W');
     const onLoginPress = () => {
-        if (!username) {
-            Alert.alert('Username is required.');
-            usernameRef.current.focus();
+        if (!email) {
+            Alert.alert('Email is required.');
+            emailRef.current.focus();
             return;
         }
         if (!password) {
@@ -27,18 +28,19 @@ export default function LoginScreen({ navigation }: any) {
             return;
         }
         const postData = {
-            username,
+            email,
             password,
         };
         setLoading(true);
-        userLogin(postData).then(res => {
+        userLogin(postData).then(async (res) => {
             setLoading(false);
-            if (res.code !== 200) {
+            console.log(res);
+            if (!res.token) {
                 Alert.alert(res.message);
                 return;
             }
-            localStorage.setItem('access_token', res.token);
-            localStorage.setItem('user', JSON.stringify(res));
+            await AsyncStorage.setItem('@access_token', res.token);
+            await AsyncStorage.setItem('@user', JSON.stringify(res));
             setToken(res.token);
             navigation.navigate('Home');
         });
@@ -68,12 +70,12 @@ export default function LoginScreen({ navigation }: any) {
                     <View style={styles.loginFormView}>
                         <Text style={styles.logoText}>INSPECT</Text>
                         <TextInput
-                            ref={usernameRef}
-                            placeholder="Username"
+                            ref={emailRef}
+                            placeholder="Email"
                             placeholderTextColor="#c4c3cb"
                             style={styles.loginFormTextInput}
-                            value={username}
-                            onChangeText={(value: string) => setUserName(value)}
+                            value={email}
+                            onChangeText={(value: string) => setEmail(value)}
                             editable={!loading}
                         />
                         <TextInput

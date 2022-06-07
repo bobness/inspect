@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import commonStyle from "../styles/CommonStyle";
-import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList } from "react-native";
+import { Keyboard, KeyboardAvoidingView, Alert, TouchableWithoutFeedback, View, FlatList } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Input, Button, Tab, TabView, ListItem, Avatar } from "react-native-elements";
-import { getAuthUser } from "../store/auth";
+import { getAuthUser, updateProfile } from "../store/auth";
 
 const list = {
     email: 'test@test.com',
@@ -103,8 +103,13 @@ const list = {
 
 export default function ProfileScreen(props: any) {
     const { navigation } = props;
+    const usernameRef: any = useRef(null);
+    const emailRef: any = useRef(null);
+    const passwordRef: any = useRef(null);
+    const confirmPasswordRef: any = useRef(null);
     const [profileData, setProfileData]: any = useState(list);
     const [tabIndex, setTabIndex] = useState(0);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         getAuthUser().then(data => {
@@ -132,6 +137,44 @@ export default function ProfileScreen(props: any) {
         });
     }, [navigation]);
 
+    const handleSave = () => {
+        if (!profileData.username) {
+            Alert.alert('Username is required.');
+            usernameRef.current.focus();
+            return;
+        }
+        if (!profileData.email) {
+            Alert.alert('Email is required.');
+            emailRef.current.focus();
+            return;
+        }
+        if (!profileData.password) {
+            Alert.alert('Password is required.');
+            passwordRef.current.focus();
+            return;
+        }
+        if (!profileData.confirmPassword) {
+            Alert.alert('Confirm Password is required.');
+            confirmPasswordRef.current.focus();
+            return;
+        }
+        if (profileData.password !== profileData.confirmPassword) {
+            Alert.alert('Please make sure your passwords match.');
+            setProfileData({ ...profileData, confirmPassword: '' });
+            confirmPasswordRef.current.focus();
+            return;
+        }
+        const postData = {
+            email: profileData.email,
+            username: profileData.username,
+            password: profileData.password,
+        };
+        setLoading(true);
+        updateProfile(postData).then(() => {
+            setLoading(false);
+        });
+    }
+
     const renderNewsItem = ({ item }: any) => (
         <ListItem
             bottomDivider
@@ -140,11 +183,11 @@ export default function ProfileScreen(props: any) {
             style={{ flex: 1, width: '100%' }}
             onPress={() => { navigation.navigate('NewsView', { data: item }) }}
         >
-            <Avatar title={item.title[0]} source={item.avatar_url && { uri: item.avatar_url }} />
+            <Avatar title={item.title[0]} titleStyle={{ color: 'black' }} source={item.avatar_url && { uri: item.avatar_url }} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
             <ListItem.Content>
                 <ListItem.Title>{item.title}</ListItem.Title>
             </ListItem.Content>
-            <Avatar title={item.title[0]} source={item.website_logo && { uri: item.website_logo }} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
+            <Avatar title={item.title[0]} titleStyle={{ color: 'black' }} source={item.website_logo && { uri: item.website_logo }} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
         </ListItem>
     );
 
@@ -159,7 +202,7 @@ export default function ProfileScreen(props: any) {
             <ListItem.Content>
                 <ListItem.Title>{item.username}</ListItem.Title>
             </ListItem.Content>
-            <Avatar title={item.username[0]} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
+            <Avatar title={item.username[0]} titleStyle={{ color: 'black' }} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
         </ListItem>
     );
 
@@ -167,7 +210,7 @@ export default function ProfileScreen(props: any) {
         <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={commonStyle.pageContainer}>
-                    <Tab value={tabIndex} onChange={setTabIndex} indicatorStyle={{ backgroundColor: 'green' }}>
+                    <Tab value={tabIndex} onChange={setTabIndex} indicatorStyle={{ backgroundColor: 'green' }} disableIndicator={loading}>
                         <Tab.Item title="Info" titleStyle={{ color: 'black' }} />
                         <Tab.Item title="Articles" titleStyle={{ color: 'black' }} />
                         <Tab.Item title="Follow" titleStyle={{ color: 'black' }} />
@@ -176,6 +219,7 @@ export default function ProfileScreen(props: any) {
                         <TabView.Item style={{ width: '100%' }}>
                             <View style={{ flex: 1, padding: 10 }}>
                                 <Input
+                                    ref={emailRef}
                                     label='Email Address'
                                     placeholder='Email Address'
                                     leftIcon={<Icon
@@ -183,31 +227,44 @@ export default function ProfileScreen(props: any) {
                                         size={24}
                                         color='black' />}
                                     value={profileData?.email}
+                                    editable={!loading}
+                                    onChangeText={(text: string) => { setProfileData({...profileData, email: text}) }}
                                     autoCompleteType={undefined} />
                                 <Input
+                                    ref={usernameRef}
                                     label='User Name'
                                     placeholder='User Name'
                                     leftIcon={<Icon
                                         name='user'
                                         size={24}
                                         color='black' />}
+                                    editable={!loading}
                                     value={profileData?.username}
+                                    onChangeText={(text: string) => { setProfileData({...profileData, username: text}) }}
                                     autoCompleteType={undefined} />
                                 <Input
+                                    ref={passwordRef}
                                     label='Password'
                                     placeholder='Password'
                                     leftIcon={<Icon
                                         name='lock'
                                         size={24}
                                         color='black' />}
+                                    editable={!loading}
+                                    value={profileData?.password || ''}
+                                    onChangeText={(text: string) => { setProfileData({...profileData, password: text}) }}
                                     autoCompleteType={undefined} />
                                 <Input
+                                    ref={confirmPasswordRef}
                                     label='Confirm Password'
                                     placeholder='Confirm Password'
                                     leftIcon={<Icon
                                         name='lock'
                                         size={24}
                                         color='black' />}
+                                    editable={!loading}
+                                    value={profileData?.confirmPassword || ''}
+                                    onChangeText={(text: string) => { setProfileData({...profileData, confirmPassword: text}) }}
                                     autoCompleteType={undefined} />
                                 <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                     <Button
@@ -220,7 +277,9 @@ export default function ProfileScreen(props: any) {
                                                 style={{ marginRight: 5 }}
                                             />
                                         }
+                                        disabled={loading}
                                         buttonStyle={{ marginHorizontal: 10 }}
+                                        onPress={handleSave}
                                     />
                                     <Button
                                         title="Back"
@@ -232,6 +291,7 @@ export default function ProfileScreen(props: any) {
                                                 style={{ marginRight: 5 }}
                                             />
                                         }
+                                        disabled={loading}
                                         buttonStyle={{ marginHorizontal: 10, backgroundColor: '#DD4A48' }}
                                         onPress={() => navigation.goBack()}
                                     />
