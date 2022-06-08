@@ -115,8 +115,6 @@ export default function NewsViewScreen(props: any) {
 
     const getNewsDataById = (id: number) => {
         getNewsById(id).then(result => {
-            console.log(id);
-            console.log(result);
             setNewsData(result);
         });
     }
