@@ -1,12 +1,13 @@
 import React, { ComponentProps, useRef, useEffect, useState } from "react";
 
 import commonStyle from "../styles/CommonStyle";
-import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList, TouchableOpacity, Image, SafeAreaView, Platform } from "react-native";
+import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList, TouchableOpacity, Image, SafeAreaView, Platform, ActivityIndicator } from "react-native";
 import { Avatar, Overlay, Icon, Button, } from "react-native-elements";
 import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import { BottomToolbar, BottomAction } from "../components";
 import { getNewsById, postComment, postReaction } from "../store/news";
+import { getProfileInformation } from "../store/auth";
 
 const list = [
     {
@@ -105,11 +106,18 @@ export default function AuthorNewsViewScreen(props: ComponentProps<any>) {
     } = props;
     let richText: any = useRef(null);
     const [visible, setVisible] = useState(false);
+    const [authData, setAuthData]: any = useState(null);
     const [visibleCommentModal, setVisibleCommentModal] = useState(false);
     const [selectedCommentId, selectCommentId]: any = useState(null);
     const [commentText, setCommentText] = useState('');
     const [emoji, setEmoji] = useState('🤔');
     const [newsData, setNewsData]: any = useState(null);
+
+    const getAuthProfileData = (auth_id: number) => {
+        return getProfileInformation(auth_id).then(res => {
+            setAuthData(res);
+        });
+    }
 
     const getNewsDataById = (id: number) => {
         getNewsById(id).then(result => {
@@ -139,6 +147,7 @@ export default function AuthorNewsViewScreen(props: ComponentProps<any>) {
 
     useEffect(() => {
         getNewsDataById(data.id);
+        getAuthProfileData(data.user_id)
     }, [data]);
 
     const handleSaveFeedback = () => {
@@ -188,6 +197,14 @@ export default function AuthorNewsViewScreen(props: ComponentProps<any>) {
         </View>
     );
 
+    if (!newsData) {
+        return (
+            <View style={{flex: 1, flexDirection: "row", justifyContent: "space-around", padding: 10}}>
+                <ActivityIndicator />
+            </View>
+        )
+    };
+
     return (
         <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -202,8 +219,8 @@ export default function AuthorNewsViewScreen(props: ComponentProps<any>) {
                                 <Icon type="font-awesome" name="file" tvParallaxProperties={undefined} />
                             </View>
                             <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 10 }}>
-                                <Avatar title={newsData?.author?.username[0]}/>
-                                <Text style={{ paddingLeft: 10, fontSize: 18 }}>{newsData?.author?.username}</Text>
+                                <Avatar title={authData?.username[0]} titleStyle={{ color: 'black' }} containerStyle={{ borderColor: 'green', borderWidth: 1, padding: 3 }} />
+                                <Text style={{ paddingLeft: 10, fontSize: 18 }}>{authData?.username}</Text>
                             </View>
                             <Button
                                 title="Follow"
