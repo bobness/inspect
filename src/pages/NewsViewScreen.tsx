@@ -138,7 +138,7 @@ export default function NewsViewScreen(props: any) {
     const getContent = () => {
         let content = '';
         if (newsData && newsData?.snippets) {
-            content = newsData?.snippets.join(' ');
+            content = newsData?.snippets.map((item: any) => item.value).join(' ');
         }
         return content;
     };
