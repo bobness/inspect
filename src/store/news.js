@@ -12,12 +12,12 @@ const getNewsById = (newsId) => {
     return instance.get('/summaries/id/' + newsId).then(res => res.data);
 };
 
-const postComment = (newsId, commentData) => {
-    return instance.post('/summaires/comment/' + newsId, commentData);
+const postComment = (commentData) => {
+    return instance.post('/comments', commentData);
 };
 
-const postReaction = (newsId, reaction) => {
-    return instance.post('/summaries/reaction/' + newsId, { reaction });
+const postReaction = (reactionData) => {
+    return instance.post('/reactions', reactionData);
 };
 
 export {

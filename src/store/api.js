@@ -1,9 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const baseUrl = 'http://18.116.14.240/api';
+// const baseUrl = 'http://18.116.14.240/api';
+const baseUrl = 'http://4b82-66-154-105-197.ngrok.io';
 
-const instance = axios.create({ baseURL: baseUrl });
+const instance = axios.create({ baseURL: baseUrl, headers: { 'Content-Type': 'application/json' } });
 
 const setToken = async (token = '') => {
     if (!token) {

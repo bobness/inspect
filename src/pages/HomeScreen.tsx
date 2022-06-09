@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import commonStyle from "../styles/CommonStyle";
-import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList } from "react-native";
+import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList, ActivityIndicator } from "react-native";
 import { ListItem, Avatar } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
 import { getAllNews } from "../store/news";
@@ -38,11 +38,18 @@ export default function HomeScreen(props: any) {
                 <View style={commonStyle.pageContainer}>
                     <View style={{ flex: 1, padding: 10 }}>
                         <Text style={commonStyle.logoText}>INSPECT</Text>
-                        <FlatList
-                            data={newsData}
-                            renderItem={renderItem}
-                            style={{ flex: 1, width: '100%' }}
-                        />
+                        {newsData.length > 0 &&
+                            <FlatList
+                                data={newsData}
+                                renderItem={renderItem}
+                                style={{ flex: 1, width: '100%' }}
+                            />
+                        }
+                        {!newsData.length &&
+                            <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-around", padding: 10 }}>
+                                <ActivityIndicator />
+                            </View>
+                        }
                     </View>
                     <BottomToolbar {...props} />
                 </View>

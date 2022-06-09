@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import commonStyle from "../styles/CommonStyle";
 import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList, TouchableOpacity, SafeAreaView, ActivityIndicator, Platform } from "react-native";
 import { Avatar, Overlay, Icon } from "react-native-elements";
+import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import BottomToolbar from "../components/BottomToolbar";
 import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
@@ -108,9 +109,11 @@ export default function NewsViewScreen(props: any) {
     let richText: any = useRef(null);
     const [newsData, setNewsData]: any = useState(null);
     const [selectedCommentId, selectCommentId]: any = useState(null);
+    const [selectedComments, setSelectedComments] = useState([]);
     const [commentText, setCommentText] = useState('');
     const [visible, setVisible] = useState(false);
     const [visibleCommentModal, setVisibleCommentModal] = useState(false);
+    const [visibleViewCommentModal, setVisibleViewCommentModal] = useState(false);
     const [emoji, setEmoji] = useState('🤔');
 
     const getNewsDataById = (id: number) => {
@@ -124,6 +127,10 @@ export default function NewsViewScreen(props: any) {
     }, [data]);
 
     const toggleOverlay = () => {
+        if (visible) {
+            setCommentText('');
+            selectCommentId(null);
+        }
         setVisible(!visible);
     };
 
@@ -133,6 +140,14 @@ export default function NewsViewScreen(props: any) {
             selectCommentId(null);
         }
         setVisibleCommentModal(!visibleCommentModal);
+    };
+
+    const toggleViewCommentOverlay = () => {
+        if (visibleViewCommentModal) {
+            setSelectedComments([]);
+            selectCommentId(null);
+        }
+        setVisibleViewCommentModal(!visibleViewCommentModal);
     };
 
     const getContent = () => {
@@ -149,7 +164,7 @@ export default function NewsViewScreen(props: any) {
             comment: commentText,
             summary_id: data.id,
         }
-        postComment(data.id, commentData).then(() => {
+        postComment(commentData).then(() => {
             toggleCommentOverlay();
             getNewsDataById(data.id);
         })
@@ -163,32 +178,67 @@ export default function NewsViewScreen(props: any) {
             reaction: emoji,
             summary_id: data.id,
         };
-        postReaction(data.id, reactionData).then(() => {
+        postReaction(reactionData).then(() => {
             getNewsDataById(data.id);
         })
     }
 
-    const renderItem = ({ item }: any) => (
-        <View style={{ marginTop: 10 }}>
-            <TouchableOpacity onPress={() => { selectCommentId(item.id); setVisible(!visible); }}>
-                <View style={{ flexDirection: 'row', paddingVertical: 5, }}>
-                    <Text style={{ paddingRight: 10, fontSize: 20 }}>{emoji}</Text>
-                    <Text>{item.value}</Text>
-                </View>
-            </TouchableOpacity>
-            <View style={{ paddingLeft: 36, flexDirection: 'row' }}>
-                <Text style={{ fontSize: 18 }}>{emoji}2</Text>
-                <TouchableOpacity onPress={() => { selectCommentId(item.id); toggleCommentOverlay() }}>
-                    <Icon
-                        name='comment-dots'
-                        type='font-awesome-5'
-                        color='#ccc'
-                        style={{ paddingHorizontal: 10 }}
-                        tvParallaxProperties={undefined} />
+    const getComments = (snippet_id: number) => {
+        return newsData.comments.filter((reaction: any) => reaction.snippet_id == snippet_id);
+    };
+
+    const getEmoji = (snippet_id: number) => {
+        return newsData.reactions.filter((reaction: any) => reaction.snippet_id == snippet_id);
+    };
+
+    const renderItem = ({ item }: any) => {
+        const emojis = getEmoji(item.id);
+        const commments = getComments(item.id);
+        return (
+            <View style={{ marginTop: 10 }}>
+                <TouchableOpacity onPress={() => { selectCommentId(item.id); setVisible(!visible); }}>
+                    <View style={{ flexDirection: 'row', paddingVertical: 5, }}>
+                        <Text style={{ paddingRight: 10, fontSize: 20, minWidth: 35 }}>{emojis.length > 0 ? emojis[0].reaction : ''}</Text>
+                        <Text>{item.value}</Text>
+                    </View>
                 </TouchableOpacity>
+                <View style={{
+                    paddingLeft: 36, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+                }}>
+                    <View style={{ flexDirection: 'row' }}>
+                        <Text style={{ fontSize: 16, color: 'grey' }}>{emojis.length > 0 ? emojis[0].reaction : ''} {emojis.length > 0 ? emojis.length : ''}</Text>
+                        <TouchableOpacity onPress={() => { selectCommentId(item.id); setSelectedComments(newsData.comments.filter((c: any) => c.snippet_id == item.id)); toggleViewCommentOverlay() }}>
+                            <Icon
+                                name='comment-dots'
+                                type='font-awesome-5'
+                                color='#ccc'
+                                style={{ paddingHorizontal: 10 }}
+                                tvParallaxProperties={undefined} />
+                        </TouchableOpacity>
+                        <Text style={{ fontSize: 16, color: 'grey' }}>{commments.length > 0 ? commments.length : ''}</Text>
+                    </View>
+                    <View>
+                        <TouchableOpacity onPress={() => { selectCommentId(item.id); toggleCommentOverlay() }}>
+                            <Text style={{ color: 'grey' }}>Add comment</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
             </View>
-        </View>
-    );
+        );
+    };
+
+    const renderCommentItem = ({ item }: any) => {
+        return (
+            <View style={{ flex: 1, width: '100%', }}>
+                <View style={{ marginTop: 10 }}>
+                    <Text style={{ fontSize: 18 }}>{item.comment}</Text>
+                </View>
+                <View style={{ alignItems: 'flex-end', marginTop: 5, }}>
+                    <Text style={{ fontSize: 11, color: 'grey' }}>{item.created_at}</Text>
+                </View>
+            </View>
+        )
+    };
 
     React.useLayoutEffect(() => {
         navigation.setOptions({
@@ -203,7 +253,7 @@ export default function NewsViewScreen(props: any) {
 
     if (!newsData) {
         return (
-            <View style={{flex: 1, flexDirection: "row", justifyContent: "space-around", padding: 10}}>
+            <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-around", padding: 10 }}>
                 <ActivityIndicator />
             </View>
         )
@@ -266,6 +316,19 @@ export default function NewsViewScreen(props: any) {
                                 iconMap={{ [actions.heading1]: ({ tintColor }) => (<Text style={[{ color: tintColor }]}>H1</Text>), }}
                             />
                         </SafeAreaView>
+                    </Overlay>
+
+                    <Overlay isVisible={visibleViewCommentModal} onBackdropPress={toggleViewCommentOverlay} fullScreen={true}>
+                        <TouchableOpacity style={{ alignSelf: 'flex-end' }} onPress={() => toggleViewCommentOverlay()}>
+                            <MaterialIcon
+                                name="close"
+                                color={'black'}
+                                size={24}
+                            />
+                        </TouchableOpacity>
+                        <View style={{ marginTop: 10, height: '100%', flex: 1, width: '100%' }}>
+                            <FlatList data={selectedComments} renderItem={renderCommentItem} style={{ flex: 1, marginTop: 5, width: '100%' }} />
+                        </View>
                     </Overlay>
                 </View>
             </TouchableWithoutFeedback>
