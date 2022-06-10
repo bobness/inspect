@@ -9,12 +9,21 @@ const list: any = [];
 export default function HomeScreen(props: any) {
     const { navigation } = props;
     const [newsData, setNewsData] = useState(list);
+    const [isRefreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         getAllNews().then(data => {
             setNewsData(data);
         });
     }, []);
+
+    const handleRefresh = () => {
+        setRefreshing(true);
+        getAllNews().then(data => {
+            setRefreshing(false);
+            setNewsData(data);
+        });
+    };
 
     const renderItem = ({ item }: any) => (
         <ListItem
@@ -43,6 +52,8 @@ export default function HomeScreen(props: any) {
                                 data={newsData}
                                 renderItem={renderItem}
                                 style={{ flex: 1, width: '100%' }}
+                                refreshing={isRefreshing}
+                                onRefresh={handleRefresh}
                             />
                         }
                         {!newsData.length &&

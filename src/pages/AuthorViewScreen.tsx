@@ -100,6 +100,7 @@ export default function AuthorViewScreen(props: any) {
         }, navigation
     } = props;
     const [authData, setAuthData]: any = useState(null);
+    const [isRefreshing, setRefreshing] = useState(false);
 
     const renderItem = ({ item }: any) => (
         <ListItem
@@ -118,7 +119,9 @@ export default function AuthorViewScreen(props: any) {
     );
 
     const getAuthProfileData = (auth_id: number) => {
+        setRefreshing(true);
         return getProfileInformation(auth_id).then(res => {
+            setRefreshing(false);
             setAuthData(res);
         });
     }
@@ -126,6 +129,10 @@ export default function AuthorViewScreen(props: any) {
     useEffect(() => {
         getAuthProfileData(data.id)
     }, []);
+
+    const handleRefresh = () => {
+        getAuthProfileData(data.id);
+    };
 
     if (!authData) {
         return (
@@ -174,6 +181,8 @@ export default function AuthorViewScreen(props: any) {
                     data={authData?.summaries}
                     renderItem={renderItem}
                     style={{ flex: 1, width: '100%' }}
+                    refreshing={isRefreshing}
+                    onRefresh={handleRefresh}
                 />
             </View>
             <BottomToolbar {...props} />

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import commonStyle from "../styles/CommonStyle";
-import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList, TouchableOpacity, SafeAreaView, ActivityIndicator, Platform } from "react-native";
+import { Keyboard, KeyboardAvoidingView, Text, TouchableWithoutFeedback, View, FlatList, TouchableOpacity, SafeAreaView, ActivityIndicator, Platform, Alert } from "react-native";
 import { Avatar, Overlay, Icon } from "react-native-elements";
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
@@ -9,6 +9,10 @@ import BottomToolbar from "../components/BottomToolbar";
 import { RichEditor, RichToolbar, actions } from "react-native-pell-rich-editor";
 import BottomAction from "../components/BottomAction";
 import { getNewsById, postComment, postReaction } from "../store/news";
+import moment from "moment";
+import AutoHeightWebView from 'react-native-autoheight-webview'
+
+import { Dimensions } from 'react-native'
 
 const list = [
     {
@@ -115,10 +119,17 @@ export default function NewsViewScreen(props: any) {
     const [visibleCommentModal, setVisibleCommentModal] = useState(false);
     const [visibleViewCommentModal, setVisibleViewCommentModal] = useState(false);
     const [emoji, setEmoji] = useState('🤔');
+    const [loading, setLoading] = useState(false);
+
+    const convertDate = (date_str: string) => {
+        return moment(date_str).fromNow();
+    }
 
     const getNewsDataById = (id: number) => {
+        setLoading(true);
         getNewsById(id).then(result => {
             setNewsData(result);
+            setLoading(false);
         });
     }
 
@@ -207,7 +218,13 @@ export default function NewsViewScreen(props: any) {
                 }}>
                     <View style={{ flexDirection: 'row' }}>
                         <Text style={{ fontSize: 16, color: 'grey' }}>{emojis.length > 0 ? emojis[0].reaction : ''} {emojis.length > 0 ? emojis.length : ''}</Text>
-                        <TouchableOpacity onPress={() => { selectCommentId(item.id); setSelectedComments(newsData.comments.filter((c: any) => c.snippet_id == item.id)); toggleViewCommentOverlay() }}>
+                        <TouchableOpacity onPress={() => {
+                            if (commments.length > 0) {
+                                selectCommentId(item.id); setSelectedComments(newsData.comments.filter((c: any) => c.snippet_id == item.id)); toggleViewCommentOverlay()
+                            } else {
+                                Alert.alert('No comments');
+                            }
+                        }}>
                             <Icon
                                 name='comment-dots'
                                 type='font-awesome-5'
@@ -231,13 +248,37 @@ export default function NewsViewScreen(props: any) {
         return (
             <View style={{ flex: 1, width: '100%', }}>
                 <View style={{ marginTop: 10 }}>
-                    <Text style={{ fontSize: 18 }}>{item.comment}</Text>
+                    <AutoHeightWebView
+                        style={{ width: Dimensions.get('window').width - 15, height: 50 }}
+                        customStyle={`
+                            * {
+                                font-family: 'Times New Roman';
+                            }
+                            p {
+                                font-size: 14px;
+                                line-height: 30px;
+                            }
+                        `}
+                        onSizeUpdated={size => console.log(size.height)}
+                        files={[{
+                            href: 'cssfileaddress',
+                            type: 'text/css',
+                            rel: 'stylesheet'
+                        }]}
+                        source={{ html: item.comment }}
+                        scalesPageToFit={true}
+                        viewportContent={'width=device-width, user-scalable=no'}
+                    />
                 </View>
                 <View style={{ alignItems: 'flex-end', marginTop: 5, }}>
-                    <Text style={{ fontSize: 11, color: 'grey' }}>{item.created_at}</Text>
+                    <Text style={{ fontSize: 11, color: 'grey' }}>{convertDate(item.created_at)}</Text>
                 </View>
             </View>
         )
+    };
+
+    const handleRefresh = () => {
+        getNewsDataById(data.id);
     };
 
     React.useLayoutEffect(() => {
@@ -273,19 +314,31 @@ export default function NewsViewScreen(props: any) {
                             data={newsData?.snippets || []}
                             renderItem={renderItem}
                             style={{ flex: 1, width: '100%' }}
+                            refreshing={loading}
+                            onRefresh={handleRefresh}
                         />
                         <BottomAction title={newsData?.title} content={getContent()} url={newsData?.website_logo} />
                     </View>
                     <BottomToolbar {...props} />
                     <Overlay isVisible={visible} onBackdropPress={toggleOverlay} fullScreen={true}>
-                        <EmojiSelector
-                            onEmojiSelected={emoji => handleEmojiSelect(emoji)}
-                            showSearchBar={false}
-                            showTabs={true}
-                            showHistory={true}
-                            showSectionTitles={true}
-                            category={Categories.all}
-                        />
+                        <SafeAreaView style={{ flex: 1 }}>
+                            <TouchableOpacity style={{ alignSelf: 'flex-end' }} onPress={() => toggleOverlay()}>
+                                <MaterialIcon
+                                    name="close"
+                                    color={'black'}
+                                    size={30}
+                                    style={{ marginBottom: 10 }}
+                                />
+                            </TouchableOpacity>
+                            <EmojiSelector
+                                onEmojiSelected={emoji => handleEmojiSelect(emoji)}
+                                showSearchBar={false}
+                                showTabs={true}
+                                showHistory={true}
+                                showSectionTitles={true}
+                                category={Categories.all}
+                            />
+                        </SafeAreaView>
                     </Overlay>
 
                     <Overlay isVisible={visibleCommentModal} onBackdropPress={toggleCommentOverlay} overlayStyle={{ height: 200 }}>
@@ -319,16 +372,25 @@ export default function NewsViewScreen(props: any) {
                     </Overlay>
 
                     <Overlay isVisible={visibleViewCommentModal} onBackdropPress={toggleViewCommentOverlay} fullScreen={true}>
-                        <TouchableOpacity style={{ alignSelf: 'flex-end' }} onPress={() => toggleViewCommentOverlay()}>
-                            <MaterialIcon
-                                name="close"
-                                color={'black'}
-                                size={24}
-                            />
-                        </TouchableOpacity>
-                        <View style={{ marginTop: 10, height: '100%', flex: 1, width: '100%' }}>
-                            <FlatList data={selectedComments} renderItem={renderCommentItem} style={{ flex: 1, marginTop: 5, width: '100%' }} />
-                        </View>
+                        <SafeAreaView style={{ flex: 1 }}>
+                            <TouchableOpacity style={{ alignSelf: 'flex-end' }} onPress={() => toggleViewCommentOverlay()}>
+                                <MaterialIcon
+                                    name="close"
+                                    color={'black'}
+                                    size={24}
+                                />
+                            </TouchableOpacity>
+                            <View style={{ marginTop: 10, height: '100%', flex: 1, width: '100%' }}>
+                                {selectedComments.length > 0 &&
+                                    <FlatList data={selectedComments} renderItem={renderCommentItem} style={{ flex: 1, marginTop: 5, width: '100%' }} />
+                                }
+                                {selectedComments.length === 0 &&
+                                    <View style={{ justifyContent: 'center', alignItems: "center", }}>
+                                        <Text style={{ color: '#ddd' }}>No comments</Text>
+                                    </View>
+                                }
+                            </View>
+                        </SafeAreaView>
                     </Overlay>
                 </View>
             </TouchableWithoutFeedback>

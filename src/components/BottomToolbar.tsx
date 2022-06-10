@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TouchableOpacity, FlatList, Text, ActivityIndicator, Alert } from 'react-native';
+import { View, TouchableOpacity, FlatList, Text, ActivityIndicator, Alert, SafeAreaView } from 'react-native';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Overlay, SearchBar, ListItem, Avatar } from 'react-native-elements';
@@ -115,7 +115,7 @@ export default function BottomToolbar({ navigation }: any) {
     );
 
     return (
-        <View style={{ backgroundColor: 'white', height: 60, flexDirection: 'row' }}>
+        <View style={{ backgroundColor: 'white', flexDirection: 'row', padding: 10 }}>
             <TouchableOpacity
                 style={{
                     height: 60,
@@ -171,7 +171,7 @@ export default function BottomToolbar({ navigation }: any) {
 
             <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
                 {viewLayout &&
-                    <View style={{ marginTop: 10, height: '100%', }}>
+                    <SafeAreaView style={{ marginTop: 10, height: '100%', }}>
                         <View style={{ alignItems: 'center', flexDirection: 'row' }}>
                             <Text style={{ flex: 1, textAlign: 'center', fontSize: 20, fontWeight: '700' }}>Search</Text>
                             <TouchableOpacity style={{ alignSelf: 'flex-end' }} onPress={() => toggleOverlay()}>
@@ -214,7 +214,7 @@ export default function BottomToolbar({ navigation }: any) {
                             </>
                         }
 
-                    </View>
+                    </SafeAreaView>
                 }
                 {!viewLayout &&
                     <ActivityIndicator />
