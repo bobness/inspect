@@ -90,9 +90,10 @@ export default function BottomToolbar({ navigation }: any) {
         <ListItem.Title>{item?.username}</ListItem.Title>
       </ListItem.Content>
       <Avatar
-        title={item?.username[0 ?? ""]}
-        titleStyle={{ color: "black" }}
-        containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
+        // title={item?.username[0 ?? ""]}
+        // titleStyle={{ color: "black" }}
+        source={item?.avatar_uri && { uri: item.avatar_uri }}
+        // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
       />
     </ListItem>
   );
@@ -110,19 +111,19 @@ export default function BottomToolbar({ navigation }: any) {
     >
       <Icon name="newspaper-variant" size={20} color="#517fa4" />
       <Avatar
-        title={item.title[0]}
-        titleStyle={{ color: "black" }}
-        source={item.avatar_url && { uri: item.avatar_url }}
-        containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
+        // title={item.title[0]}
+        // titleStyle={{ color: "black" }}
+        source={item.avatar_uri && { uri: item.avatar_uri }}
+        // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
       />
       <ListItem.Content>
         <ListItem.Title>{item.title}</ListItem.Title>
       </ListItem.Content>
       <Avatar
-        title={item.title[0]}
-        titleStyle={{ color: "black" }}
-        source={item.website_logo && { uri: item.website_logo }}
-        containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
+        // title={item.title[0]}
+        // titleStyle={{ color: "black" }}
+        source={item.logo_uri && { uri: item.logo_uri }}
+        // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
       />
     </ListItem>
   );
@@ -224,8 +225,11 @@ export default function BottomToolbar({ navigation }: any) {
               onCancel={() => {}}
               cancelButtonTitle={""}
               cancelButtonProps={{}}
+              autoCapitalize="none"
+              autoComplete="off"
+              autoCorrect={false}
             />
-            {searchData.users && searchData.users.length > 0 && (
+            {!!keyword && searchData.users && searchData.users.length > 0 && (
               <>
                 <Text>Users:</Text>
                 <FlatList
@@ -235,16 +239,18 @@ export default function BottomToolbar({ navigation }: any) {
                 />
               </>
             )}
-            {searchData.summaries && searchData.summaries.length > 0 && (
-              <>
-                <Text>Summaries:</Text>
-                <FlatList
-                  data={searchData.summaries}
-                  renderItem={renderSummaryItem}
-                  style={{ flex: 1, marginTop: 5 }}
-                />
-              </>
-            )}
+            {!!keyword &&
+              searchData.summaries &&
+              searchData.summaries.length > 0 && (
+                <>
+                  <Text>Summaries:</Text>
+                  <FlatList
+                    data={searchData.summaries}
+                    renderItem={renderSummaryItem}
+                    style={{ flex: 1, marginTop: 5 }}
+                  />
+                </>
+              )}
           </SafeAreaView>
         )}
         {!viewLayout && <ActivityIndicator />}

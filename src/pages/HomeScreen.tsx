@@ -48,19 +48,19 @@ export default function HomeScreen(props: any) {
       }}
     >
       <Avatar
-        title={item.title[0]}
+        // title={item.title[0]}
+        // titleStyle={{ color: "black" }}
         source={item.avatar_uri && { uri: item.avatar_uri }}
-        titleStyle={{ color: "black" }}
-        containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
+        // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
       />
       <ListItem.Content>
         <ListItem.Title>{item.title}</ListItem.Title>
       </ListItem.Content>
       <Avatar
-        title={item.title[0]}
-        titleStyle={{ color: "black" }}
-        source={item.website_logo && { uri: item.website_logo }}
-        containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
+        // title={item.title[0]}
+        // titleStyle={{ color: "black" }}
+        source={item.logo_uri && { uri: item.logo_uri }}
+        // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
       />
     </ListItem>
   );

@@ -410,14 +410,14 @@ export default function NewsViewScreen(props: any) {
               }}
             >
               <Avatar
-                title={newsData?.title[0]}
-                titleStyle={{ color: "black" }}
+                // title={newsData?.title[0]}
+                // titleStyle={{ color: "black" }}
                 source={newsData?.avatar_uri && { uri: newsData?.avatar_uri }}
-                containerStyle={{
-                  borderColor: "green",
-                  borderWidth: 1,
-                  padding: 3,
-                }}
+                // containerStyle={{
+                //   borderColor: "green",
+                //   borderWidth: 1,
+                //   padding: 3,
+                // }}
               />
               <Text
                 style={{
@@ -430,18 +430,14 @@ export default function NewsViewScreen(props: any) {
                 {newsData?.title}
               </Text>
               <Avatar
-                title={newsData?.title[0]}
-                titleStyle={{ color: "black" }}
-                source={
-                  newsData?.website_logo
-                    ? { uri: newsData?.website_logo }
-                    : undefined
-                }
-                containerStyle={{
-                  borderColor: "green",
-                  borderWidth: 1,
-                  padding: 3,
-                }}
+                // title={newsData?.title[0]}
+                // titleStyle={{ color: "black" }}
+                source={newsData?.logo_uri && { uri: newsData?.logo_uri }}
+                // containerStyle={{
+                //   borderColor: "green",
+                //   borderWidth: 1,
+                //   padding: 3,
+                // }}
               />
             </View>
             <FlatList
