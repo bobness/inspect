@@ -123,19 +123,19 @@ export default function ProfileScreen(props: any) {
       }}
     >
       <Avatar
-        title={item?.title[0] ?? ""}
-        titleStyle={{ color: "black" }}
-        source={item?.avatar_url && { uri: item.avatar_url }}
-        containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
+        // title={item?.title[0] ?? ""}
+        // titleStyle={{ color: "black" }}
+        source={item?.avatar_uri && { uri: item.avatar_uri }}
+        // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
       />
       <ListItem.Content>
         <ListItem.Title>{item?.title}</ListItem.Title>
       </ListItem.Content>
       <Avatar
-        title={item?.title[0] ?? ""}
-        titleStyle={{ color: "black" }}
-        source={item?.website_logo && { uri: item.website_logo }}
-        containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
+        // title={item?.title[0] ?? ""}
+        // titleStyle={{ color: "black" }}
+        source={item?.logo_uri && { uri: item.logo_uri }}
+        // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
       />
     </ListItem>
   );
@@ -155,8 +155,9 @@ export default function ProfileScreen(props: any) {
       </ListItem.Content>
       <Avatar
         title={item && item.username ? item.username[0] : ""}
+        source={item.avatar_uri && { uri: item.avatar_uri }}
         titleStyle={{ color: "black" }}
-        containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
+        // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
       />
     </ListItem>
   );

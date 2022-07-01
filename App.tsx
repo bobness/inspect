@@ -10,7 +10,6 @@ import AuthorNewsViewScreen from "./src/pages/AuthorNewsViewScreen";
 import ProfileScreen from "./src/pages/ProfileScreen";
 import AboutScreen from "./src/pages/AboutScreen";
 
-// TODO: convert to JS since all TS types are `any`
 const Stack: any = createNativeStackNavigator();
 
 export default function App() {
