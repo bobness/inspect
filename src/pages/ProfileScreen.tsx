@@ -37,6 +37,7 @@ export default function ProfileScreen(props: any) {
   useEffect(() => {
     getAuthUser()
       .then((data) => {
+        // console.log("*** got profileData: ", data);
         setProfileData({
           ...data,
           password: "",
@@ -147,16 +148,17 @@ export default function ProfileScreen(props: any) {
       tvParallaxProperties={undefined}
       style={{ flex: 1, width: "100%" }}
       onPress={() => {
-        navigation.navigate("NewsView", { data: item });
+        // FIXME: go somewhere else
+        // navigation.navigate("NewsView", { data: item });
       }}
     >
       <ListItem.Content>
         <ListItem.Title>{item?.username}</ListItem.Title>
       </ListItem.Content>
       <Avatar
-        title={item && item.username ? item.username[0] : ""}
+        // title={item && item.username ? item.username[0] : ""}
         source={item.avatar_uri && { uri: item.avatar_uri }}
-        titleStyle={{ color: "black" }}
+        // titleStyle={{ color: "black" }}
         // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
       />
     </ListItem>
