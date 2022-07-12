@@ -37,7 +37,6 @@ export default function ProfileScreen(props: any) {
   useEffect(() => {
     getAuthUser()
       .then((data) => {
-        // console.log("*** got profileData: ", data);
         setProfileData({
           ...data,
           password: "",

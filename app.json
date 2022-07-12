@@ -4,6 +4,7 @@
     "slug": "inspect",
     "owner": "bobstark",
     "version": "1.0.0",
+    "sdkVersion": "30.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -15,9 +16,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "net.datagotchi.inspect"
