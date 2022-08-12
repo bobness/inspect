@@ -43,7 +43,6 @@ export default function BottomAction({ title, content, url }: ActionType) {
         alert("Something went wrong");
       });
   };
-
   const onShare = async () => {
     try {
       const result = await Share.share({
@@ -64,7 +63,6 @@ export default function BottomAction({ title, content, url }: ActionType) {
       alert(error.message);
     }
   };
-
   const actions = useMemo(
     () => [
       {
