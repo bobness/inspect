@@ -2039,7 +2039,11 @@
   dependencies:
     "@types/react" "*"
 
+<<<<<<< HEAD
 "@types/react-native@~0.69.1":
+=======
+"@types/react-native@^0.69.5":
+>>>>>>> 53f3fca8 (Fix share button for new react-native version)
   version "0.69.5"
   resolved "https://registry.yarnpkg.com/@types/react-native/-/react-native-0.69.5.tgz#7709fdbff031a5ecf1956705e6c4a07cdfe6867c"
   integrity sha512-mSUCuGUsW2kJlZiu4GmdYVDKZX/52iyC9rm6dxAmflJj1b7kSO/CMSDy5WbcfS8QerxTqbYGTrIwHD0GnXHzbQ==
@@ -2054,10 +2058,17 @@
     "@types/prop-types" "*"
     csstype "^3.0.2"
 
+<<<<<<< HEAD
 "@types/react@~18.0.0":
   version "18.0.17"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-18.0.17.tgz#4583d9c322d67efe4b39a935d223edcc7050ccf4"
   integrity sha512-38ETy4tL+rn4uQQi7mB81G7V1g0u2ryquNmsVIOKUAEIDK+3CUjZ6rSRpdvS99dNBnkLFL83qfmtLacGOTIhwQ==
+=======
+"@types/react@^17.0.0":
+  version "17.0.48"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.48.tgz#a4532a8b91d7b27b8768b6fc0c3bccb760d15a6c"
+  integrity sha512-zJ6IYlJ8cYYxiJfUaZOQee4lh99mFihBoqkOSEGV+dFi9leROW6+PgstzQ+w3gWTnUfskALtQPGHK6dYmPj+2A==
+>>>>>>> 53f3fca8 (Fix share button for new react-native version)
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -5772,7 +5783,11 @@ prompts@^2.3.2, prompts@^2.4.0:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
 
+<<<<<<< HEAD
 prop-types@^15.5.10, prop-types@^15.7.2, prop-types@^15.8.1:
+=======
+prop-types@*, prop-types@^15.7.2, prop-types@^15.8.1:
+>>>>>>> 53f3fca8 (Fix share button for new react-native version)
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -5879,6 +5894,7 @@ react-is@^17.0.1:
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
+<<<<<<< HEAD
 
 react-native-action-button@^2.8.5:
   version "2.8.5"
@@ -5886,12 +5902,15 @@ react-native-action-button@^2.8.5:
   integrity sha512-BvGZpzuGeuFR2Y6j93+vKiSqDhsF87VHvNXFs/qEYKfzT4b1ASAT/GQbgS6gNt4jRJCUnJWYrIwlBzRjesZQmQ==
   dependencies:
     prop-types "^15.5.10"
+=======
+>>>>>>> 53f3fca8 (Fix share button for new react-native version)
 
-react-native-autoheight-webview@^1.6.1:
-  version "1.6.1"
-  resolved "https://registry.yarnpkg.com/react-native-autoheight-webview/-/react-native-autoheight-webview-1.6.1.tgz#dc404f36577478e91fc83999203999e9c9ea5bd5"
-  integrity sha512-yno5Fo3RBaH/p8ywgGE23xKLaX0aiVFhFLYGlhQh9qKoCUuXnIuH55di3ELutR7MCXHWg/V3a8iBb11HLcPUSA==
+react-native-autoheight-webview@^1.6.4:
+  version "1.6.4"
+  resolved "https://registry.yarnpkg.com/react-native-autoheight-webview/-/react-native-autoheight-webview-1.6.4.tgz#03179c53b717d749f11f478013d1cddf89e5b96e"
+  integrity sha512-e3eVTxP2BxEMWRTiXdU1fpyjbXMmgbNc399Mtz7uFqXDgjU8hGdDeEV62oXwrCpq/4KD8Qs2TJtG9HCUu9AZAQ==
   dependencies:
+    deprecated-react-native-prop-types "^2.3.0"
     prop-types "^15.7.2"
 
 react-native-codegen@^0.69.1:
@@ -5924,6 +5943,11 @@ react-native-emoji-selector@^0.2.0:
   integrity sha512-+rPPWG5vl5AexdH8udEwtzdq9QUGD6kp+dQ8C/459d3ScM0S3UnT/qAvhmpsTgCbgjpdwiJIcrKNxKmGEDb15g==
   dependencies:
     emoji-datasource "^6.0.0"
+
+react-native-floating-action@^1.22.0:
+  version "1.22.0"
+  resolved "https://registry.yarnpkg.com/react-native-floating-action/-/react-native-floating-action-1.22.0.tgz#7ec476f320e16855ad4077a3a9f36511d1718a52"
+  integrity sha512-m/9ueh2bgV+Dopelam2hu+FIY1wrIOPjpcBNgU3I5J9SqWmPQCarSz5L8zsW5QWE4YgXuaVbYAO/pgb0P8x/gQ==
 
 react-native-fs@^2.20.0:
   version "2.20.0"
