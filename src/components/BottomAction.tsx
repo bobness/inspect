@@ -23,7 +23,7 @@ export default function BottomAction({ title, content, url }: ActionType) {
 
     Linking.openURL(url)
       .then((data) => {
-        alert("Facebook Opened");
+        // alert("Facebook Opened");
       })
       .catch(() => {
         alert("Something went wrong");
@@ -37,27 +37,13 @@ export default function BottomAction({ title, content, url }: ActionType) {
       "https://twitter.com/intent/tweet?" + twitterParameters.join("&");
     Linking.openURL(url)
       .then((data) => {
-        alert("Twitter Opened");
+        // alert("Twitter Opened");
       })
       .catch(() => {
         alert("Something went wrong");
       });
   };
-  const postOnLinkedin = () => {
-    let linkedInParameters = [];
-    if (shareURL) linkedInParameters.push("url=" + encodeURI(shareURL));
-    const url =
-      "https://www.linkedin.com/sharing/share-offsite/?" +
-      linkedInParameters.join("&");
 
-    Linking.openURL(url)
-      .then((data) => {
-        alert("LinkedIn Opened");
-      })
-      .catch(() => {
-        alert("Something went wrong");
-      });
-  };
   const onShare = async () => {
     try {
       const result = await Share.share({

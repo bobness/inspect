@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
   Platform,
   Alert,
+  Linking,
 } from "react-native";
 import { Avatar, Overlay, Icon } from "react-native-elements";
 import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -38,7 +39,7 @@ export default function NewsViewScreen(props: any) {
     navigation,
   } = props;
   let richText: any = useRef(null);
-  const [newsData, setNewsData]: any = useState(null);
+  const [newsData, setNewsData] = useState<any | undefined>();
   const [selectedCommentId, selectCommentId]: any = useState(null);
   const [selectedComments, setSelectedComments] = useState([]);
   const [commentText, setCommentText] = useState("");
@@ -136,74 +137,89 @@ export default function NewsViewScreen(props: any) {
   const renderSnippet = ({ item }: any) => {
     const emojis = getEmojis(item.id);
     const commments = getComments(item.id);
-    return (
-      <View style={{ marginTop: 10 }}>
-        <TouchableOpacity
-          onPress={() => {
-            selectCommentId(item.id);
-            setVisible(!visible);
-          }}
-        >
-          <View style={{ flexDirection: "row", paddingVertical: 5 }}>
-            <Text style={{ paddingRight: 10, fontSize: 20, minWidth: 35 }}>
-              {emojis.length > 0 ? emojis[0].reaction : ""}
-            </Text>
-            <Text style={{ flex: 1, flexWrap: "wrap" }}>{item.value}</Text>
-          </View>
-        </TouchableOpacity>
-        <View
-          style={{
-            paddingLeft: 36,
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <View style={{ flexDirection: "row" }}>
-            <Text style={{ fontSize: 16, color: "grey" }}>
-              {emojis.length > 0 ? emojis[0].reaction : ""}{" "}
-              {emojis.length > 0 ? emojis.length : ""}
-            </Text>
-            <TouchableOpacity
-              onPress={() => {
-                if (commments.length > 0) {
+    if (newsData) {
+      return (
+        <View style={{ marginTop: 10 }}>
+          <TouchableOpacity
+            onPress={() => {
+              selectCommentId(item.id);
+              setVisible(!visible);
+            }}
+          >
+            <View style={{ flexDirection: "row", paddingVertical: 5 }}>
+              <Text style={{ paddingRight: 10, fontSize: 20, minWidth: 35 }}>
+                {emojis.length > 0 ? emojis[0].reaction : ""}
+              </Text>
+              <Text style={{ flex: 1, flexWrap: "wrap" }}>{item.value}</Text>
+            </View>
+          </TouchableOpacity>
+          <View
+            style={{
+              paddingLeft: 36,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ fontSize: 16, color: "grey" }}>
+                {emojis.length > 0 ? emojis[0].reaction : ""}{" "}
+                {emojis.length > 0 ? emojis.length : ""}
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  if (commments.length > 0) {
+                    selectCommentId(item.id);
+                    setSelectedComments(
+                      newsData.comments.filter(
+                        (c: any) => c.snippet_id == item.id
+                      )
+                    );
+                    toggleViewCommentOverlay();
+                  } else {
+                    Alert.alert("No comments");
+                  }
+                }}
+              >
+                <Icon
+                  name="comment-dots"
+                  type="font-awesome-5"
+                  color="#ccc"
+                  style={{ paddingHorizontal: 10 }}
+                  tvParallaxProperties={undefined}
+                />
+              </TouchableOpacity>
+              <Text style={{ fontSize: 16, color: "grey" }}>
+                {commments.length > 0 ? commments.length : ""}
+              </Text>
+            </View>
+            <View>
+              <TouchableOpacity
+                onPress={() => {
                   selectCommentId(item.id);
-                  setSelectedComments(
-                    newsData.comments.filter(
-                      (c: any) => c.snippet_id == item.id
-                    )
-                  );
-                  toggleViewCommentOverlay();
-                } else {
-                  Alert.alert("No comments");
-                }
-              }}
-            >
-              <Icon
-                name="comment-dots"
-                type="font-awesome-5"
-                color="#ccc"
-                style={{ paddingHorizontal: 10 }}
-                tvParallaxProperties={undefined}
-              />
-            </TouchableOpacity>
-            <Text style={{ fontSize: 16, color: "grey" }}>
-              {commments.length > 0 ? commments.length : ""}
-            </Text>
-          </View>
-          <View>
-            <TouchableOpacity
-              onPress={() => {
-                selectCommentId(item.id);
-                toggleCommentOverlay();
-              }}
-            >
-              <Text style={{ color: "grey" }}>Add comment</Text>
-            </TouchableOpacity>
+                  toggleCommentOverlay();
+                }}
+              >
+                <Text style={{ color: "grey" }}>Add comment</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-    );
+      );
+    } else {
+      return (
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            justifyContent: "space-around",
+            padding: 10,
+          }}
+        >
+          <ActivityIndicator />
+        </View>
+      );
+    }
   };
 
   const renderCommentItem = ({ item }: any) => {
@@ -266,21 +282,6 @@ export default function NewsViewScreen(props: any) {
     });
   }, [navigation]);
 
-  if (!newsData) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          flexDirection: "row",
-          justifyContent: "space-around",
-          padding: 10,
-        }}
-      >
-        <ActivityIndicator />
-      </View>
-    );
-  }
-
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -323,6 +324,9 @@ export default function NewsViewScreen(props: any) {
                 //   borderWidth: 1,
                 //   padding: 3,
                 // }}
+                onPress={() => {
+                  Linking.openURL(newsData?.url);
+                }}
               />
             </View>
             <FlatList
@@ -335,7 +339,7 @@ export default function NewsViewScreen(props: any) {
             <BottomAction
               title={newsData?.title}
               content={getContent()}
-              url={newsData?.website_logo}
+              url={newsData?.logo_uri && { uri: newsData?.logo_uri }}
             />
           </View>
           <BottomToolbar {...props} />
