@@ -127,14 +127,14 @@ export default function NewsViewScreen(props: any) {
     );
   };
 
-  const getEmoji = (snippet_id: number) => {
+  const getEmojis = (snippet_id: number) => {
     return newsData.reactions.filter(
       (reaction: any) => reaction.snippet_id == snippet_id
     );
   };
 
-  const renderItem = ({ item }: any) => {
-    const emojis = getEmoji(item.id);
+  const renderSnippet = ({ item }: any) => {
+    const emojis = getEmojis(item.id);
     const commments = getComments(item.id);
     return (
       <View style={{ marginTop: 10 }}>
@@ -148,7 +148,7 @@ export default function NewsViewScreen(props: any) {
             <Text style={{ paddingRight: 10, fontSize: 20, minWidth: 35 }}>
               {emojis.length > 0 ? emojis[0].reaction : ""}
             </Text>
-            <Text>{item.value}</Text>
+            <Text style={{ flex: 1, flexWrap: "wrap" }}>{item.value}</Text>
           </View>
         </TouchableOpacity>
         <View
@@ -327,7 +327,7 @@ export default function NewsViewScreen(props: any) {
             </View>
             <FlatList
               data={newsData?.snippets || []}
-              renderItem={renderItem}
+              renderItem={renderSnippet}
               style={{ flex: 1, width: "100%" }}
               refreshing={loading}
               onRefresh={handleRefresh}
