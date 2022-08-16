@@ -11,6 +11,8 @@ import {
   View,
   FlatList,
   TouchableOpacity,
+  Text,
+  ScrollView,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import {
@@ -22,13 +24,20 @@ import {
   Avatar,
 } from "react-native-elements";
 import { getAuthUser, updateProfile } from "../store/auth";
+import {
+  actions,
+  RichEditor,
+  RichToolbar,
+} from "react-native-pell-rich-editor";
 
 export default function ProfileScreen(props: any) {
   const { navigation } = props;
-  const usernameRef: any = useRef(null);
-  const emailRef: any = useRef(null);
-  const passwordRef: any = useRef(null);
-  const confirmPasswordRef: any = useRef(null);
+  const usernameRef = useRef<any | undefined>();
+  const emailRef = useRef<any | undefined>();
+  const passwordRef = useRef<any | undefined>();
+  const confirmPasswordRef = useRef<any | undefined>();
+  const profileRef = useRef<any | undefined>();
+
   const [profileData, setProfileData] = useState<any | undefined>();
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -37,6 +46,7 @@ export default function ProfileScreen(props: any) {
   useEffect(() => {
     getAuthUser()
       .then((data) => {
+        console.log("*** got profileData.profile: ", data.profile);
         setProfileData({
           ...data,
           password: "",
@@ -108,6 +118,10 @@ export default function ProfileScreen(props: any) {
         await updateProfile({ avatar_uri: profileData.avatar_uri });
         setLoading(false);
         break;
+      case "profile":
+        setLoading(true);
+        await updateProfile({ profile: profileData.profile });
+        setLoading(false);
       default:
     }
   };
@@ -203,19 +217,6 @@ export default function ProfileScreen(props: any) {
         </TouchableOpacity>
       </View>
 
-      {/* <Input
-                  ref={avatarRef}
-                  label="Avatar"
-                  placeholder="Avatar"
-                  leftIcon={<Icon name="photo" size={24} color="black" />}
-                  editable={!loading}
-                  value={profileData?.avatar_url}
-                  onChangeText={(text: string) => {
-                    setProfileData({ ...profileData, avatar_url: text });
-                  }}
-                  autoCompleteType={undefined}
-                  autoCapitalize="none"
-                /> */}
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={commonStyle.pageContainer}>
           <Tab
@@ -239,7 +240,7 @@ export default function ProfileScreen(props: any) {
           </Tab>
           <TabView value={tabIndex} onChange={setTabIndex}>
             <TabView.Item style={{ width: "100%" }}>
-              <View style={{ flex: 1, padding: 10 }}>
+              <ScrollView style={{ flex: 1, padding: 10 }}>
                 <Input
                   ref={emailRef}
                   label="Email Address"
@@ -258,8 +259,7 @@ export default function ProfileScreen(props: any) {
                   ref={usernameRef}
                   label="User Name"
                   placeholder="User Name"
-                  // FIXME: causes a repeating warning that messes up the UI
-                  // leftIcon={<Icon name="user" size={24} color="black" />}
+                  leftIcon={<Icon name="user" size={24} color="black" />}
                   editable={!loading}
                   value={profileData?.username}
                   onChangeText={(text: string) => {
@@ -301,7 +301,56 @@ export default function ProfileScreen(props: any) {
                   autoCapitalize="none"
                   autoComplete="off"
                 />
-              </View>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    paddingLeft: 12,
+                    color: "#888",
+                    fontSize: 16,
+                  }}
+                >
+                  Your Profile
+                </Text>
+                <RichToolbar
+                  editor={profileRef}
+                  actions={[
+                    // actions.insertImage,
+                    actions.setBold,
+                    actions.setItalic,
+                    actions.setUnderline,
+                    actions.heading1,
+                    actions.insertLink,
+                  ]}
+                  iconMap={{
+                    [actions.heading1]: ({ tintColor }) => (
+                      <Text style={[{ color: tintColor }]}>H1</Text>
+                    ),
+                  }}
+                  onInsertLink={() => {
+                    console.log("*** inserting link: ", arguments);
+                    // TODO: open modal to ask for url and link text
+                    // TODO: insert <a href={url}>{text}</a> into profile
+                    const profile = profileData.profile;
+                    const newText = '<a href="#">Test</a>';
+                    setProfileData({
+                      ...profileData,
+                      profile: `${profile} ${newText}`,
+                    });
+                  }}
+                />
+                <RichEditor
+                  ref={profileRef}
+                  placeholder="Your Profile"
+                  initialContentHTML={profileData?.profile}
+                  initialHeight={250}
+                  onChange={(text: string) => {
+                    setProfileData({ ...profileData, profile: text });
+                  }}
+                  onBlur={() => {
+                    handleSave("profile");
+                  }}
+                />
+              </ScrollView>
             </TabView.Item>
             <TabView.Item style={{ width: "100%" }}>
               <FlatList
