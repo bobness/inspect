@@ -1,5 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet } from 'react-native';
+
+import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
+
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './src/pages/LoginScreen';
@@ -11,6 +14,16 @@ import AuthorNewsViewScreen from './src/pages/AuthorNewsViewScreen';
 import ProfileScreen from './src/pages/ProfileScreen';
 
 const Stack: any = createNativeStackNavigator();
+ReceiveSharingIntent.getReceivedFiles((files: any) => {
+  console.log(files);
+},
+  (error: any) => {
+    console.log(error);
+  },
+  'com.herzogdev.inspectmobile' // share url protocol (must be unique to your app, suggest using your apple bundle id)
+);
+
+ReceiveSharingIntent.clearReceivedFiles();
 
 export default function App() {
   return (
