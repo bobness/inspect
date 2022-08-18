@@ -29,6 +29,7 @@
         <data android:scheme="net.datagotchi.inspect"/>
         <data android:scheme="exp+inspect"/>
         <data android:scheme="com.herzogdev.inspectmobile"/>
+        <data android:scheme="exp+inspect-mobile"/>
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>
