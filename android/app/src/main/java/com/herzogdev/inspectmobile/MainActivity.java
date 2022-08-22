@@ -2,6 +2,7 @@ package com.herzogdev.inspectmobile;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.content.Intent;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
@@ -53,5 +54,12 @@ public class MainActivity extends ReactActivity {
     // Use the default back button implementation on Android S
     // because it's doing more than {@link Activity#moveTaskToBack} in fact.
     super.invokeDefaultOnBackPressed();
+  }
+
+  // on your MainActivity Class body
+  @Override
+  public void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    setIntent(intent);
   }
 }
