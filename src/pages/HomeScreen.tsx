@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useCallback, useState, useRef } from "react";
 
 import commonStyle from "../styles/CommonStyle";
 import {
@@ -9,10 +9,17 @@ import {
   View,
   FlatList,
   ActivityIndicator,
+  // Animated,
+  Easing,
 } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ListItem, Avatar } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
-import { getAllNews } from "../store/news";
+import { getUnreadNews, markAsRead } from "../store/news";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
 const list: any = [];
 export default function HomeScreen(props: any) {
   const { navigation } = props;
@@ -20,49 +27,92 @@ export default function HomeScreen(props: any) {
   const [isRefreshing, setRefreshing] = useState<boolean>(false);
 
   useEffect(() => {
-    getAllNews()
+    getUnreadNews()
       .then((data) => {
         setNewsData(data);
       })
       .catch((err) => {
-        console.log("error! ", err);
+        console.log("error getting news: ", err);
       });
   }, []);
 
   const handleRefresh = () => {
     setRefreshing(true);
-    getAllNews().then((data) => {
-      setRefreshing(false);
-      setNewsData(data);
-    });
+    getUnreadNews()
+      .then((data) => {
+        setRefreshing(false);
+        setNewsData(data);
+      })
+      .catch((err) => {
+        console.log("error getting news: ", err);
+      });
   };
 
+  const offset = useSharedValue({ x: 0, y: 0 });
+  const start = useSharedValue({ x: 0, y: 0 });
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: offset.value.x },
+        { translateY: offset.value.y },
+      ],
+    };
+  });
+
+  const archive = useCallback(
+    (summaryId: number) =>
+      Gesture.Pan()
+        .runOnJS(true)
+        .onStart(() => {})
+        .onUpdate((e) => {
+          offset.value.x = e.translationX + start.value.x;
+          offset.value = {
+            x: e.translationX + start.value.x,
+            y: e.translationY + start.value.x,
+          };
+        })
+        .onEnd(() => {
+          start.value = {
+            x: offset.value.x,
+            y: offset.value.y,
+          };
+          start.value = offset.value;
+          markAsRead(summaryId).then(handleRefresh);
+        }),
+    [Gesture]
+  );
+
   const renderItem = ({ item }: any) => (
-    <ListItem
-      bottomDivider
-      hasTVPreferredFocus={undefined}
-      tvParallaxProperties={undefined}
-      style={{ flex: 1, width: "100%" }}
-      onPress={() => {
-        navigation.navigate("NewsView", { data: item });
-      }}
-    >
-      <Avatar
-        // title={item.title[0]}
-        // titleStyle={{ color: "black" }}
-        source={item.avatar_uri && { uri: item.avatar_uri }}
-        // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
-      />
-      <ListItem.Content>
-        <ListItem.Title>{item.title}</ListItem.Title>
-      </ListItem.Content>
-      <Avatar
-        // title={item.title[0]}
-        // titleStyle={{ color: "black" }}
-        source={item.logo_uri && { uri: item.logo_uri }}
-        // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
-      />
-    </ListItem>
+    <GestureDetector gesture={archive(item.id)}>
+      <Animated.View style={animatedStyles}>
+        <ListItem
+          bottomDivider
+          hasTVPreferredFocus={undefined}
+          tvParallaxProperties={undefined}
+          style={{ flex: 1, width: "100%" }}
+          // style={animatedStyles}
+          onPress={(e) => {
+            navigation.navigate("NewsView", { data: item });
+          }}
+        >
+          <Avatar
+            // title={item.title[0]}
+            // titleStyle={{ color: "black" }}
+            source={item.avatar_uri && { uri: item.avatar_uri }}
+            // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
+          />
+          <ListItem.Content>
+            <ListItem.Title>{item.title}</ListItem.Title>
+          </ListItem.Content>
+          <Avatar
+            // title={item.title[0]}
+            // titleStyle={{ color: "black" }}
+            source={item.logo_uri && { uri: item.logo_uri }}
+            // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
+          />
+        </ListItem>
+      </Animated.View>
+    </GestureDetector>
   );
 
   return (
