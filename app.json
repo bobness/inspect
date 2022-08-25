@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "Inspect",
-    "slug": "inspect-mobile",
+    "slug": "inspect",
+    "owner": "bobstark",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -19,17 +19,16 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.herzogdev.inspectmobile"
+      "bundleIdentifier": "net.datagotchi.inspect"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.herzogdev.inspectmobile"
+      "package": "net.datagotchi.inspect"
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
+    "description": "",
+    "githubUrl": "https://github.com/bobness/inspect-app"
   }
 }

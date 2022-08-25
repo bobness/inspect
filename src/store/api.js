@@ -1,18 +1,34 @@
-import axios from 'axios';
-const baseUrl = 'https://api.inspect.com';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
-const instance = axios.create({ baseURL: baseUrl });
+// const baseUrl = "http://inspect.datagotchi.net:5000";
+const baseUrl = "http://10.0.0.177:5000";
 
-const setToken = (token) => {
-    axios.defaults.headers.common['Authorization'] = token;
+/*
+ar NetworkInfo = require('react-native-network-info');
+
+// Get Local IP
+NetworkInfo.getIPAddress(ip => {
+  console.log(ip);
+});
+*/
+
+const instance = axios.create({
+  baseURL: baseUrl,
+  headers: { "Content-Type": "application/json" },
+});
+
+const setToken = async (token = "") => {
+  if (!token) {
+    token = await AsyncStorage.getItem("@access_token");
+  }
+  instance.defaults.headers.common["x-access-token"] = token;
 };
 
 const removeToken = () => {
-    axios.defaults.headers.common['Authorization'] = '';
+  instance.defaults.headers.common["x-access-token"] = "";
 };
 
-export {
-    instance,
-    setToken,
-    removeToken,
-}
+setToken();
+
+export { instance, setToken, removeToken };
