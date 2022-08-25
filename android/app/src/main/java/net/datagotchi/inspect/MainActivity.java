@@ -1,4 +1,4 @@
-package com.herzogdev.inspectmobile;
+package net.datagotchi.inspect;
 
 import android.os.Build;
 import android.os.Bundle;

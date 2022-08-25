@@ -1,4 +1,4 @@
-package com.herzogdev.inspectmobile.newarchitecture;
+package net.datagotchi.inspect.newarchitecture;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
@@ -19,9 +19,9 @@ import com.facebook.react.fabric.CoreComponentsRegistry;
 import com.facebook.react.fabric.EmptyReactNativeConfig;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.uimanager.ViewManagerRegistry;
-import com.herzogdev.inspectmobile.BuildConfig;
-import com.herzogdev.inspectmobile.newarchitecture.components.MainComponentsRegistry;
-import com.herzogdev.inspectmobile.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+import net.datagotchi.inspect.BuildConfig;
+import net.datagotchi.inspect.newarchitecture.components.MainComponentsRegistry;
+import net.datagotchi.inspect.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
 import java.util.ArrayList;
 import java.util.List;
 

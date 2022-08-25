@@ -25,22 +25,14 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>com.herzogdev.inspectmobile</string>
+          <string>net.datagotchi.inspect</string>
         </array>
       </dict>
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>exp+inspect-mobile</string>
+          <string>exp+inspect</string>
         </array>
-      </dict>
-      <dict>
-          <key>CFBundleTypeRole</key>
-          <string>Editor</string>
-          <key>CFBundleURLSchemes</key>
-          <array>
-              <string>ShareMedia</string> <!-- share url protocol (must be unique to your app, suggest using your apple bundle id) -->
-          </array>
       </dict>
     </array>
     <key>CFBundleVersion</key>
@@ -60,6 +52,10 @@
         </dict>
       </dict>
     </dict>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>
+        To upload photos, please allow permission to access your photo library.
+    </string>
     <key>NSUserTrackingUsageDescription</key>
     <string>This identifier will be used to deliver personalized ads to you.</string>
     <key>SKAdNetworkItems</key>
@@ -99,9 +95,5 @@
     <string>Light</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>
-        To upload photos, please allow permission to access your photo library.
-    </string>
   </dict>
 </plist>

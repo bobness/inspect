@@ -1,4 +1,5 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AsyncStorage } from "react-native"; // expo compatibility
 import axios from "axios";
 
 // const baseUrl = "http://inspect.datagotchi.net:5000";

@@ -1,4 +1,4 @@
-package com.herzogdev.inspectmobile.newarchitecture.components;
+package net.datagotchi.inspect.newarchitecture.components;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
