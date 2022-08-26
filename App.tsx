@@ -18,7 +18,7 @@ const Stack: any = createNativeStackNavigator();
 
 ReceiveSharingIntent.getReceivedFiles(
   (files: any) => {
-    console.log(files);
+    console.log("*** files: ", files);
   },
   (error: any) => {
     console.log(error);
