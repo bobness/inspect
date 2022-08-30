@@ -27,7 +27,7 @@ export default function App() {
     "net.datagotchi.inspect"
   );
 
-  ReceiveSharingIntent.clearReceivedFiles();
+  // ReceiveSharingIntent.clearReceivedFiles();
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
