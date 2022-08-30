@@ -16,19 +16,18 @@ import AboutScreen from "./src/pages/AboutScreen";
 
 const Stack: any = createNativeStackNavigator();
 
-ReceiveSharingIntent.getReceivedFiles(
-  (files: any) => {
-    console.log("*** files: ", files);
-  },
-  (error: any) => {
-    console.log(error);
-  },
-  "net.datagotchi.inspect"
-);
-
-ReceiveSharingIntent.clearReceivedFiles();
-
 export default function App() {
+  ReceiveSharingIntent.getReceivedFiles(
+    (files: any) => {
+      console.log("*** files: ", files);
+    },
+    (error: any) => {
+      console.log(error);
+    },
+    "net.datagotchi.inspect"
+  );
+
+  ReceiveSharingIntent.clearReceivedFiles();
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">

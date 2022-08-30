@@ -6,8 +6,8 @@ import Photos
 
 class ShareViewController: SLComposeServiceViewController {
  // TODO: IMPORTANT: This should be your host app bundle identifier
- let hostAppBundleIdentifier = "com.herzogdev.inspectmobile"
- let shareProtocol = "ShareMedia" //share url protocol (must be unique to your app, suggest using your apple bundle id, ie: `hostAppBundleIdentifier`)
+ let hostAppBundleIdentifier = "net.datagotchi.inspect"
+ let shareProtocol = "net.datagotchi.inspect" //share url protocol (must be unique to your app, suggest using your apple bundle id, ie: `hostAppBundleIdentifier`)
  let sharedKey = "ShareKey"
  var sharedMedia: [SharedMediaFile] = []
  var sharedText: [String] = []
@@ -48,7 +48,7 @@ class ShareViewController: SLComposeServiceViewController {
  }
  
  override func didSelectPost() {
-       print("didSelectPost");
+   self.redirectToHostApp(type: .text)
    }
 
  override func configurationItems() -> [Any]! {
