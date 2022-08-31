@@ -1,5 +1,5 @@
 export interface Source {
   id: number;
-  baseUrl: string;
-  logoUri: string;
+  baseurl: string;
+  logo_uri: string;
 }

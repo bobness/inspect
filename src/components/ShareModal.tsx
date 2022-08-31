@@ -17,18 +17,20 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { CheckBox, Input, Overlay } from "react-native-elements";
-import Collapsible from "react-native-collapsible";
+import { Avatar, CheckBox, Input, Overlay } from "react-native-elements";
+// import Collapsible from "react-native-collapsible";
 import { getAuthUser } from "../store/auth";
 import { Source } from "../types";
+import { postSummary } from "../store/news";
 
 interface Props {
   modalVisible: boolean;
   url?: string;
   hideOverlay: () => void;
+  refreshFeed: () => void;
 }
 
-const ShareModal = ({ modalVisible, url, hideOverlay }: Props) => {
+const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
   const [cleanedUrl, setCleanedUrl] = useState<string | undefined>();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [source, setSource] = useState<Source | undefined>();
@@ -39,7 +41,7 @@ const ShareModal = ({ modalVisible, url, hideOverlay }: Props) => {
 
   const titleInputRef = useRef(null);
   const urlRegex = useMemo(
-    () => RegExp("https?://([a-zA-Z0-9]+.[a-z]+).*"),
+    () => RegExp("https?://.*\\.([a-zA-Z0-9]+\\.[a-z]+)\\/.*"),
     []
   );
 
@@ -59,20 +61,33 @@ const ShareModal = ({ modalVisible, url, hideOverlay }: Props) => {
     }
   }, []);
 
+  const cleanup = useCallback(() => {
+    setSource(undefined);
+    setCleanedUrl(undefined);
+    // TODO: setUrl(undefined)?
+    // setDefaultTitle(undefined)
+    setTitle(undefined);
+  }, []);
+
   const submitShare = useCallback(async () => {
     if (title) {
-      const authUser = await getAuthUser();
+      const authUser = await getAuthUser(); // TODO: memoize on first load
       const summary = {
-        url: cleanUrl(url),
-        title: title,
+        url: cleanedUrl,
+        title,
         user_id: authUser.id,
         source_id: source?.id,
+        snippets,
       };
+      await postSummary(summary);
+      cleanup();
       hideOverlay();
     } else {
+      console.log('*** "empty" title: ', title); // DEBUG
+      // FIXME: this happens when there is text for the title
       Alert.alert("Please specify a title for your summary");
     }
-  }, [hideOverlay]);
+  }, [hideOverlay, cleanup, title]);
 
   useEffect(() => {
     if (modalVisible && url) {
@@ -80,11 +95,13 @@ const ShareModal = ({ modalVisible, url, hideOverlay }: Props) => {
       const baseUrl = parseBaseUrl(url);
       Promise.all([
         instance.get(`/sources/${baseUrl}`).then((res) => {
-          setSource(res.data);
+          if (res.data) {
+            setSource(res.data);
+          }
         }),
-        instance.get(url).then((res) => {
-          setPageContents(res.data);
-        }),
+        // instance.get(url).then((res) => {
+        //   setPageContents(res.data);
+        // }),
       ]).then(() => setLoading(false));
     }
   }, [modalVisible, url]);
@@ -102,10 +119,14 @@ const ShareModal = ({ modalVisible, url, hideOverlay }: Props) => {
   //   }
   // }, [useDefaultTitle]);
 
+  // TODO: use a component that gets created, destroyed, and re-created instead? (to avoid manual cleanup)
   return (
     <Overlay
       isVisible={modalVisible}
-      onBackdropPress={hideOverlay}
+      onBackdropPress={() => {
+        cleanup();
+        hideOverlay();
+      }}
       overlayStyle={{ width: "100%" }}
     >
       <SafeAreaView>
@@ -118,6 +139,19 @@ const ShareModal = ({ modalVisible, url, hideOverlay }: Props) => {
           }}
         >
           <Text style={{ fontSize: 20 }}>Create New Summary</Text>
+          {/* FIXME: why `source` requires `any` instead of `string` is beyond me */}
+          <Avatar
+            title="?"
+            titleStyle={{ color: "black", fontSize: 40 }}
+            source={(source?.logo_uri as any) && { uri: source?.logo_uri }}
+            containerStyle={{
+              borderWidth: 1,
+              borderColor: "black",
+              borderStyle: "solid",
+              width: 100,
+              height: 100,
+            }}
+          />
           <Input
             editable={false}
             label="url"

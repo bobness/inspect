@@ -20,6 +20,10 @@ const getNewsById = (newsId) => {
   return instance.get("/summaries/id/" + newsId).then((res) => res.data);
 };
 
+const postSummary = (summary) => {
+  return instance.post("/summaries", summary);
+};
+
 const postComment = (commentData) => {
   return instance.post("/comments", commentData);
 };
@@ -34,6 +38,7 @@ export {
   getAllNews,
   searchInformation,
   getNewsById,
+  postSummary,
   postComment,
   postReaction,
 };

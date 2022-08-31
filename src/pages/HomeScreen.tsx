@@ -20,11 +20,19 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-const list: any = [];
-export default function HomeScreen(props: any) {
-  const { navigation } = props;
+import ShareModal from "../components/ShareModal";
+
+interface Props {
+  navigation: any;
+  shareUrl?: string;
+  setShareUrl: (value: string | undefined) => void;
+}
+
+export default function HomeScreen(props: Props) {
+  const { navigation, shareUrl, setShareUrl } = props;
   const [newsData, setNewsData] = useState<any[] | undefined>();
   const [isRefreshing, setRefreshing] = useState<boolean>(false);
+  const [shareModalVisible, setShareModalVisible] = useState(false);
 
   useEffect(() => {
     getUnreadNews()
@@ -32,9 +40,15 @@ export default function HomeScreen(props: any) {
         setNewsData(data);
       })
       .catch((err) => {
-        console.log("error getting news: ", err);
+        console.log("error in initial getting news: ", err);
       });
   }, []);
+
+  useEffect(() => {
+    if (shareUrl) {
+      setShareModalVisible(true);
+    }
+  }, [shareUrl]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -44,7 +58,7 @@ export default function HomeScreen(props: any) {
         setNewsData(data);
       })
       .catch((err) => {
-        console.log("error getting news: ", err);
+        console.log("error refreshing news: ", err);
       });
   };
 
@@ -77,6 +91,7 @@ export default function HomeScreen(props: any) {
             y: offset.value.y,
           };
           start.value = offset.value;
+          // FIXME: also happens on swipe down in addition to left
           markAsRead(summaryId).then(handleRefresh);
         }),
     [Gesture]
@@ -116,36 +131,50 @@ export default function HomeScreen(props: any) {
   );
 
   return (
-    <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={commonStyle.pageContainer}>
-          <View style={{ flex: 1, padding: 10 }}>
-            <Text style={commonStyle.logoText}>INSPECT</Text>
-            {newsData && (
-              <FlatList
-                data={newsData}
-                renderItem={renderItem}
-                style={{ flex: 1, width: "100%" }}
-                refreshing={isRefreshing}
-                onRefresh={handleRefresh}
-              />
-            )}
-            {!newsData && (
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  justifyContent: "space-around",
-                  padding: 10,
-                }}
-              >
-                <ActivityIndicator />
-              </View>
-            )}
+    <>
+      <ShareModal
+        modalVisible={shareModalVisible}
+        url={shareUrl}
+        hideOverlay={() => {
+          setShareModalVisible(false);
+          setShareUrl(undefined);
+        }}
+        refreshFeed={handleRefresh}
+      />
+      <KeyboardAvoidingView
+        style={commonStyle.containerView}
+        behavior="padding"
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={commonStyle.pageContainer}>
+            <View style={{ flex: 1, padding: 10 }}>
+              <Text style={commonStyle.logoText}>INSPECT</Text>
+              {newsData && (
+                <FlatList
+                  data={newsData}
+                  renderItem={renderItem}
+                  style={{ flex: 1, width: "100%" }}
+                  refreshing={isRefreshing}
+                  onRefresh={handleRefresh}
+                />
+              )}
+              {!newsData && (
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                    padding: 10,
+                  }}
+                >
+                  <ActivityIndicator />
+                </View>
+              )}
+            </View>
+            <BottomToolbar {...props} />
           </View>
-          <BottomToolbar {...props} />
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </>
   );
 }
