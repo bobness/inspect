@@ -1,5 +1,9 @@
+import "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
+
+import ReceiveSharingIntent from "react-native-receive-sharing-intent";
+
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "./src/pages/LoginScreen";
 import RegisterScreen from "./src/pages/RegisterScreen";
@@ -13,6 +17,17 @@ import AboutScreen from "./src/pages/AboutScreen";
 const Stack: any = createNativeStackNavigator();
 
 export default function App() {
+  ReceiveSharingIntent.getReceivedFiles(
+    (files: any) => {
+      console.log("*** files: ", files);
+    },
+    (error: any) => {
+      console.log(error);
+    },
+    "net.datagotchi.inspect"
+  );
+
+  // ReceiveSharingIntent.clearReceivedFiles();
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
