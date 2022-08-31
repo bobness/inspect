@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import commonStyle from "../styles/CommonStyle";
 import {
@@ -30,6 +30,7 @@ import moment from "moment";
 import AutoHeightWebView from "react-native-autoheight-webview";
 
 import { Dimensions } from "react-native";
+import { getAuthUser } from "../store/auth";
 
 export default function NewsViewScreen(props: any) {
   const {
@@ -329,13 +330,18 @@ export default function NewsViewScreen(props: any) {
                 }}
               />
             </View>
-            <FlatList
-              data={newsData?.snippets || []}
-              renderItem={renderSnippet}
-              style={{ flex: 1, width: "100%" }}
-              refreshing={loading}
-              onRefresh={handleRefresh}
-            />
+            {newsData?.snippets && (
+              <FlatList
+                data={newsData.snippets}
+                renderItem={renderSnippet}
+                style={{ flex: 1, width: "100%" }}
+                refreshing={loading}
+                onRefresh={handleRefresh}
+              />
+            )}
+            {!newsData?.snippets && (
+              <Text>Add some snippets as evidence for your summary</Text>
+            )}
             <BottomAction
               title={newsData?.title}
               content={getContent()}
