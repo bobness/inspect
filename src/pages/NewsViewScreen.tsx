@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import commonStyle from "../styles/CommonStyle";
 import {
@@ -15,7 +21,7 @@ import {
   Alert,
   Linking,
 } from "react-native";
-import { Avatar, Overlay, Icon } from "react-native-elements";
+import { Avatar, Overlay, Icon, Button } from "react-native-elements";
 import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import BottomToolbar from "../components/BottomToolbar";
@@ -25,12 +31,18 @@ import {
   actions,
 } from "react-native-pell-rich-editor";
 import BottomAction from "../components/BottomAction";
-import { getNewsById, postComment, postReaction } from "../store/news";
+import {
+  deleteSummary,
+  getNewsById,
+  postComment,
+  postReaction,
+} from "../store/news";
 import moment from "moment";
 import AutoHeightWebView from "react-native-autoheight-webview";
 
 import { Dimensions } from "react-native";
 import { getAuthUser } from "../store/auth";
+import { AuthUser } from "../types";
 
 export default function NewsViewScreen(props: any) {
   const {
@@ -49,6 +61,7 @@ export default function NewsViewScreen(props: any) {
   const [visibleViewCommentModal, setVisibleViewCommentModal] = useState(false);
   const [emoji, setEmoji] = useState("🤔");
   const [loading, setLoading] = useState(false);
+  const [authUser, setAuthUser] = useState<AuthUser | undefined>();
 
   const convertDate = (date_str: string) => {
     return moment(date_str).fromNow();
@@ -64,6 +77,9 @@ export default function NewsViewScreen(props: any) {
 
   useEffect(() => {
     getNewsDataById(data.id);
+    getAuthUser().then((user) => {
+      setAuthUser(user);
+    });
   }, [data]);
 
   const toggleOverlay = () => {
@@ -264,6 +280,13 @@ export default function NewsViewScreen(props: any) {
     getNewsDataById(data.id);
   };
 
+  const deleteItem = useCallback(async () => {
+    if (data) {
+      await deleteSummary(data.id);
+      navigation.navigate("Home");
+    }
+  }, [navigation, data]);
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
@@ -287,67 +310,93 @@ export default function NewsViewScreen(props: any) {
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={commonStyle.pageContainer}>
-          <View style={{ flex: 1, padding: 10 }}>
-            <View
-              style={{
-                justifyContent: "space-between",
-                flexDirection: "row",
-                paddingBottom: 10,
-                alignItems: "center",
-              }}
-            >
-              <Avatar
-                // title={newsData?.title[0]}
-                // titleStyle={{ color: "black" }}
-                source={newsData?.avatar_uri && { uri: newsData?.avatar_uri }}
-                // containerStyle={{
-                //   borderColor: "green",
-                //   borderWidth: 1,
-                //   padding: 3,
-                // }}
-              />
-              <Text
+          {newsData && (
+            <View style={{ flex: 1, padding: 10 }}>
+              {authUser?.id == newsData.user_id && (
+                <View style={{ alignItems: "center" }}>
+                  <Button
+                    onPress={deleteItem}
+                    title="Delete Summary"
+                    style={{ width: 100 }}
+                  />
+                </View>
+              )}
+              <View
                 style={{
-                  fontSize: 18,
-                  flex: 1,
-                  paddingHorizontal: 10,
-                  textAlign: "center",
+                  justifyContent: "space-between",
+                  flexDirection: "row",
+                  paddingBottom: 10,
+                  alignItems: "center",
                 }}
               >
-                {newsData?.title}
+                <Avatar
+                  // title={newsData?.title[0]}
+                  // titleStyle={{ color: "black" }}
+                  source={newsData.avatar_uri && { uri: newsData.avatar_uri }}
+                  // containerStyle={{
+                  //   borderColor: "green",
+                  //   borderWidth: 1,
+                  //   padding: 3,
+                  // }}
+                />
+                <Text
+                  style={{
+                    fontSize: 18,
+                    flex: 1,
+                    paddingHorizontal: 10,
+                    textAlign: "center",
+                  }}
+                >
+                  {newsData.title}
+                </Text>
+                <Avatar
+                  // title={newsData?.title[0]}
+                  // titleStyle={{ color: "black" }}
+                  source={newsData.logo_uri && { uri: newsData.logo_uri }}
+                  // containerStyle={{
+                  //   borderColor: "green",
+                  //   borderWidth: 1,
+                  //   padding: 3,
+                  // }}
+                />
+              </View>
+              <Text
+                style={{ color: "blue", textAlign: "center" }}
+                onPress={() => Linking.openURL(newsData.url)}
+              >
+                {newsData.url}
               </Text>
-              <Avatar
-                // title={newsData?.title[0]}
-                // titleStyle={{ color: "black" }}
-                source={newsData?.logo_uri && { uri: newsData?.logo_uri }}
-                // containerStyle={{
-                //   borderColor: "green",
-                //   borderWidth: 1,
-                //   padding: 3,
-                // }}
-                onPress={() => {
-                  Linking.openURL(newsData?.url);
-                }}
+              {newsData.snippets && (
+                <FlatList
+                  data={newsData.snippets}
+                  renderItem={renderSnippet}
+                  style={{ flex: 1, width: "100%" }}
+                  refreshing={loading}
+                  onRefresh={handleRefresh}
+                />
+              )}
+              {!newsData.snippets && (
+                <Text>Add some snippets as evidence for your summary</Text>
+              )}
+              <BottomAction
+                title={newsData.title}
+                content={getContent()}
+                url={newsData.logo_uri && { uri: newsData.logo_uri }}
               />
             </View>
-            {newsData?.snippets && (
-              <FlatList
-                data={newsData.snippets}
-                renderItem={renderSnippet}
-                style={{ flex: 1, width: "100%" }}
-                refreshing={loading}
-                onRefresh={handleRefresh}
-              />
-            )}
-            {!newsData?.snippets && (
-              <Text>Add some snippets as evidence for your summary</Text>
-            )}
-            <BottomAction
-              title={newsData?.title}
-              content={getContent()}
-              url={newsData?.logo_uri && { uri: newsData?.logo_uri }}
-            />
-          </View>
+          )}
+          {!newsData && (
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                justifyContent: "space-around",
+                padding: 10,
+              }}
+            >
+              <ActivityIndicator />
+            </View>
+          )}
           <BottomToolbar {...props} />
           <Overlay
             isVisible={visible}

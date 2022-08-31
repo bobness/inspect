@@ -32,6 +32,10 @@ const postReaction = (reactionData) => {
   return instance.post("/reactions", reactionData);
 };
 
+const deleteSummary = (summaryId) => {
+  return instance.delete(`/summaries/${summaryId}`);
+};
+
 export {
   getUnreadNews,
   markAsRead,
@@ -41,4 +45,5 @@ export {
   postSummary,
   postComment,
   postReaction,
+  deleteSummary,
 };

@@ -3,3 +3,7 @@ export interface Source {
   baseurl: string;
   logo_uri: string;
 }
+
+export interface AuthUser {
+  id: number;
+}

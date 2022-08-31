@@ -20,7 +20,7 @@ import {
 import { Avatar, CheckBox, Input, Overlay } from "react-native-elements";
 // import Collapsible from "react-native-collapsible";
 import { getAuthUser } from "../store/auth";
-import { Source } from "../types";
+import { AuthUser, Source } from "../types";
 import { postSummary } from "../store/news";
 
 interface Props {
@@ -38,6 +38,7 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState<string | undefined>();
   const [snippets, setSnippets] = useState<string[]>([]);
+  const [authUser, setAuthUser] = useState<AuthUser | undefined>();
 
   const titleInputRef = useRef(null);
   const urlRegex = useMemo(
@@ -70,8 +71,7 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
   }, []);
 
   const submitShare = useCallback(async () => {
-    if (title) {
-      const authUser = await getAuthUser(); // TODO: memoize on first load
+    if (authUser && title) {
       const summary = {
         url: cleanedUrl,
         title,
@@ -81,13 +81,18 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
       };
       await postSummary(summary);
       cleanup();
+      refreshFeed();
       hideOverlay();
     } else {
-      console.log('*** "empty" title: ', title); // DEBUG
-      // FIXME: this happens when there is text for the title
       Alert.alert("Please specify a title for your summary");
     }
-  }, [hideOverlay, cleanup, title]);
+  }, [authUser, hideOverlay, cleanup, title]);
+
+  useEffect(() => {
+    getAuthUser().then((user) => {
+      setAuthUser(user);
+    });
+  }, []);
 
   useEffect(() => {
     if (modalVisible && url) {

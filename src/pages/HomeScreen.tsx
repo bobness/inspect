@@ -21,6 +21,7 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import ShareModal from "../components/ShareModal";
+import { useIsFocused } from "@react-navigation/native";
 
 interface Props {
   navigation: any;
@@ -29,20 +30,24 @@ interface Props {
 }
 
 export default function HomeScreen(props: Props) {
+  const isFocused = useIsFocused();
+
   const { navigation, shareUrl, setShareUrl } = props;
   const [newsData, setNewsData] = useState<any[] | undefined>();
   const [isRefreshing, setRefreshing] = useState<boolean>(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
 
   useEffect(() => {
-    getUnreadNews()
-      .then((data) => {
-        setNewsData(data);
-      })
-      .catch((err) => {
-        console.log("error in initial getting news: ", err);
-      });
-  }, []);
+    if (isFocused) {
+      getUnreadNews()
+        .then((data) => {
+          setNewsData(data);
+        })
+        .catch((err) => {
+          console.log("error in initial getting news: ", err);
+        });
+    }
+  }, [isFocused]);
 
   useEffect(() => {
     if (shareUrl) {
