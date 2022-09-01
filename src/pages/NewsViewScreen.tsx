@@ -34,6 +34,7 @@ import BottomAction from "../components/BottomAction";
 import {
   deleteSummary,
   getNewsById,
+  markAsRead,
   postComment,
   postReaction,
 } from "../store/news";
@@ -287,6 +288,11 @@ export default function NewsViewScreen(props: any) {
     }
   }, [navigation, data]);
 
+  const archiveItem = useCallback(async () => {
+    await markAsRead(data.id);
+    navigation.navigate("Home");
+  }, [navigation, data]);
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
@@ -312,15 +318,6 @@ export default function NewsViewScreen(props: any) {
         <View style={commonStyle.pageContainer}>
           {newsData && (
             <View style={{ flex: 1, padding: 10 }}>
-              {authUser?.id == newsData.user_id && (
-                <View style={{ alignItems: "center" }}>
-                  <Button
-                    onPress={deleteItem}
-                    title="Delete Summary"
-                    style={{ width: 100 }}
-                  />
-                </View>
-              )}
               <View
                 style={{
                   justifyContent: "space-between",
@@ -345,6 +342,11 @@ export default function NewsViewScreen(props: any) {
                     flex: 1,
                     paddingHorizontal: 10,
                     textAlign: "center",
+                    color: "blue",
+                  }}
+                  onPress={() => {
+                    // TODO: open it in an html viewer (maybe in a modal) to add more snippets
+                    Linking.openURL(newsData.url);
                   }}
                 >
                   {newsData.title}
@@ -360,13 +362,7 @@ export default function NewsViewScreen(props: any) {
                   // }}
                 />
               </View>
-              <Text
-                style={{ color: "blue", textAlign: "center" }}
-                onPress={() => Linking.openURL(newsData.url)}
-              >
-                {newsData.url}
-              </Text>
-              {newsData.snippets && (
+              {newsData.snippets.length > 0 && (
                 <FlatList
                   data={newsData.snippets}
                   renderItem={renderSnippet}
@@ -375,9 +371,32 @@ export default function NewsViewScreen(props: any) {
                   onRefresh={handleRefresh}
                 />
               )}
-              {!newsData.snippets && (
-                <Text>Add some snippets as evidence for your summary</Text>
+              {newsData.snippets.length === 0 && (
+                <Text style={{ textAlign: "center" }}>
+                  Click the link to add some snippets as evidence for this
+                  summary
+                </Text>
               )}
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Button
+                  onPress={archiveItem}
+                  title="✔️ Archive"
+                  style={{ width: 100, padding: 10 }}
+                />
+                {authUser?.id == newsData.user_id && (
+                  <Button
+                    onPress={deleteItem}
+                    title="🗑 Delete"
+                    style={{ width: 100, padding: 10 }}
+                  />
+                )}
+              </View>
               <BottomAction
                 title={newsData.title}
                 content={getContent()}
