@@ -20,6 +20,10 @@ const getNewsById = (newsId) => {
   return instance.get("/summaries/id/" + newsId).then((res) => res.data);
 };
 
+const postSummary = (summary) => {
+  return instance.post("/summaries", summary);
+};
+
 const postComment = (commentData) => {
   return instance.post("/comments", commentData);
 };
@@ -28,12 +32,18 @@ const postReaction = (reactionData) => {
   return instance.post("/reactions", reactionData);
 };
 
+const deleteSummary = (summaryId) => {
+  return instance.delete(`/summaries/${summaryId}`);
+};
+
 export {
   getUnreadNews,
   markAsRead,
   getAllNews,
   searchInformation,
   getNewsById,
+  postSummary,
   postComment,
   postReaction,
+  deleteSummary,
 };
