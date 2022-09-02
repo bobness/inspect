@@ -1,6 +1,4 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
-import ImagePicker from "react-native-image-crop-picker";
-import RNFS from "react-native-fs";
 
 import commonStyle from "../styles/CommonStyle";
 import {
@@ -169,29 +167,10 @@ export default function ProfileScreen(props: any) {
     }
   }, [profileData?.avatar_uri]);
 
-  const handlePickPicture = useCallback(() => {
-    if (ImagePicker?.openPicker) {
-      ImagePicker.openPicker({
-        width: 200,
-        height: 200,
-        cropping: true,
-        mediaType: "photo",
-      }).then(async (image) => {
-        if (image.path) {
-          const base64 = await RNFS.readFile(image.path, "base64");
-          setProfileData({
-            ...profileData,
-            avatar_uri: `data:image/png;base64,${base64}`,
-          });
-        }
-      });
-    }
-  }, [ImagePicker?.openPicker]);
-
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <View style={{ alignItems: "center" }}>
-        <TouchableOpacity onPress={handlePickPicture}>
+        <TouchableOpacity>
           <Avatar
             size={180}
             source={{ uri: profileData?.avatar_uri }}
