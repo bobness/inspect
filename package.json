@@ -11,7 +11,6 @@
   "dependencies": {
     "@react-navigation/native": "^6.0.10",
     "@react-navigation/native-stack": "^6.6.2",
-    "@types/react-native-htmlview": "^0.16.0",
     "axios": "^0.27.2",
     "expo": "~46.0.9",
     "expo-dev-client": "~1.2.1",
