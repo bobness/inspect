@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 // const baseUrl = "http://inspect.datagotchi.net:5000";
-const baseUrl = "http://localhost:5000";
+const baseUrl = "http://10.0.0.177:5000";
 
 /*
 ar NetworkInfo = require('react-native-network-info');
