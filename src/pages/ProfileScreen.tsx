@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   Text,
   ScrollView,
+  SafeAreaView,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import {
@@ -22,12 +23,14 @@ import {
   TabView,
   ListItem,
   Avatar,
+  Overlay,
 } from "react-native-elements";
 import { getAuthUser, updateProfile } from "../store/auth";
 import {
   actions,
   RichEditor,
   RichToolbar,
+  SelectionChangeListener,
 } from "react-native-pell-rich-editor";
 
 export default function ProfileScreen(props: any) {
@@ -42,11 +45,13 @@ export default function ProfileScreen(props: any) {
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [isRefreshing, setRefreshing] = useState(false);
+  const [insertLinkModalVisible, setInsertLinkModalVisible] = useState(false);
+  const [insertLinkHref, setInsertLinkHref] = useState<string | undefined>();
+  const [insertLinkText, setInsertLinkText] = useState<string | undefined>();
 
   useEffect(() => {
     getAuthUser()
       .then((data) => {
-        console.log("*** got profileData.profile: ", data.profile);
         setProfileData({
           ...data,
           password: "",
@@ -133,6 +138,7 @@ export default function ProfileScreen(props: any) {
       tvParallaxProperties={undefined}
       style={{ flex: 1, width: "100%" }}
       onPress={() => {
+        // TODO: doesn't work
         navigation.navigate("NewsView", { data: item });
       }}
     >
@@ -161,7 +167,7 @@ export default function ProfileScreen(props: any) {
       tvParallaxProperties={undefined}
       style={{ flex: 1, width: "100%" }}
       onPress={() => {
-        // FIXME: go somewhere else
+        // TODO: doesn't work
         // navigation.navigate("NewsView", { data: item });
       }}
     >
@@ -202,6 +208,22 @@ export default function ProfileScreen(props: any) {
     }
   }, [ImagePicker?.openPicker]);
 
+  const hideInsertLinkModal = useCallback(() => {
+    setInsertLinkHref(undefined);
+    setInsertLinkText(undefined);
+    setInsertLinkModalVisible(false);
+  }, []);
+
+  const doInsertLink = useCallback(() => {
+    if (profileRef.current && insertLinkHref && insertLinkText) {
+      const { profile } = profileData;
+      const link = `<a href="${insertLinkHref}">${insertLinkText}</a>`;
+      // TODO: insert link where their cursor is/where text is selected
+      profileRef.current.setContentHTML(`${profile}\n${link}`);
+      hideInsertLinkModal();
+    }
+  }, [insertLinkHref, insertLinkText]);
+
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <View style={{ alignItems: "center" }}>
@@ -238,6 +260,7 @@ export default function ProfileScreen(props: any) {
               titleStyle={{ color: "black", fontSize: 12 }}
             />
           </Tab>
+          {/* @ts-expect-error TODO: TabView can't have children??? */}
           <TabView value={tabIndex} onChange={setTabIndex}>
             <TabView.Item style={{ width: "100%" }}>
               <ScrollView style={{ flex: 1, padding: 10 }}>
@@ -314,28 +337,13 @@ export default function ProfileScreen(props: any) {
                 <RichToolbar
                   editor={profileRef}
                   actions={[
-                    // actions.insertImage,
                     actions.setBold,
                     actions.setItalic,
                     actions.setUnderline,
-                    actions.heading1,
                     actions.insertLink,
                   ]}
-                  iconMap={{
-                    [actions.heading1]: ({ tintColor }) => (
-                      <Text style={[{ color: tintColor }]}>H1</Text>
-                    ),
-                  }}
                   onInsertLink={() => {
-                    console.log("*** inserting link: ", arguments);
-                    // TODO: open modal to ask for url and link text
-                    // TODO: insert <a href={url}>{text}</a> into profile
-                    const profile = profileData.profile;
-                    const newText = '<a href="#">Test</a>';
-                    setProfileData({
-                      ...profileData,
-                      profile: `${profile} ${newText}`,
-                    });
+                    setInsertLinkModalVisible(true);
                   }}
                 />
                 <RichEditor
@@ -346,10 +354,53 @@ export default function ProfileScreen(props: any) {
                   onChange={(text: string) => {
                     setProfileData({ ...profileData, profile: text });
                   }}
-                  onBlur={() => {
-                    handleSave("profile");
-                  }}
                 />
+                <Button
+                  title="Save Profile"
+                  onPress={() => handleSave("profile")}
+                />
+                <Overlay
+                  isVisible={insertLinkModalVisible}
+                  onBackdropPress={() => {
+                    hideInsertLinkModal();
+                  }}
+                  overlayStyle={{ width: "100%" }}
+                >
+                  <SafeAreaView>
+                    <View
+                      style={{
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: 10,
+                        width: "100%",
+                      }}
+                    >
+                      <Text style={{ fontSize: 20 }}>Insert Link</Text>
+                      <Input
+                        label="URL"
+                        value={insertLinkHref}
+                        onChangeText={(text: string) => {
+                          setInsertLinkHref(text);
+                        }}
+                        autoCompleteType={undefined}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                      />
+                      <Input
+                        label="Text"
+                        value={insertLinkText}
+                        onChangeText={(text: string) => {
+                          setInsertLinkText(text);
+                        }}
+                        autoCompleteType={undefined}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                      />
+                      <Button title="Insert" onPress={doInsertLink} />
+                    </View>
+                  </SafeAreaView>
+                </Overlay>
               </ScrollView>
             </TabView.Item>
             <TabView.Item style={{ width: "100%" }}>

@@ -127,7 +127,7 @@ export default function AuthorViewScreen(props: any) {
               {authData.username}
             </Text>
           </View>
-          <Button title="Follow" buttonStyle={{ backgroundColor: "#6AA84F" }} />
+          {/* <Button title="Follow" buttonStyle={{ backgroundColor: "#6AA84F" }} /> */}
         </View>
         <View style={{ flexDirection: "row", padding: 10 }}>
           {authData.profile && (
