@@ -33,7 +33,7 @@ export default function HomeScreen(props: any) {
         setNewsData(data);
       })
       .catch((err) => {
-        if (err.response.status === 401) {
+        if (err.response && err.response.status === 401) {
           navigation.navigate("Login");
         }
         console.log("error getting news: ", err);
@@ -47,7 +47,7 @@ export default function HomeScreen(props: any) {
           setAuthorsData(data);
         })
         .catch((err) => {
-          if (err.response.status === 401) {
+          if (err.response && err.response.status === 401) {
             navigation.navigate("Login");
           }
           console.log("error getting authors: ", err);
@@ -64,6 +64,9 @@ export default function HomeScreen(props: any) {
         setNewsData(data);
       })
       .catch((err) => {
+        if (err.response && err.response.status === 401) {
+          navigation.navigate("Login");
+        }
         console.log("error getting news: ", err);
       });
   };
@@ -77,6 +80,9 @@ export default function HomeScreen(props: any) {
         })
         .catch((err) => {
           setRefreshing(false);
+          if (err.response && err.response.status === 401) {
+            navigation.navigate("Login");
+          }
           console.log("error getting news: ", err);
         });
   };
