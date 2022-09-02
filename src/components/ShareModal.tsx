@@ -141,9 +141,7 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
             value={cleanedUrl}
             style={{ fontSize: 20, fontWeight: "bold" }}
             autoCompleteType={undefined}
-          >
-            {url}
-          </Input>
+          />
           <Input
             ref={titleInputRef}
             label="Title"

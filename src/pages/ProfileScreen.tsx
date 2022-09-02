@@ -11,6 +11,9 @@ import {
   View,
   FlatList,
   TouchableOpacity,
+  Text,
+  ScrollView,
+  SafeAreaView,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import {
@@ -20,19 +23,31 @@ import {
   TabView,
   ListItem,
   Avatar,
+  Overlay,
 } from "react-native-elements";
 import { getAuthUser, updateProfile } from "../store/auth";
+import {
+  actions,
+  RichEditor,
+  RichToolbar,
+  SelectionChangeListener,
+} from "react-native-pell-rich-editor";
 
 export default function ProfileScreen(props: any) {
   const { navigation } = props;
-  const usernameRef: any = useRef(null);
-  const emailRef: any = useRef(null);
-  const passwordRef: any = useRef(null);
-  const confirmPasswordRef: any = useRef(null);
+  const usernameRef = useRef<any | undefined>();
+  const emailRef = useRef<any | undefined>();
+  const passwordRef = useRef<any | undefined>();
+  const confirmPasswordRef = useRef<any | undefined>();
+  const profileRef = useRef<any | undefined>();
+
   const [profileData, setProfileData] = useState<any | undefined>();
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [isRefreshing, setRefreshing] = useState(false);
+  const [insertLinkModalVisible, setInsertLinkModalVisible] = useState(false);
+  const [insertLinkHref, setInsertLinkHref] = useState<string | undefined>();
+  const [insertLinkText, setInsertLinkText] = useState<string | undefined>();
 
   useEffect(() => {
     getAuthUser()
@@ -108,6 +123,10 @@ export default function ProfileScreen(props: any) {
         await updateProfile({ avatar_uri: profileData.avatar_uri });
         setLoading(false);
         break;
+      case "profile":
+        setLoading(true);
+        await updateProfile({ profile: profileData.profile });
+        setLoading(false);
       default:
     }
   };
@@ -119,6 +138,7 @@ export default function ProfileScreen(props: any) {
       tvParallaxProperties={undefined}
       style={{ flex: 1, width: "100%" }}
       onPress={() => {
+        // TODO: doesn't work
         navigation.navigate("NewsView", { data: item });
       }}
     >
@@ -147,7 +167,7 @@ export default function ProfileScreen(props: any) {
       tvParallaxProperties={undefined}
       style={{ flex: 1, width: "100%" }}
       onPress={() => {
-        // FIXME: go somewhere else
+        // TODO: doesn't work
         // navigation.navigate("NewsView", { data: item });
       }}
     >
@@ -188,6 +208,22 @@ export default function ProfileScreen(props: any) {
     }
   }, [ImagePicker?.openPicker]);
 
+  const hideInsertLinkModal = useCallback(() => {
+    setInsertLinkHref(undefined);
+    setInsertLinkText(undefined);
+    setInsertLinkModalVisible(false);
+  }, []);
+
+  const doInsertLink = useCallback(() => {
+    if (profileRef.current && insertLinkHref && insertLinkText) {
+      const { profile } = profileData;
+      const link = `<a href="${insertLinkHref}">${insertLinkText}</a>`;
+      // TODO: insert link where their cursor is/where text is selected
+      profileRef.current.setContentHTML(`${profile}\n${link}`);
+      hideInsertLinkModal();
+    }
+  }, [insertLinkHref, insertLinkText]);
+
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <View style={{ alignItems: "center" }}>
@@ -203,19 +239,6 @@ export default function ProfileScreen(props: any) {
         </TouchableOpacity>
       </View>
 
-      {/* <Input
-                  ref={avatarRef}
-                  label="Avatar"
-                  placeholder="Avatar"
-                  leftIcon={<Icon name="photo" size={24} color="black" />}
-                  editable={!loading}
-                  value={profileData?.avatar_url}
-                  onChangeText={(text: string) => {
-                    setProfileData({ ...profileData, avatar_url: text });
-                  }}
-                  autoCompleteType={undefined}
-                  autoCapitalize="none"
-                /> */}
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={commonStyle.pageContainer}>
           <Tab
@@ -237,9 +260,10 @@ export default function ProfileScreen(props: any) {
               titleStyle={{ color: "black", fontSize: 12 }}
             />
           </Tab>
+          {/* @ts-expect-error TODO: TabView can't have children??? */}
           <TabView value={tabIndex} onChange={setTabIndex}>
             <TabView.Item style={{ width: "100%" }}>
-              <View style={{ flex: 1, padding: 10 }}>
+              <ScrollView style={{ flex: 1, padding: 10 }}>
                 <Input
                   ref={emailRef}
                   label="Email Address"
@@ -258,8 +282,7 @@ export default function ProfileScreen(props: any) {
                   ref={usernameRef}
                   label="User Name"
                   placeholder="User Name"
-                  // FIXME: causes a repeating warning that messes up the UI
-                  // leftIcon={<Icon name="user" size={24} color="black" />}
+                  leftIcon={<Icon name="user" size={24} color="black" />}
                   editable={!loading}
                   value={profileData?.username}
                   onChangeText={(text: string) => {
@@ -301,7 +324,84 @@ export default function ProfileScreen(props: any) {
                   autoCapitalize="none"
                   autoComplete="off"
                 />
-              </View>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    paddingLeft: 12,
+                    color: "#888",
+                    fontSize: 16,
+                  }}
+                >
+                  Your Profile
+                </Text>
+                <RichToolbar
+                  editor={profileRef}
+                  actions={[
+                    actions.setBold,
+                    actions.setItalic,
+                    actions.setUnderline,
+                    actions.insertLink,
+                  ]}
+                  onInsertLink={() => {
+                    setInsertLinkModalVisible(true);
+                  }}
+                />
+                <RichEditor
+                  ref={profileRef}
+                  placeholder="Your Profile"
+                  initialContentHTML={profileData?.profile}
+                  initialHeight={250}
+                  onChange={(text: string) => {
+                    setProfileData({ ...profileData, profile: text });
+                  }}
+                />
+                <Button
+                  title="Save Profile"
+                  onPress={() => handleSave("profile")}
+                />
+                <Overlay
+                  isVisible={insertLinkModalVisible}
+                  onBackdropPress={() => {
+                    hideInsertLinkModal();
+                  }}
+                  overlayStyle={{ width: "100%" }}
+                >
+                  <SafeAreaView>
+                    <View
+                      style={{
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: 10,
+                        width: "100%",
+                      }}
+                    >
+                      <Text style={{ fontSize: 20 }}>Insert Link</Text>
+                      <Input
+                        label="URL"
+                        value={insertLinkHref}
+                        onChangeText={(text: string) => {
+                          setInsertLinkHref(text);
+                        }}
+                        autoCompleteType={undefined}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                      />
+                      <Input
+                        label="Text"
+                        value={insertLinkText}
+                        onChangeText={(text: string) => {
+                          setInsertLinkText(text);
+                        }}
+                        autoCompleteType={undefined}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                      />
+                      <Button title="Insert" onPress={doInsertLink} />
+                    </View>
+                  </SafeAreaView>
+                </Overlay>
+              </ScrollView>
             </TabView.Item>
             <TabView.Item style={{ width: "100%" }}>
               <FlatList

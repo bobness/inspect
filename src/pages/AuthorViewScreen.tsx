@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import RenderHtml from "react-native-render-html";
 
 import commonStyle from "../styles/CommonStyle";
 import {
@@ -8,8 +9,10 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
+  useWindowDimensions,
 } from "react-native";
-import { ListItem, Avatar, Button, Image, Icon } from "react-native-elements";
+import { ListItem, Avatar, Button, Icon } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
 import { getProfileInformation } from "../store/auth";
 
@@ -23,7 +26,9 @@ export default function AuthorViewScreen(props: any) {
   const [authData, setAuthData]: any = useState(null);
   const [isRefreshing, setRefreshing] = useState(false);
 
-  const renderItem = ({ item }: any) => (
+  const { width } = useWindowDimensions();
+
+  const renderSummaryItem = ({ item }: any) => (
     <ListItem
       bottomDivider
       hasTVPreferredFocus={undefined}
@@ -38,10 +43,13 @@ export default function AuthorViewScreen(props: any) {
         <ListItem.Title>{item.title}</ListItem.Title>
       </ListItem.Content>
       <Avatar
-        title={item.title[0]}
-        titleStyle={{ color: "black" }}
-        source={item.website_logo && { uri: item.website_logo }}
-        containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
+        // title={item.title[0]}
+        // titleStyle={{ color: "black" }}
+        source={item.logo_uri && { uri: item.logo_uri }}
+        containerStyle={{
+          /*borderColor: "green",*/ borderWidth: 1,
+          padding: 3,
+        }}
       />
     </ListItem>
   );
@@ -56,7 +64,7 @@ export default function AuthorViewScreen(props: any) {
 
   useEffect(() => {
     getAuthProfileData(data.id);
-  }, []);
+  }, [data]);
 
   const handleRefresh = () => {
     getAuthProfileData(data.id);
@@ -106,19 +114,28 @@ export default function AuthorViewScreen(props: any) {
             }}
           >
             <Avatar
-              title={authData?.username[0]}
-              titleStyle={{ color: "black" }}
-              containerStyle={{
-                borderColor: "green",
-                borderWidth: 1,
-                padding: 3,
-              }}
+              // title={authData.username[0]}
+              // titleStyle={{ color: "black" }}
+              // containerStyle={{
+              //   borderColor: "green",
+              //   borderWidth: 1,
+              //   padding: 3,
+              // }}
+              source={authData.avatar_uri && { uri: authData.avatar_uri }}
             />
             <Text style={{ paddingLeft: 10, fontSize: 18 }}>
-              {authData?.username}
+              {authData.username}
             </Text>
           </View>
-          <Button title="Follow" buttonStyle={{ backgroundColor: "#6AA84F" }} />
+          {/* <Button title="Follow" buttonStyle={{ backgroundColor: "#6AA84F" }} /> */}
+        </View>
+        <View style={{ flexDirection: "row", padding: 10 }}>
+          {authData.profile && (
+            <RenderHtml
+              contentWidth={width}
+              source={{ html: authData.profile }}
+            />
+          )}
         </View>
         <View
           style={{ flexDirection: "row", alignItems: "center", padding: 10 }}
@@ -127,47 +144,27 @@ export default function AuthorViewScreen(props: any) {
             Trusted sources:{" "}
           </Text>
           <ScrollView contentContainerStyle={{ flexDirection: "row" }}>
-            <Image
-              source={{
-                uri: "https://www.logodesign.net/logo/eye-and-house-5806ld.png",
-              }}
-              style={{
-                width: 30,
-                height: 30,
-                borderWidth: 2,
-                borderColor: "#6AA84F",
-                marginHorizontal: 2,
-              }}
-            />
-            <Image
-              source={{
-                uri: "https://www.logodesign.net/logo/eye-and-house-5806ld.png",
-              }}
-              style={{
-                width: 30,
-                height: 30,
-                borderWidth: 2,
-                borderColor: "#6AA84F",
-                marginHorizontal: 2,
-              }}
-            />
-            <Image
-              source={{
-                uri: "https://www.logodesign.net/logo/eye-and-house-5806ld.png",
-              }}
-              style={{
-                width: 30,
-                height: 30,
-                borderWidth: 2,
-                borderColor: "#6AA84F",
-                marginHorizontal: 2,
-              }}
-            />
+            {authData.trusted_sources.map((source: any) => (
+              <Image
+                source={
+                  source.logo_uri && {
+                    uri: source.logo_uri,
+                  }
+                }
+                style={{
+                  width: 30,
+                  height: 30,
+                  // borderWidth: 2,
+                  // borderColor: "#6AA84F",
+                  marginHorizontal: 2,
+                }}
+              />
+            ))}
           </ScrollView>
         </View>
         <FlatList
-          data={authData?.summaries}
-          renderItem={renderItem}
+          data={authData.summaries}
+          renderItem={renderSummaryItem}
           style={{ flex: 1, width: "100%" }}
           refreshing={isRefreshing}
           onRefresh={handleRefresh}
