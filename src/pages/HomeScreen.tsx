@@ -9,8 +9,7 @@ import {
   View,
   FlatList,
   ActivityIndicator,
-  // Animated,
-  Easing,
+  Image,
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ListItem, Avatar } from "react-native-elements";
@@ -152,8 +151,16 @@ export default function HomeScreen(props: Props) {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={commonStyle.pageContainer}>
+            <View style={commonStyle.headerContainer}>
+              <Text style={commonStyle.logoText}>
+                <Image
+                  style={{ width: 50, height: 50 }}
+                  source={require("../../assets/icon.png")}
+                />
+                Inspect
+              </Text>
+            </View>
             <View style={{ flex: 1, padding: 10 }}>
-              <Text style={commonStyle.logoText}>INSPECT</Text>
               {newsData && (
                 <FlatList
                   data={newsData}

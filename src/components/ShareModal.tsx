@@ -7,21 +7,12 @@ import React, {
 } from "react";
 
 import { instance } from "../store/api";
-
-import {
-  Alert,
-  Button,
-  GestureResponderEvent,
-  SafeAreaView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Avatar, CheckBox, Input, Overlay } from "react-native-elements";
-// import Collapsible from "react-native-collapsible";
 import { getAuthUser } from "../store/auth";
 import { AuthUser, Source } from "../types";
 import { postSummary } from "../store/news";
+
+import { Alert, Button, SafeAreaView, Text, View } from "react-native";
+import { Avatar, Input, Overlay } from "react-native-elements";
 
 interface Props {
   modalVisible: boolean;
@@ -32,9 +23,8 @@ interface Props {
 
 const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
   const [cleanedUrl, setCleanedUrl] = useState<string | undefined>();
-  const [isCollapsed, setIsCollapsed] = useState(true);
   const [source, setSource] = useState<Source | undefined>();
-  const [pageContents, setPageContents] = useState<string | undefined>();
+  // const [pageContents, setPageContents] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState<string | undefined>();
   const [snippets, setSnippets] = useState<string[]>([]);
@@ -111,19 +101,6 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
     }
   }, [modalVisible, url]);
 
-  // useEffect(() => {
-  //   if (pageContents) {
-  //     // TODO: detect title
-  //    setDefaultTitle(...);
-  //   }
-  // }, [pageContents]);
-
-  // useEffect(() => {
-  //   if (useDefaultTitle) {
-  //     setTitle(defaultTitle);
-  //   }
-  // }, [useDefaultTitle]);
-
   // TODO: use a component that gets created, destroyed, and re-created instead? (to avoid manual cleanup)
   return (
     <Overlay
@@ -141,10 +118,11 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
             alignItems: "center",
             justifyContent: "space-between",
             padding: 10,
+            width: "100%",
           }}
         >
           <Text style={{ fontSize: 20 }}>Create New Summary</Text>
-          {/* FIXME: why `source` requires `any` instead of `string` is beyond me */}
+          {/* TODO: why `source` requires `any` instead of `string` is beyond me */}
           <Avatar
             title="?"
             titleStyle={{ color: "black", fontSize: 40 }}
@@ -170,7 +148,6 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
             ref={titleInputRef}
             label="Title"
             placeholder="New title that explains the contribution of the article"
-            // leftIcon={<Icon name="envelope" size={24} color="black" />}
             value={title}
             editable={!loading}
             onChangeText={(text: string) => {
@@ -178,28 +155,7 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
             }}
             autoCompleteType={undefined}
           />
-          {/* <CheckBox value={useDefaultTitle} onValueChange={setUseDefaultTitle}> /> */}
-          {/*
-          TODO: wait until there's a way to do this in React Native / we find one
-          <TouchableOpacity
-            onPress={() => {
-              setIsCollapsed(!isCollapsed);
-            }}
-          >
-            @ts-expect-error react-native-collapsible hasn't fixed the React 18 requirement for the 'children' prop: https://github.com/oblador/react-native-collapsible/issues/436
-            <Collapsible collapsed={isCollapsed}>
-              <View
-                style={{
-                  justifyContent: "flex-start",
-                  alignItems: "flex-start",
-                }}
-              >
-                <Text selectTextOnFocus={null} onPressOut={(event: GestureResponderEvent) => {
-                  setSnippetText(event.currentTarget.);
-                }}>{pageContents}</Text>
-              </View>
-            </Collapsible>
-          </TouchableOpacity> */}
+
           <Button title="Create Summary" onPress={submitShare} />
         </View>
       </SafeAreaView>
