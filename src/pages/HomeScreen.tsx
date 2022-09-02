@@ -13,9 +13,9 @@ import {
   Easing,
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { ListItem, Avatar } from "react-native-elements";
+import { ListItem, Avatar, Button } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
-import { getUnreadNews, markAsRead } from "../store/news";
+import { getUnreadNews, markAsRead, getSuggestAuthors, followAuthor } from "../store/news";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -24,6 +24,7 @@ const list: any = [];
 export default function HomeScreen(props: any) {
   const { navigation } = props;
   const [newsData, setNewsData] = useState<any[] | undefined>();
+  const [authorsData, setAuthorsData] = useState<any[] | undefined>();
   const [isRefreshing, setRefreshing] = useState<boolean>(false);
 
   useEffect(() => {
@@ -36,16 +37,42 @@ export default function HomeScreen(props: any) {
       });
   }, []);
 
+  useEffect(() => {
+    if (newsData && !newsData.length) {
+      getSuggestAuthors()
+        .then((data) => {
+          setAuthorsData(data);
+        })
+        .catch((err) => {
+          console.log("error getting news: ", err);
+        });
+    }
+  }, [newsData]);
+
   const handleRefresh = () => {
     setRefreshing(true);
     getUnreadNews()
       .then((data) => {
+        console.log(data);
         setRefreshing(false);
         setNewsData(data);
       })
       .catch((err) => {
         console.log("error getting news: ", err);
       });
+  };
+
+  const handleAuthorRefresh = () => {
+    setRefreshing(true);
+    getSuggestAuthors()
+        .then((data) => {
+          setRefreshing(false);
+          setAuthorsData(data);
+        })
+        .catch((err) => {
+          setRefreshing(false);
+          console.log("error getting news: ", err);
+        });
   };
 
   const offset = useSharedValue({ x: 0, y: 0 });
@@ -82,6 +109,16 @@ export default function HomeScreen(props: any) {
     [Gesture]
   );
 
+  const handleFollow = (user_id) => {
+    const postData = {
+      follower_id: user_id,
+    };
+    followAuthor(postData).then(() => {
+      setAuthorsData([]);
+      handleRefresh();
+    });
+  };
+
   const renderItem = ({ item }: any) => (
     <GestureDetector gesture={archive(item.id)}>
       <Animated.View style={animatedStyles}>
@@ -115,19 +152,52 @@ export default function HomeScreen(props: any) {
     </GestureDetector>
   );
 
+  const renderAuthorItem = ({ item }: any) => (
+    <ListItem
+      bottomDivider
+      hasTVPreferredFocus={undefined}
+      tvParallaxProperties={undefined}
+      style={{ flex: 1, width: "100%" }}
+      // style={animatedStyles}
+      onPress={(e) => {
+        navigation.navigate("AuthorView", { data: item });
+      }}
+    >
+      <Avatar
+        // title={item.title[0]}
+        // titleStyle={{ color: "black" }}
+        source={item.avatar_uri && { uri: item.avatar_uri }}
+        // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
+      />
+      <ListItem.Content>
+        <ListItem.Title>{item.username}</ListItem.Title>
+      </ListItem.Content>
+      <Button onPress={() => handleFollow(item.id)} title="Follow" buttonStyle={{ backgroundColor: "#6AA84F" }} />
+    </ListItem>
+  );
+
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={commonStyle.pageContainer}>
           <View style={{ flex: 1, padding: 10 }}>
             <Text style={commonStyle.logoText}>INSPECT</Text>
-            {newsData && (
+            {newsData && newsData.length > 0 && (
               <FlatList
                 data={newsData}
                 renderItem={renderItem}
                 style={{ flex: 1, width: "100%" }}
                 refreshing={isRefreshing}
                 onRefresh={handleRefresh}
+              />
+            )}
+            {authorsData && authorsData.length > 0 && (
+              <FlatList
+                data={authorsData}
+                renderItem={renderAuthorItem}
+                style={{ flex: 1, width: "100%" }}
+                refreshing={isRefreshing}
+                onRefresh={handleAuthorRefresh}
               />
             )}
             {!newsData && (

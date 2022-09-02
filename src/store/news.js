@@ -28,6 +28,14 @@ const postReaction = (reactionData) => {
   return instance.post("/reactions", reactionData);
 };
 
+const getSuggestAuthors = () => {
+  return instance.get("/summaries/suggest-authors").then((res) => res.data);
+};
+
+const followAuthor = (followerData) => {
+  return instance.post("/followers", followerData);
+};
+
 export {
   getUnreadNews,
   markAsRead,
@@ -36,4 +44,6 @@ export {
   getNewsById,
   postComment,
   postReaction,
+  getSuggestAuthors,
+  followAuthor,
 };

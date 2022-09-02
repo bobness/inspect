@@ -1,5 +1,8 @@
 import "react-native-gesture-handler";
+import { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { View, ActivityIndicator } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 
 import ReceiveSharingIntent from "react-native-receive-sharing-intent";
@@ -17,6 +20,7 @@ import AboutScreen from "./src/pages/AboutScreen";
 const Stack: any = createNativeStackNavigator();
 
 export default function App() {
+  const [user, setUser] = useState<any[] | undefined>();
   ReceiveSharingIntent.getReceivedFiles(
     (files: any) => {
       console.log("*** files: ", files);
@@ -27,20 +31,47 @@ export default function App() {
     "net.datagotchi.inspect"
   );
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userInfo = await AsyncStorage.getItem("@user");
+      if (userInfo) {
+        setUser(JSON.parse(userInfo));
+      } else {
+        setUser({
+          userId: 0,
+        });
+      }
+    };
+    fetchUser();
+  }, []);
+
   // ReceiveSharingIntent.clearReceivedFiles();
+
+  if (!user) {
+    return (
+      <View>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Register"
-          component={RegisterScreen}
-          options={{ headerShown: false }}
-        />
+      <Stack.Navigator initialRouteName={user.userId === 0 ? "Login" : "Home"}>
+        {user.userId === 0 && (
+          <>
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Register"
+              component={RegisterScreen}
+              options={{ headerShown: false }}
+            />
+          </>
+        )}
         <Stack.Screen
           name="Home"
           component={HomeScreen}
