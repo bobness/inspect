@@ -15,18 +15,32 @@ import NewsViewScreen from "./src/pages/NewsViewScreen";
 import AuthorViewScreen from "./src/pages/AuthorViewScreen";
 import AuthorNewsViewScreen from "./src/pages/AuthorNewsViewScreen";
 import ProfileScreen from "./src/pages/ProfileScreen";
-import AboutScreen from "./src/pages/AboutScreen";
+import { useCallback, useState } from "react";
+import ShareModal from "./src/components/ShareModal";
 
 const Stack: any = createNativeStackNavigator();
 
+interface ShareObject {
+  text: string | null;
+  weblink: string | null;
+}
+
 export default function App() {
   const [user, setUser] = useState<any[] | undefined>();
+  const [shareUrl, setShareUrl] = useState<string | undefined>();
+
+  const handleShare = useCallback(([shareObject]: ShareObject[]) => {
+    // FIXME: still happening multiple times
+    if (shareObject.weblink && shareUrl !== shareObject.weblink) {
+      // console.log("*** setting shareUrl: ", shareObject.weblink); // DEBUG
+      setShareUrl(shareObject.weblink);
+    }
+    // else if (shareObject.text) {}
+  }, []);
   ReceiveSharingIntent.getReceivedFiles(
-    (files: any) => {
-      console.log("*** files: ", files);
-    },
+    handleShare,
     (error: any) => {
-      console.log(error);
+      console.error(error);
     },
     "net.datagotchi.inspect"
   );
@@ -68,11 +82,15 @@ export default function App() {
           component={RegisterScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="Home" options={{ headerShown: false }}>
+          {(props: any) => (
+            <HomeScreen
+              {...props}
+              shareUrl={shareUrl}
+              setShareUrl={setShareUrl}
+            />
+          )}
+        </Stack.Screen>
         <Stack.Screen
           name="NewsView"
           component={NewsViewScreen}
@@ -93,11 +111,6 @@ export default function App() {
           component={ProfileScreen}
           options={{ headerShown: true }}
         />
-        {/* <Stack.Screen
-          name="About"
-          component={AboutScreen}
-          options={{ headerShown: true }}
-        /> */}
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

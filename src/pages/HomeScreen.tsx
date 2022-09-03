@@ -9,8 +9,7 @@ import {
   View,
   FlatList,
   ActivityIndicator,
-  // Animated,
-  Easing,
+  Image,
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ListItem, Avatar, Button } from "react-native-elements";
@@ -20,40 +19,44 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-const list: any = [];
-export default function HomeScreen(props: any) {
-  const { navigation } = props;
+import ShareModal from "../components/ShareModal";
+import { useIsFocused } from "@react-navigation/native";
+
+interface Props {
+  navigation: any;
+  shareUrl?: string;
+  setShareUrl: (value: string | undefined) => void;
+}
+
+export default function HomeScreen(props: Props) {
+  const isFocused = useIsFocused();
+
+  const { navigation, shareUrl, setShareUrl } = props;
   const [newsData, setNewsData] = useState<any[] | undefined>();
   const [authorsData, setAuthorsData] = useState<any[] | undefined>();
   const [isRefreshing, setRefreshing] = useState<boolean>(false);
+  const [shareModalVisible, setShareModalVisible] = useState(false);
 
   useEffect(() => {
-    getUnreadNews()
-      .then((data) => {
-        setNewsData(data);
-      })
-      .catch((err) => {
-        if (err.response && err.response.status === 401) {
-          navigation.navigate("Login");
-        }
-        console.log("error getting news: ", err);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (newsData && !newsData.length) {
-      getSuggestAuthors()
+    if (isFocused) {
+      getUnreadNews()
         .then((data) => {
-          setAuthorsData(data);
+          setNewsData(data);
         })
         .catch((err) => {
           if (err.response && err.response.status === 401) {
             navigation.navigate("Login");
           }
-          console.log("error getting authors: ", err);
+          console.log("error getting news: ", err);
         });
     }
-  }, [newsData]);
+  }, [isFocused]);
+
+  useEffect(() => {
+    if (shareUrl) {
+      setShareModalVisible(true);
+    }
+  }, [shareUrl]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -116,6 +119,7 @@ export default function HomeScreen(props: any) {
             y: offset.value.y,
           };
           start.value = offset.value;
+          // FIXME: also happens on swipe down in addition to left
           markAsRead(summaryId).then(handleRefresh);
         }),
     [Gesture]
