@@ -130,7 +130,7 @@ export default function HomeScreen(props: Props) {
       follower_id: user_id,
     };
     followAuthor(postData).then(() => {
-      setAuthorsData([]);
+      setAuthorsData(undefined);
       handleRefresh();
     });
   };
