@@ -12,9 +12,14 @@ import {
   Image,
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { ListItem, Avatar } from "react-native-elements";
+import { ListItem, Avatar, Button } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
-import { getUnreadNews, markAsRead } from "../store/news";
+import {
+  getUnreadNews,
+  markAsRead,
+  getSuggestAuthors,
+  followAuthor,
+} from "../store/news";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -33,18 +38,14 @@ export default function HomeScreen(props: Props) {
 
   const { navigation, shareUrl, setShareUrl } = props;
   const [newsData, setNewsData] = useState<any[] | undefined>();
+  const [authorsData, setAuthorsData] = useState<any[] | undefined>();
   const [isRefreshing, setRefreshing] = useState<boolean>(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
 
   useEffect(() => {
     if (isFocused) {
-      getUnreadNews()
-        .then((data) => {
-          setNewsData(data);
-        })
-        .catch((err) => {
-          console.log("error in initial getting news: ", err);
-        });
+      handleRefresh();
+      handleAuthorRefresh();
     }
   }, [isFocused]);
 
@@ -62,7 +63,26 @@ export default function HomeScreen(props: Props) {
         setNewsData(data);
       })
       .catch((err) => {
-        console.log("error refreshing news: ", err);
+        if (err.response && err.response.status === 401) {
+          navigation.navigate("Login");
+        }
+        console.log("error getting news: ", err);
+      });
+  };
+
+  const handleAuthorRefresh = () => {
+    setRefreshing(true);
+    getSuggestAuthors()
+      .then((data) => {
+        setRefreshing(false);
+        setAuthorsData(data);
+      })
+      .catch((err) => {
+        setRefreshing(false);
+        if (err.response && err.response.status === 401) {
+          navigation.navigate("Login");
+        }
+        console.log("error getting news: ", err);
       });
   };
 
@@ -101,6 +121,16 @@ export default function HomeScreen(props: Props) {
     [Gesture]
   );
 
+  const handleFollow = (user_id: number) => {
+    const postData = {
+      follower_id: user_id,
+    };
+    followAuthor(postData).then(() => {
+      setAuthorsData(undefined);
+      handleRefresh();
+    });
+  };
+
   const renderItem = ({ item }: any) => (
     <GestureDetector gesture={archive(item.id)}>
       <Animated.View style={animatedStyles}>
@@ -134,8 +164,37 @@ export default function HomeScreen(props: Props) {
     </GestureDetector>
   );
 
+  const renderAuthorItem = ({ item }: any) => (
+    <ListItem
+      bottomDivider
+      hasTVPreferredFocus={undefined}
+      tvParallaxProperties={undefined}
+      style={{ flex: 1, width: "100%" }}
+      // style={animatedStyles}
+      onPress={(e) => {
+        navigation.navigate("AuthorView", { data: item });
+      }}
+    >
+      <Avatar
+        // title={item.title[0]}
+        // titleStyle={{ color: "black" }}
+        source={item.avatar_uri && { uri: item.avatar_uri }}
+        // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
+      />
+      <ListItem.Content>
+        <ListItem.Title>{item.username}</ListItem.Title>
+      </ListItem.Content>
+      <Button
+        onPress={() => handleFollow(item.id)}
+        title="Follow"
+        buttonStyle={{ backgroundColor: "#6AA84F" }}
+      />
+    </ListItem>
+  );
+
   return (
     <>
+      {/* FIXME: remove `ShareModal` here for notification deep linking */}
       <ShareModal
         modalVisible={shareModalVisible}
         url={shareUrl}
@@ -151,17 +210,9 @@ export default function HomeScreen(props: Props) {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={commonStyle.pageContainer}>
-            <View style={commonStyle.headerContainer}>
-              <Text style={commonStyle.logoText}>
-                <Image
-                  style={{ width: 50, height: 50 }}
-                  source={require("../../assets/icon.png")}
-                />
-                Inspect
-              </Text>
-            </View>
             <View style={{ flex: 1, padding: 10 }}>
-              {newsData && (
+              <Text style={commonStyle.logoText}>INSPECT</Text>
+              {newsData && newsData.length > 0 && (
                 <FlatList
                   data={newsData}
                   renderItem={renderItem}
@@ -169,6 +220,26 @@ export default function HomeScreen(props: Props) {
                   refreshing={isRefreshing}
                   onRefresh={handleRefresh}
                 />
+              )}
+              {authorsData && authorsData.length > 0 && (
+                <>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      fontWeight: "bold",
+                      marginBottom: 10,
+                    }}
+                  >
+                    Follow others to stay up-to-date on the news!
+                  </Text>
+                  <FlatList
+                    data={authorsData}
+                    renderItem={renderAuthorItem}
+                    style={{ flex: 1, width: "100%" }}
+                    refreshing={isRefreshing}
+                    onRefresh={handleAuthorRefresh}
+                  />
+                </>
               )}
               {!newsData && (
                 <View

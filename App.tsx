@@ -1,5 +1,8 @@
 import "react-native-gesture-handler";
+import { useCallback, useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { View, ActivityIndicator } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 
 import ReceiveSharingIntent from "react-native-receive-sharing-intent";
@@ -12,7 +15,6 @@ import NewsViewScreen from "./src/pages/NewsViewScreen";
 import AuthorViewScreen from "./src/pages/AuthorViewScreen";
 import AuthorNewsViewScreen from "./src/pages/AuthorNewsViewScreen";
 import ProfileScreen from "./src/pages/ProfileScreen";
-import { useCallback, useState } from "react";
 import ShareModal from "./src/components/ShareModal";
 
 const Stack: any = createNativeStackNavigator();
@@ -23,6 +25,7 @@ interface ShareObject {
 }
 
 export default function App() {
+  const [user, setUser] = useState<any | undefined>();
   const [shareUrl, setShareUrl] = useState<string | undefined>();
 
   const handleShare = useCallback(([shareObject]: ShareObject[]) => {
@@ -33,7 +36,6 @@ export default function App() {
     }
     // else if (shareObject.text) {}
   }, []);
-
   ReceiveSharingIntent.getReceivedFiles(
     handleShare,
     (error: any) => {
@@ -42,10 +44,33 @@ export default function App() {
     "net.datagotchi.inspect"
   );
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userInfo = await AsyncStorage.getItem("@user");
+      if (userInfo) {
+        setUser(JSON.parse(userInfo));
+      } else {
+        setUser({
+          userId: 0,
+        });
+      }
+    };
+    fetchUser();
+  }, []);
+
   // ReceiveSharingIntent.clearReceivedFiles();
+
+  if (!user) {
+    return (
+      <View>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName={user.userId === 0 ? "Login" : "Home"}>
         <Stack.Screen
           name="Login"
           component={LoginScreen}
