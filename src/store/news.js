@@ -36,6 +36,14 @@ const deleteSummary = (summaryId) => {
   return instance.delete(`/summaries/${summaryId}`);
 };
 
+const getSuggestAuthors = () => {
+  return instance.get("/summaries/suggest-authors").then((res) => res.data);
+};
+
+const followAuthor = (followerData) => {
+  return instance.post("/followers", followerData);
+};
+
 const sendNotification = (data) => {
   return instance.post("/notification", data).then(res => res.data);
 };
@@ -50,5 +58,7 @@ export {
   postComment,
   postReaction,
   deleteSummary,
+  getSuggestAuthors,
+  followAuthor,
   sendNotification,
 };

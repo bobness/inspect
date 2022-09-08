@@ -1,5 +1,8 @@
 import "react-native-gesture-handler";
+import { useCallback, useState, useRef, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { View, ActivityIndicator, Platform } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 
 import ReceiveSharingIntent from "react-native-receive-sharing-intent";
@@ -15,8 +18,6 @@ import NewsViewScreen from "./src/pages/NewsViewScreen";
 import AuthorViewScreen from "./src/pages/AuthorViewScreen";
 import AuthorNewsViewScreen from "./src/pages/AuthorNewsViewScreen";
 import ProfileScreen from "./src/pages/ProfileScreen";
-import { useCallback, useState, useRef, useEffect } from "react";
-import { Platform } from "react-native";
 import ShareModal from "./src/components/ShareModal";
 import { updateUserExpoToken } from "./src/store/auth";
 
@@ -45,6 +46,7 @@ interface ShareObject {
 }
 
 export default function App() {
+  const [user, setUser] = useState<any | undefined>();
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
@@ -58,7 +60,6 @@ export default function App() {
     }
     // else if (shareObject.text) {}
   }, []);
-
   ReceiveSharingIntent.getReceivedFiles(
     handleShare,
     (error: any) => {
@@ -73,7 +74,19 @@ export default function App() {
     }
   };
 
-  // ReceiveSharingIntent.clearReceivedFiles();
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userInfo = await AsyncStorage.getItem("@user");
+      if (userInfo) {
+        setUser(JSON.parse(userInfo));
+      } else {
+        setUser({
+          userId: 0,
+        });
+      }
+    };
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => handleToken(token));
@@ -92,9 +105,10 @@ export default function App() {
     };
   }, []);
 
+  // ReceiveSharingIntent.clearReceivedFiles();
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName={user.userId === 0 ? "Login" : "Home"}>
         <Stack.Screen
           name="Login"
           component={LoginScreen}

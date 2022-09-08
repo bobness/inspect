@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
-import { AsyncStorage } from "react-native"; // expo compatibility
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import styles from "../styles/LoginStyle";
 import {
