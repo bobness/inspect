@@ -1,5 +1,4 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-// import { AsyncStorage } from "react-native"; // expo compatibility
 import axios from "axios";
 
 // const baseUrl = "http://inspect.datagotchi.net:5000";
@@ -32,13 +31,16 @@ const removeToken = () => {
 
 setToken();
 
-instance.interceptors.response.use((response) => response, async (error) => {
-  const {status} = error.response;
-  if (status === 401) {
-    await AsyncStorage.removeItem("@user");
-    await AsyncStorage.removeItem("@access_token");
+instance.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const { status } = error.response;
+    if (status === 401) {
+      await AsyncStorage.removeItem("@user");
+      await AsyncStorage.removeItem("@access_token");
+    }
+    throw error;
   }
-  throw error;
-});
+);
 
 export { instance, setToken, removeToken };
