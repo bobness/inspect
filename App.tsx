@@ -3,6 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 
 import ReceiveSharingIntent from "react-native-receive-sharing-intent";
+import * as TaskManager from 'expo-task-manager';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 
@@ -17,8 +18,11 @@ import ProfileScreen from "./src/pages/ProfileScreen";
 import { useCallback, useState, useRef, useEffect } from "react";
 import { Platform } from "react-native";
 import ShareModal from "./src/components/ShareModal";
+import { updateUserExpoToken } from "./src/store/auth";
 
 const Stack: any = createNativeStackNavigator();
+
+const BACKGROUND_NOTIFICATION_TASK = 'BACKGROUND-NOTIFICATION-TASK';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -28,13 +32,19 @@ Notifications.setNotificationHandler({
   }),
 });
 
+TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, ({ data, error, executionInfo }) => {
+  console.log('Received a notification in the background!');
+  // Do something with the notification data
+});
+
+Notifications.registerTaskAsync(BACKGROUND_NOTIFICATION_TASK);
+
 interface ShareObject {
   text: string | null;
   weblink: string | null;
 }
 
 export default function App() {
-  const [expoPushToken, setExpoPushToken] = useState('');
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
@@ -57,10 +67,16 @@ export default function App() {
     "net.datagotchi.inspect"
   );
 
+  const handleToken = async (token: any) => {
+    if (token) {
+      await updateUserExpoToken(token);
+    }
+  };
+
   // ReceiveSharingIntent.clearReceivedFiles();
 
   useEffect(() => {
-    registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+    registerForPushNotificationsAsync().then(token => handleToken(token));
 
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
       setNotification(notification);

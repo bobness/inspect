@@ -36,6 +36,10 @@ const deleteSummary = (summaryId) => {
   return instance.delete(`/summaries/${summaryId}`);
 };
 
+const sendNotification = (data) => {
+  return instance.post("/notification", data).then(res => res.data);
+};
+
 export {
   getUnreadNews,
   markAsRead,
@@ -46,4 +50,5 @@ export {
   postComment,
   postReaction,
   deleteSummary,
+  sendNotification,
 };
