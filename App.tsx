@@ -105,6 +105,14 @@ export default function App() {
     };
   }, []);
 
+  if (!user) {
+    return (
+      <View style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
   // ReceiveSharingIntent.clearReceivedFiles();
   return (
     <NavigationContainer>
