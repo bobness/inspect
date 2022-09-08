@@ -1,5 +1,5 @@
 import "react-native-gesture-handler";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View, ActivityIndicator } from "react-native";
@@ -15,7 +15,6 @@ import NewsViewScreen from "./src/pages/NewsViewScreen";
 import AuthorViewScreen from "./src/pages/AuthorViewScreen";
 import AuthorNewsViewScreen from "./src/pages/AuthorNewsViewScreen";
 import ProfileScreen from "./src/pages/ProfileScreen";
-import { useCallback, useState } from "react";
 import ShareModal from "./src/components/ShareModal";
 
 const Stack: any = createNativeStackNavigator();
@@ -26,7 +25,7 @@ interface ShareObject {
 }
 
 export default function App() {
-  const [user, setUser] = useState<any[] | undefined>();
+  const [user, setUser] = useState<any | undefined>();
   const [shareUrl, setShareUrl] = useState<string | undefined>();
 
   const handleShare = useCallback(([shareObject]: ShareObject[]) => {

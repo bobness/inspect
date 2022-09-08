@@ -14,7 +14,12 @@ import {
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ListItem, Avatar, Button } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
-import { getUnreadNews, markAsRead, getSuggestAuthors, followAuthor } from "../store/news";
+import {
+  getUnreadNews,
+  markAsRead,
+  getSuggestAuthors,
+  followAuthor,
+} from "../store/news";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -39,16 +44,8 @@ export default function HomeScreen(props: Props) {
 
   useEffect(() => {
     if (isFocused) {
-      getUnreadNews()
-        .then((data) => {
-          setNewsData(data);
-        })
-        .catch((err) => {
-          if (err.response && err.response.status === 401) {
-            navigation.navigate("Login");
-          }
-          console.log("error getting news: ", err);
-        });
+      handleRefresh();
+      handleAuthorRefresh();
     }
   }, [isFocused]);
 
@@ -62,7 +59,6 @@ export default function HomeScreen(props: Props) {
     setRefreshing(true);
     getUnreadNews()
       .then((data) => {
-        console.log(data);
         setRefreshing(false);
         setNewsData(data);
       })
@@ -77,17 +73,17 @@ export default function HomeScreen(props: Props) {
   const handleAuthorRefresh = () => {
     setRefreshing(true);
     getSuggestAuthors()
-        .then((data) => {
-          setRefreshing(false);
-          setAuthorsData(data);
-        })
-        .catch((err) => {
-          setRefreshing(false);
-          if (err.response && err.response.status === 401) {
-            navigation.navigate("Login");
-          }
-          console.log("error getting news: ", err);
-        });
+      .then((data) => {
+        setRefreshing(false);
+        setAuthorsData(data);
+      })
+      .catch((err) => {
+        setRefreshing(false);
+        if (err.response && err.response.status === 401) {
+          navigation.navigate("Login");
+        }
+        console.log("error getting news: ", err);
+      });
   };
 
   const offset = useSharedValue({ x: 0, y: 0 });
@@ -125,12 +121,12 @@ export default function HomeScreen(props: Props) {
     [Gesture]
   );
 
-  const handleFollow = (user_id) => {
+  const handleFollow = (user_id: number) => {
     const postData = {
       follower_id: user_id,
     };
     followAuthor(postData).then(() => {
-      setAuthorsData([]);
+      setAuthorsData(undefined);
       handleRefresh();
     });
   };
@@ -188,50 +184,79 @@ export default function HomeScreen(props: Props) {
       <ListItem.Content>
         <ListItem.Title>{item.username}</ListItem.Title>
       </ListItem.Content>
-      <Button onPress={() => handleFollow(item.id)} title="Follow" buttonStyle={{ backgroundColor: "#6AA84F" }} />
+      <Button
+        onPress={() => handleFollow(item.id)}
+        title="Follow"
+        buttonStyle={{ backgroundColor: "#6AA84F" }}
+      />
     </ListItem>
   );
 
   return (
-    <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={commonStyle.pageContainer}>
-          <View style={{ flex: 1, padding: 10 }}>
-            <Text style={commonStyle.logoText}>INSPECT</Text>
-            {newsData && newsData.length > 0 && (
-              <FlatList
-                data={newsData}
-                renderItem={renderItem}
-                style={{ flex: 1, width: "100%" }}
-                refreshing={isRefreshing}
-                onRefresh={handleRefresh}
-              />
-            )}
-            {authorsData && authorsData.length > 0 && (
-              <FlatList
-                data={authorsData}
-                renderItem={renderAuthorItem}
-                style={{ flex: 1, width: "100%" }}
-                refreshing={isRefreshing}
-                onRefresh={handleAuthorRefresh}
-              />
-            )}
-            {!newsData && (
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  justifyContent: "space-around",
-                  padding: 10,
-                }}
-              >
-                <ActivityIndicator />
-              </View>
-            )}
+    <>
+      <ShareModal
+        modalVisible={shareModalVisible}
+        url={shareUrl}
+        hideOverlay={() => {
+          setShareModalVisible(false);
+          setShareUrl(undefined);
+        }}
+        refreshFeed={handleRefresh}
+      />
+      <KeyboardAvoidingView
+        style={commonStyle.containerView}
+        behavior="padding"
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={commonStyle.pageContainer}>
+            <View style={{ flex: 1, padding: 10 }}>
+              <Text style={commonStyle.logoText}>INSPECT</Text>
+              {newsData && newsData.length > 0 && (
+                <FlatList
+                  data={newsData}
+                  renderItem={renderItem}
+                  style={{ flex: 1, width: "100%" }}
+                  refreshing={isRefreshing}
+                  onRefresh={handleRefresh}
+                />
+              )}
+              {authorsData && authorsData.length > 0 && (
+                <>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      fontWeight: "bold",
+                      marginBottom: 10,
+                    }}
+                  >
+                    Follow others to stay up-to-date on the news!
+                  </Text>
+                  <FlatList
+                    data={authorsData}
+                    renderItem={renderAuthorItem}
+                    style={{ flex: 1, width: "100%" }}
+                    refreshing={isRefreshing}
+                    onRefresh={handleAuthorRefresh}
+                  />
+                </>
+              )}
+              {!newsData && (
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                    padding: 10,
+                  }}
+                >
+                  <ActivityIndicator />
+                </View>
+              )}
+            </View>
+            <BottomToolbar {...props} />
           </View>
-          <BottomToolbar {...props} />
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </>
   );
 }
