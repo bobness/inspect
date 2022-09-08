@@ -194,6 +194,7 @@ export default function HomeScreen(props: Props) {
 
   return (
     <>
+      {/* FIXME: remove `ShareModal` here for notification deep linking */}
       <ShareModal
         modalVisible={shareModalVisible}
         url={shareUrl}
