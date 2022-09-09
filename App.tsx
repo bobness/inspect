@@ -20,6 +20,7 @@ import AuthorNewsViewScreen from "./src/pages/AuthorNewsViewScreen";
 import ProfileScreen from "./src/pages/ProfileScreen";
 import ShareModal from "./src/components/ShareModal";
 import { updateUserExpoToken } from "./src/store/auth";
+import SummaryScreen from "./src/pages/SummaryScreen";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -48,6 +49,7 @@ interface ShareObject {
 export default function App() {
   const [user, setUser] = useState<any | undefined>();
   const [notification, setNotification] = useState(false);
+  const [sharedContent, setSharedContent] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
   const [shareUrl, setShareUrl] = useState<string | undefined>();
@@ -57,8 +59,10 @@ export default function App() {
     if (shareObject.weblink && shareUrl !== shareObject.weblink) {
       // console.log("*** setting shareUrl: ", shareObject.weblink); // DEBUG
       setShareUrl(shareObject.weblink);
+    } else if (shareObject.text) {
+      
     }
-    // else if (shareObject.text) {}
+    setSharedContent(true);
   }, []);
   ReceiveSharingIntent.getReceivedFiles(
     handleShare,
@@ -70,7 +74,12 @@ export default function App() {
 
   const handleToken = async (token: any) => {
     if (token) {
-      await updateUserExpoToken(token);
+      if (!user.expo_token) {
+        updateUserExpoToken(token);
+        user.expo_token = token;
+        setUser(user);
+        await AsyncStorage.setItem("@user", JSON.stringify(user));
+      }
     }
   };
 
@@ -78,7 +87,8 @@ export default function App() {
     const fetchUser = async () => {
       const userInfo = await AsyncStorage.getItem("@user");
       if (userInfo) {
-        setUser(JSON.parse(userInfo));
+        const storedUserInfo = JSON.parse(userInfo);
+        setUser(storedUserInfo);
       } else {
         setUser({
           userId: 0,
@@ -116,7 +126,7 @@ export default function App() {
   // ReceiveSharingIntent.clearReceivedFiles();
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={user.userId === 0 ? "Login" : "Home"}>
+      <Stack.Navigator initialRouteName={user.userId === 0 ? "Login" : "CreateSummary"}>
         <Stack.Screen
           name="Login"
           component={LoginScreen}
@@ -155,6 +165,11 @@ export default function App() {
           name="Profile"
           component={ProfileScreen}
           options={{ headerShown: true }}
+        />
+        <Stack.Screen
+          name="CreateSummary"
+          component={SummaryScreen}
+          options={{ headerShown: false }}
         />
       </Stack.Navigator>
       <StatusBar style="auto" />
