@@ -60,8 +60,8 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
   const cleanup = useCallback(() => {
     setSource(undefined);
     setCleanedUrl(undefined);
-    // TODO: setUrl(undefined)?
     setDefaultTitle(undefined);
+    setUseDefaultTitle(false);
     setTitle(undefined);
   }, []);
 
@@ -112,7 +112,7 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
   }, [modalVisible, url]);
 
   useEffect(() => {
-    if (useDefaultTitle) {
+    if (useDefaultTitle && defaultTitle) {
       setTitle(defaultTitle);
     }
   }, [useDefaultTitle]);
@@ -170,7 +170,6 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
               <CheckBox
                 value={useDefaultTitle}
                 onValueChange={(value: boolean) => {
-                  // FIXME: redundant?
                   setUseDefaultTitle(value);
                 }}
               />
