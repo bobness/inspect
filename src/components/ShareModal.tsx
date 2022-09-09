@@ -6,13 +6,15 @@ import React, {
   useState,
 } from "react";
 
+import { Alert, Button, SafeAreaView, Text, View } from "react-native";
+import { Avatar, Input, Overlay } from "react-native-elements";
+
+import CheckBox from "expo-checkbox";
+
 import { instance } from "../store/api";
 import { getAuthUser } from "../store/auth";
 import { AuthUser, Source } from "../types";
 import { postSummary } from "../store/news";
-
-import { Alert, Button, SafeAreaView, Text, View } from "react-native";
-import { Avatar, Input, Overlay } from "react-native-elements";
 
 interface Props {
   modalVisible: boolean;
@@ -21,14 +23,17 @@ interface Props {
   refreshFeed: () => void;
 }
 
+const htmlRegex = new RegExp("<head>[^]*<title>([^]+)</title>[^]*</head>");
+
 const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
   const [cleanedUrl, setCleanedUrl] = useState<string | undefined>();
   const [source, setSource] = useState<Source | undefined>();
-  // const [pageContents, setPageContents] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState<string | undefined>();
   const [snippets, setSnippets] = useState<string[]>([]);
   const [authUser, setAuthUser] = useState<AuthUser | undefined>();
+  const [defaultTitle, setDefaultTitle] = useState<string | undefined>();
+  const [useDefaultTitle, setUseDefaultTitle] = useState(false);
 
   const titleInputRef = useRef(null);
   const urlRegex = useMemo(
@@ -55,8 +60,8 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
   const cleanup = useCallback(() => {
     setSource(undefined);
     setCleanedUrl(undefined);
-    // TODO: setUrl(undefined)?
-    // setDefaultTitle(undefined)
+    setDefaultTitle(undefined);
+    setUseDefaultTitle(false);
     setTitle(undefined);
   }, []);
 
@@ -89,17 +94,28 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
       setCleanedUrl(cleanUrl(url));
       const baseUrl = parseBaseUrl(url);
       Promise.all([
-        instance.get(`/sources/${baseUrl}`).then((res) => {
-          if (res.data) {
-            setSource(res.data);
+        instance.get<Source>(`/sources/${baseUrl}`).then((result) => {
+          if (result.data) {
+            setSource(result.data);
           }
         }),
-        // instance.get(url).then((res) => {
-        //   setPageContents(res.data);
-        // }),
+        instance.get<string>(url).then((result) => {
+          const html = result.data;
+          const match = html.match(htmlRegex);
+          if (match && match[1]) {
+            const docTitle = match[1];
+            setDefaultTitle(docTitle);
+          }
+        }),
       ]).then(() => setLoading(false));
     }
   }, [modalVisible, url]);
+
+  useEffect(() => {
+    if (useDefaultTitle && defaultTitle) {
+      setTitle(defaultTitle);
+    }
+  }, [useDefaultTitle]);
 
   // TODO: use a component that gets created, destroyed, and re-created instead? (to avoid manual cleanup)
   return (
@@ -117,7 +133,6 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: 10,
             width: "100%",
           }}
         >
@@ -135,25 +150,32 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
               height: 100,
             }}
           />
-          <Input
-            editable={false}
-            label="url"
-            value={cleanedUrl}
-            style={{ fontSize: 20, fontWeight: "bold" }}
-            autoCompleteType={undefined}
-          />
-          <Input
-            ref={titleInputRef}
-            label="Title"
-            placeholder="New title that explains the contribution of the article"
-            value={title}
-            editable={!loading}
-            onChangeText={(text: string) => {
-              setTitle(text);
-            }}
-            autoCompleteType={undefined}
-          />
-
+          <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
+            {defaultTitle}
+          </Text>
+          <Text style={{ color: "blue", marginBottom: 10 }}>{cleanedUrl}</Text>
+          <View style={{ width: "100%" }}>
+            <Input
+              ref={titleInputRef}
+              label="New Title"
+              placeholder="The real contribution of the article"
+              value={title}
+              editable={!loading}
+              onChangeText={(text: string) => {
+                setTitle(text);
+              }}
+              autoCompleteType={undefined}
+            />
+            <View style={{ flexDirection: "row" }}>
+              <CheckBox
+                value={useDefaultTitle}
+                onValueChange={(value: boolean) => {
+                  setUseDefaultTitle(value);
+                }}
+              />
+              <Text style={{ marginLeft: 5 }}>Use existing title</Text>
+            </View>
+          </View>
           <Button title="Create Summary" onPress={submitShare} />
         </View>
       </SafeAreaView>
