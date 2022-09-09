@@ -23,8 +23,7 @@ interface Props {
   refreshFeed: () => void;
 }
 
-// FIXME: not working to detect the title in actual cases
-const htmlRegex = new RegExp("<head>.*<title>(.+)</title>.*</head>");
+const htmlRegex = new RegExp("<head>[^]*<title>([^]+)</title>[^]*</head>");
 
 const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
   const [cleanedUrl, setCleanedUrl] = useState<string | undefined>();
@@ -102,12 +101,9 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
         }),
         instance.get<string>(url).then((result) => {
           const html = result.data;
-          // console.log("*** got html: ", html); // DEBUG
           const match = html.match(htmlRegex);
-          console.log("*** got match: ", match); // DEBUG
           if (match && match[1]) {
             const docTitle = match[1];
-            console.log("*** got docTitle: ", docTitle); // DEBUG
             setDefaultTitle(docTitle);
           }
         }),
@@ -137,7 +133,6 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: 10,
             width: "100%",
           }}
         >
@@ -155,21 +150,15 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
               height: 100,
             }}
           />
-          {/* <Input
-            editable={false}
-            label="url"
-            value={cleanedUrl}
-            style={{ fontSize: 20, fontWeight: "bold" }}
-            autoCompleteType={undefined}
-          /> */}
-          <Text>{defaultTitle}</Text>
-          <Text>{cleanedUrl}</Text>
+          <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
+            {defaultTitle}
+          </Text>
+          <Text style={{ color: "blue", marginBottom: 10 }}>{cleanedUrl}</Text>
           <View style={{ width: "100%" }}>
-            {/* FIXME: make placeholder shorter so it's visible on the iPhone */}
             <Input
               ref={titleInputRef}
-              label="Title"
-              placeholder="New title that explains the contribution of the article"
+              label="New Title"
+              placeholder="The real contribution of the article"
               value={title}
               editable={!loading}
               onChangeText={(text: string) => {
@@ -177,14 +166,16 @@ const ShareModal = ({ modalVisible, url, hideOverlay, refreshFeed }: Props) => {
               }}
               autoCompleteType={undefined}
             />
-            <CheckBox
-              value={useDefaultTitle}
-              onValueChange={(value: boolean) => {
-                // FIXME: redundant?
-                setUseDefaultTitle(value);
-              }}
-            />
-            <Text>Use default</Text>
+            <View style={{ flexDirection: "row" }}>
+              <CheckBox
+                value={useDefaultTitle}
+                onValueChange={(value: boolean) => {
+                  // FIXME: redundant?
+                  setUseDefaultTitle(value);
+                }}
+              />
+              <Text style={{ marginLeft: 5 }}>Use existing title</Text>
+            </View>
           </View>
           <Button title="Create Summary" onPress={submitShare} />
         </View>
