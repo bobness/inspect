@@ -26,6 +26,7 @@ import Animated, {
 } from "react-native-reanimated";
 import ShareModal from "../components/ShareModal";
 import { useIsFocused } from "@react-navigation/native";
+import NewsRow from "../components/NewsRow";
 
 interface Props {
   navigation: any;
@@ -86,6 +87,16 @@ export default function HomeScreen(props: Props) {
       });
   };
 
+  const handleFollow = (user_id: number) => {
+    const postData = {
+      follower_id: user_id,
+    };
+    followAuthor(postData).then(() => {
+      setAuthorsData(undefined);
+      handleRefresh();
+    });
+  };
+
   const offset = useSharedValue({ x: 0, y: 0 });
   const start = useSharedValue({ x: 0, y: 0 });
   const animatedStyles = useAnimatedStyle(() => {
@@ -97,71 +108,19 @@ export default function HomeScreen(props: Props) {
     };
   });
 
-  const archive = useCallback(
-    (summaryId: number) =>
-      Gesture.Pan()
-        .runOnJS(true)
-        .onStart(() => {})
-        .onUpdate((e) => {
-          offset.value.x = e.translationX + start.value.x;
-          offset.value = {
-            x: e.translationX + start.value.x,
-            y: e.translationY + start.value.x,
-          };
-        })
-        .onEnd(() => {
-          start.value = {
-            x: offset.value.x,
-            y: offset.value.y,
-          };
-          start.value = offset.value;
-          // FIXME: also happens on swipe down in addition to left
-          markAsRead(summaryId).then(handleRefresh);
-        }),
-    [Gesture]
-  );
-
-  const handleFollow = (user_id: number) => {
-    const postData = {
-      follower_id: user_id,
-    };
-    followAuthor(postData).then(() => {
-      setAuthorsData(undefined);
-      handleRefresh();
-    });
-  };
-
-  const renderItem = ({ item }: any) => (
-    <GestureDetector gesture={archive(item.id)}>
-      <Animated.View style={animatedStyles}>
-        <ListItem
-          bottomDivider
-          hasTVPreferredFocus={undefined}
-          tvParallaxProperties={undefined}
-          style={{ flex: 1, width: "100%" }}
-          // style={animatedStyles}
-          onPress={(e) => {
-            navigation.navigate("NewsView", { data: item });
-          }}
-        >
-          <Avatar
-            // title={item.title[0]}
-            // titleStyle={{ color: "black" }}
-            source={item.avatar_uri && { uri: item.avatar_uri }}
-            // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
-          />
-          <ListItem.Content>
-            <ListItem.Title>{item.title}</ListItem.Title>
-          </ListItem.Content>
-          <Avatar
-            // title={item.title[0]}
-            // titleStyle={{ color: "black" }}
-            source={item.logo_uri && { uri: item.logo_uri }}
-            // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
-          />
-        </ListItem>
-      </Animated.View>
-    </GestureDetector>
+  const renderItem = useCallback(
+    ({ item }: any) => (
+      <NewsRow
+        item={item}
+        onPress={(e) => {
+          navigation.navigate("NewsView", { data: item });
+        }}
+        onSwipe={() => {
+          markAsRead(item.id).then(handleRefresh);
+        }}
+      />
+    ),
+    []
   );
 
   const renderAuthorItem = ({ item }: any) => (
