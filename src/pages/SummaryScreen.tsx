@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState, useRef } from "react";
+import React, { useEffect, useCallback, useState, useRef, useMemo } from "react";
 
 import commonStyle from "../styles/CommonStyle";
 import {
@@ -19,16 +19,23 @@ import { getAuthUser } from "../store/auth";
 import { postSummary, sendNotification } from "../store/news";
 import { AuthUser, Source } from "../types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { instance } from "../store/api";
 
 interface Props {
+  route: any;
   navigation: any;
   shareUrl?: string;
   setShareUrl: (value: string | undefined) => void;
 }
 
 export default function SummaryScreen(props: Props) {
+  const {
+    route: {
+      params: { data },
+    },
+  } = props;
   const isFocused = useIsFocused();
-  const [cleanedUrl, setCleanedUrl] = useState<string | undefined>();
+  const [cleanedUrl, setCleanedUrl] = useState<string | undefined>('https://news.yahoo.com/future-covid-variants-will-likely-reinfect-us-multiple-times-a-year-experts-say-unless-we-invest-in-new-vaccines-121959797.html');
   const [source, setSource] = useState<Source | undefined>();
   const titleInputRef = useRef(null);
   const richText = useRef(null);
@@ -37,7 +44,27 @@ export default function SummaryScreen(props: Props) {
   const [title, setTitle] = useState<string | undefined>();
   const [description, setDescriptionText] = useState<string | undefined>();
   const [authUser, setAuthUser] = useState<AuthUser | undefined>();
-  const [snippets, setSnippets] = useState<string[]>([]);
+  const [snippets, setSnippets] = useState<any[]>([]);
+  const urlRegex = useMemo(
+    () => RegExp("https?://.*\\.([a-zA-Z0-9]+\\.[a-z]+)\\/.*"),
+    []
+  );
+
+  const parseBaseUrl = useCallback(
+    (fullUrl: string) => {
+      const match = fullUrl.match(urlRegex);
+      return match ? match[1] : undefined;
+    },
+    [urlRegex]
+  );
+
+  const cleanUrl = useCallback((url?: string) => {
+    if (url) {
+      const qPosition = url.indexOf("?"),
+        justUrl = url.substring(0, qPosition > -1 ? qPosition : url.length);
+      return justUrl;
+    }
+  }, []);
 
   useEffect(() => {
     if (isFocused) {
@@ -75,6 +102,28 @@ export default function SummaryScreen(props: Props) {
     });
   }, []);
 
+  useEffect(() => {
+    if (data.weblink) {
+      setCleanedUrl(cleanUrl(data.weblink));
+      const baseUrl = parseBaseUrl(data.weblink);
+      Promise.all([
+        instance.get(`/sources/${baseUrl}`).then((res) => {
+          if (res.data) {
+            setSource(res.data);
+          }
+        }),
+        // instance.get(url).then((res) => {
+        //   setPageContents(res.data);
+        // }),
+      ]).then(() => setLoading(false));
+      setDescriptionText(data.weblink + '\n');
+    }
+    if (data.text) {
+      setDescriptionText(data.text + '\n');
+      setSnippets([...snippets, { value: data.text }]);
+    }
+  }, [data])
+
   const cleanup = useCallback(() => {
     setSource(undefined);
     setCleanedUrl(undefined);
@@ -92,11 +141,11 @@ export default function SummaryScreen(props: Props) {
         source_id: source?.id,
         snippets,
       };
-      await postSummary(summary);
+      const result = await postSummary(summary);
       await sendNotification({
         title: 'A new summary was created!',
         text: 'A new summary was created!',
-        summary_id: authUser.id,
+        summary_id: result?.id,
       });
       cleanup();
     } else {
@@ -135,7 +184,7 @@ export default function SummaryScreen(props: Props) {
                   onChange={descriptionText => {
                     setDescriptionText(descriptionText);
                   }}
-                  
+
                 />
               </KeyboardAvoidingView>
             </ScrollView>

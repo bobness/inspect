@@ -21,7 +21,7 @@ const getNewsById = (newsId) => {
 };
 
 const postSummary = (summary) => {
-  return instance.post("/summaries", summary);
+  return instance.post("/summaries", summary).then((res) => res.data);
 };
 
 const postComment = (commentData) => {
