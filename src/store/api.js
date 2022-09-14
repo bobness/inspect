@@ -1,11 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-// for expo or eas publishing, do `ENVIRONMENT=production eas update`
-const isProduction = process.env.ENVIRONMENT === "production";
-const baseUrl = isProduction
-  ? "http://inspect.datagotchi.net:5000"
-  : "http://localhost:5000";
+const baseURL = "http://inspect.datagotchi.net:5000";
+// const baseURL = "http://localhost:5000";
 
 const instance = axios.create({
   baseURL,
