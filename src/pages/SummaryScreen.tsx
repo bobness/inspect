@@ -33,6 +33,7 @@ export default function SummaryScreen(props: Props) {
     route: {
       params: { data },
     },
+    navigation,
   } = props;
   const isFocused = useIsFocused();
   const [cleanedUrl, setCleanedUrl] = useState<string | undefined>('https://news.yahoo.com/future-covid-variants-will-likely-reinfect-us-multiple-times-a-year-experts-say-unless-we-invest-in-new-vaccines-121959797.html');
@@ -103,6 +104,7 @@ export default function SummaryScreen(props: Props) {
   }, []);
 
   useEffect(() => {
+    console.log(data);
     if (data.weblink) {
       setCleanedUrl(cleanUrl(data.weblink));
       const baseUrl = parseBaseUrl(data.weblink);
@@ -153,6 +155,25 @@ export default function SummaryScreen(props: Props) {
     }
   }, [authUser, cleanup, title]);
 
+  const handleCancel = () => {
+    Alert.alert(
+      'Are you sure?',
+      'Are you sure cancel current draft?',
+      [
+        {
+          text: 'Yes',
+          onPress: () => {
+            cleanup();
+            navigation.navigate('Home');
+          }
+        }
+      ],
+      {
+        cancelable: true,
+      }
+    );
+  };
+
   return (
     <KeyboardAvoidingView
       style={commonStyle.containerView}
@@ -197,6 +218,11 @@ export default function SummaryScreen(props: Props) {
               onPress={() => setChecked(!checked)}
             />
             <Button disabled={checked} title="Create Summary" onPress={submitShare} />
+            <Button
+              containerStyle={{ backgroundColor: '#FF6600' }}
+              title="Cancel & Ignore this draft"
+              onPress={handleCancel}
+            />
           </View>
         </View>
       </TouchableWithoutFeedback>
