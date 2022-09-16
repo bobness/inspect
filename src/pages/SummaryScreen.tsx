@@ -28,6 +28,8 @@ interface Props {
   setShareUrl: (value: string | undefined) => void;
 }
 
+const htmlRegex = new RegExp("<head>[^]*<title>([^]+)</title>[^]*</head>");
+
 export default function SummaryScreen(props: Props) {
   const {
     route: {
@@ -36,7 +38,7 @@ export default function SummaryScreen(props: Props) {
     navigation,
   } = props;
   const isFocused = useIsFocused();
-  const [cleanedUrl, setCleanedUrl] = useState<string | undefined>('https://news.yahoo.com/future-covid-variants-will-likely-reinfect-us-multiple-times-a-year-experts-say-unless-we-invest-in-new-vaccines-121959797.html');
+  const [cleanedUrl, setCleanedUrl] = useState<string | undefined>();
   const [source, setSource] = useState<Source | undefined>();
   const titleInputRef = useRef(null);
   const richText = useRef(null);
@@ -46,6 +48,9 @@ export default function SummaryScreen(props: Props) {
   const [description, setDescriptionText] = useState<string | undefined>();
   const [authUser, setAuthUser] = useState<AuthUser | undefined>();
   const [snippets, setSnippets] = useState<any[]>([]);
+  const [defaultTitle, setDefaultTitle] = useState<string | undefined>();
+  const [useDefaultTitle, setUseDefaultTitle] = useState(false);
+
   const urlRegex = useMemo(
     () => RegExp("https?://.*\\.([a-zA-Z0-9]+\\.[a-z]+)\\/.*"),
     []
@@ -104,7 +109,6 @@ export default function SummaryScreen(props: Props) {
   }, []);
 
   useEffect(() => {
-    console.log(data);
     if (data.weblink) {
       setCleanedUrl(cleanUrl(data.weblink));
       const baseUrl = parseBaseUrl(data.weblink);
@@ -114,9 +118,14 @@ export default function SummaryScreen(props: Props) {
             setSource(res.data);
           }
         }),
-        // instance.get(url).then((res) => {
-        //   setPageContents(res.data);
-        // }),
+        instance.get<string>(data.weblink).then((result) => {
+          const html = result.data;
+          const match = html.match(htmlRegex);
+          if (match && match[1]) {
+            const docTitle = match[1];
+            setDefaultTitle(docTitle);
+          }
+        }),
       ]).then(() => setLoading(false));
       setDescriptionText(data.weblink + '\n');
     }
@@ -129,8 +138,8 @@ export default function SummaryScreen(props: Props) {
   const cleanup = useCallback(() => {
     setSource(undefined);
     setCleanedUrl(undefined);
-    // TODO: setUrl(undefined)?
-    // setDefaultTitle(undefined)
+    setDefaultTitle(undefined);
+    setUseDefaultTitle(false);
     setTitle(undefined);
   }, []);
 
@@ -174,6 +183,12 @@ export default function SummaryScreen(props: Props) {
     );
   };
 
+  useEffect(() => {
+    if (useDefaultTitle && defaultTitle) {
+      setTitle(defaultTitle);
+    }
+  }, [useDefaultTitle]);
+
   return (
     <KeyboardAvoidingView
       style={commonStyle.containerView}
@@ -183,6 +198,10 @@ export default function SummaryScreen(props: Props) {
         <View style={commonStyle.pageContainer}>
           <View style={{ flex: 1, padding: 10, marginBottom: 30 }}>
             <Text style={commonStyle.logoText}>INSPECT</Text>
+            <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
+              {defaultTitle}
+            </Text>
+            <Text style={{ color: "blue", marginBottom: 10 }}>{cleanedUrl}</Text>
             <Input
               ref={titleInputRef}
               label="Title"
@@ -193,6 +212,11 @@ export default function SummaryScreen(props: Props) {
                 setTitle(text);
               }}
               autoCompleteType={undefined}
+            />
+            <CheckBox
+              title='Use existing title?'
+              checked={useDefaultTitle}
+              onPress={() => setUseDefaultTitle(!useDefaultTitle)}
             />
             <ScrollView style={{ paddingLeft: 10, paddingRight: 10 }}>
               <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>

@@ -28,20 +28,24 @@ import ShareModal from "../components/ShareModal";
 import { useIsFocused } from "@react-navigation/native";
 import NewsRow from "../components/NewsRow";
 
+interface ShareObject {
+  text: string | null;
+  weblink: string | null;
+}
+
 interface Props {
   navigation: any;
-  shareUrl?: string;
-  setShareUrl: (value: string | undefined) => void;
+  data: ShareObject;
 }
 
 export default function HomeScreen(props: Props) {
   const isFocused = useIsFocused();
 
-  const { navigation, shareUrl, setShareUrl } = props;
+  const { navigation } = props;
   const [newsData, setNewsData] = useState<any[] | undefined>();
   const [authorsData, setAuthorsData] = useState<any[] | undefined>();
   const [isRefreshing, setRefreshing] = useState<boolean>(false);
-  const [shareModalVisible, setShareModalVisible] = useState(false);
+  // const [shareModalVisible, setShareModalVisible] = useState(false);
 
   useEffect(() => {
     if (isFocused) {
@@ -50,11 +54,11 @@ export default function HomeScreen(props: Props) {
     }
   }, [isFocused]);
 
-  useEffect(() => {
-    if (shareUrl) {
-      setShareModalVisible(true);
-    }
-  }, [shareUrl]);
+  // useEffect(() => {
+  //   if (shareUrl) {
+  //     setShareModalVisible(true);
+  //   }
+  // }, [shareUrl]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -154,7 +158,7 @@ export default function HomeScreen(props: Props) {
   return (
     <>
       {/* FIXME: remove `ShareModal` here for notification deep linking */}
-      <ShareModal
+      {/* <ShareModal
         modalVisible={shareModalVisible}
         url={shareUrl}
         hideOverlay={() => {
@@ -162,7 +166,7 @@ export default function HomeScreen(props: Props) {
           setShareUrl(undefined);
         }}
         refreshFeed={handleRefresh}
-      />
+      /> */}
       <KeyboardAvoidingView
         style={commonStyle.containerView}
         behavior="padding"

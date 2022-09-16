@@ -50,19 +50,12 @@ export default function App() {
   const navigationRef = useNavigationContainerRef();
   const [user, setUser] = useState<any | undefined>();
   const [notification, setNotification] = useState(false);
-  const [sharedContent, setSharedContent] = useState(false);
+  const [sharedContent, setSharedContent] = useState<ShareObject | undefined>();
   const notificationListener = useRef();
   const responseListener = useRef();
-  const [shareUrl, setShareUrl] = useState<string | undefined>();
-  const [addedNewsId, setNewsId] = useState<number | undefined>();
 
   const handleShare = useCallback(([shareObject]: ShareObject[]) => {
-    // FIXME: still happening multiple times
-    if (shareObject.weblink && shareUrl !== shareObject.weblink) {
-      // console.log("*** setting shareUrl: ", shareObject.weblink); // DEBUG
-      setShareUrl(shareObject.weblink);
-    }
-    setSharedContent(true);
+    setSharedContent(shareObject);
     navigationRef.navigate('CreateSummary', {
       data: shareObject,
     });
@@ -111,7 +104,6 @@ export default function App() {
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
       const data = response.notification.request.content.data;
       if (data && data.id) {
-        setNewsId(data.id);
         navigationRef.navigate('NewsView', { data });
       }
     });
@@ -148,8 +140,7 @@ export default function App() {
           {(props: any) => (
             <HomeScreen
               {...props}
-              shareUrl={shareUrl}
-              setShareUrl={setShareUrl}
+              data={sharedContent}
             />
           )}
         </Stack.Screen>
