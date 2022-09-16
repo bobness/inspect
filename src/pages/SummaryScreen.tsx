@@ -24,8 +24,6 @@ import { instance } from "../store/api";
 interface Props {
   route: any;
   navigation: any;
-  shareUrl?: string;
-  setShareUrl: (value: string | undefined) => void;
 }
 
 const htmlRegex = new RegExp("<head>[^]*<title>([^]+)</title>[^]*</head>");
