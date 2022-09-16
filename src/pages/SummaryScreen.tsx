@@ -28,7 +28,7 @@ interface Props {
   setShareUrl: (value: string | undefined) => void;
 }
 
-const htmlRegex = new RegExp("<head>[^]*<title>([^]+)</title>[^]*</head>");
+const htmlRegex = new RegExp("<title>([^]+)</title>");
 
 export default function SummaryScreen(props: Props) {
   const {
