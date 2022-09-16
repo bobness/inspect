@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState, useRef } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 
 import commonStyle from "../styles/CommonStyle";
 import {
@@ -9,9 +9,7 @@ import {
   View,
   FlatList,
   ActivityIndicator,
-  Image,
 } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ListItem, Avatar, Button } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
 import {
@@ -20,11 +18,11 @@ import {
   getSuggestAuthors,
   followAuthor,
 } from "../store/news";
-import Animated, {
+import {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import ShareModal from "../components/ShareModal";
+// import ShareModal from "../components/ShareModal";
 import { useIsFocused } from "@react-navigation/native";
 import NewsRow from "../components/NewsRow";
 
