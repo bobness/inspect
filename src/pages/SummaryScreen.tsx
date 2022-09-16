@@ -111,17 +111,17 @@ export default function SummaryScreen(props: Props) {
       setCleanedUrl(cleanUrl(data.weblink));
       const baseUrl = parseBaseUrl(data.weblink);
       Promise.all([
-        instance.get(`/sources/${baseUrl}`).then((res) => {
-          if (res.data) {
-            setSource(res.data);
-          }
-        }),
         instance.get<string>(data.weblink).then((result) => {
           const html = result.data;
           const match = html.match(htmlRegex);
           if (match && match[1]) {
             const docTitle = match[1];
             setDefaultTitle(docTitle);
+          }
+        }),
+        instance.get(`/sources/${baseUrl}`).then((res) => {
+          if (res.data) {
+            setSource(res.data);
           }
         }),
       ]).then(() => setLoading(false));
