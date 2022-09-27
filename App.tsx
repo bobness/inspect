@@ -3,12 +3,16 @@ import { useCallback, useState, useRef, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View, ActivityIndicator, Platform } from "react-native";
-import { NavigationContainer, useNavigation, useNavigationContainerRef } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  useNavigation,
+  useNavigationContainerRef,
+} from "@react-navigation/native";
 
 import ReceiveSharingIntent from "react-native-receive-sharing-intent";
-import * as TaskManager from 'expo-task-manager';
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
+import * as TaskManager from "expo-task-manager";
+import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "./src/pages/LoginScreen";
@@ -21,10 +25,11 @@ import ProfileScreen from "./src/pages/ProfileScreen";
 import ShareModal from "./src/components/ShareModal";
 import { updateUserExpoToken } from "./src/store/auth";
 import SummaryScreen from "./src/pages/SummaryScreen";
+import { Subscription } from "expo-modules-core";
 
 const Stack: any = createNativeStackNavigator();
 
-const BACKGROUND_NOTIFICATION_TASK = 'BACKGROUND-NOTIFICATION-TASK';
+const BACKGROUND_NOTIFICATION_TASK = "BACKGROUND-NOTIFICATION-TASK";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -34,10 +39,13 @@ Notifications.setNotificationHandler({
   }),
 });
 
-TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, ({ data, error, executionInfo }) => {
-  console.log('Received a notification in the background!');
-  // Do something with the notification data
-});
+TaskManager.defineTask(
+  BACKGROUND_NOTIFICATION_TASK,
+  ({ data, error, executionInfo }) => {
+    console.log("Received a notification in the background!");
+    // Do something with the notification data
+  }
+);
 
 Notifications.registerTaskAsync(BACKGROUND_NOTIFICATION_TASK);
 
@@ -49,14 +57,14 @@ interface ShareObject {
 export default function App() {
   const navigationRef = useNavigationContainerRef();
   const [user, setUser] = useState<any | undefined>();
-  const [notification, setNotification] = useState(false);
+  const [notification, setNotification] = useState<Notification | undefined>();
   const [sharedContent, setSharedContent] = useState<ShareObject | undefined>();
-  const notificationListener = useRef();
-  const responseListener = useRef();
+  const notificationListener = useRef<Subscription | undefined>();
+  const responseListener = useRef<Subscription | undefined>();
 
   const handleShare = useCallback(([shareObject]: ShareObject[]) => {
     setSharedContent(shareObject);
-    navigationRef.navigate('CreateSummary', {
+    navigationRef.navigate("CreateSummary", {
       data: shareObject,
     });
   }, []);
@@ -95,28 +103,44 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    registerForPushNotificationsAsync().then(token => handleToken(token));
+    // FIXME: handleToken() gets called with undefined
+    registerForPushNotificationsAsync().then((token) => handleToken(token));
 
-    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      setNotification(notification);
-    });
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        setNotification(notification);
+      });
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      const data = response.notification.request.content.data;
-      if (data && data.id) {
-        navigationRef.navigate('NewsView', { data });
-      }
-    });
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        const data = response.notification.request.content.data;
+        if (data && data.id) {
+          navigationRef.navigate("NewsView", { data });
+        }
+      });
 
     return () => {
-      Notifications.removeNotificationSubscription(notificationListener.current);
-      Notifications.removeNotificationSubscription(responseListener.current);
+      if (notificationListener.current) {
+        Notifications.removeNotificationSubscription(
+          notificationListener.current
+        );
+      }
+      if (responseListener.current) {
+        Notifications.removeNotificationSubscription(responseListener.current);
+      }
     };
   }, []);
 
   if (!user) {
     return (
-      <View style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View
+        style={{
+          display: "flex",
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <ActivityIndicator />
       </View>
     );
@@ -125,7 +149,7 @@ export default function App() {
   // ReceiveSharingIntent.clearReceivedFiles();
   return (
     <NavigationContainer ref={navigationRef}>
-      <Stack.Navigator initialRouteName={user.userId === 0 ? "Login" : 'Home'}>
+      <Stack.Navigator initialRouteName={user.userId === 0 ? "Login" : "Home"}>
         <Stack.Screen
           name="Login"
           component={LoginScreen}
@@ -137,12 +161,7 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen name="Home" options={{ headerShown: false }}>
-          {(props: any) => (
-            <HomeScreen
-              {...props}
-              data={sharedContent}
-            />
-          )}
+          {(props: any) => <HomeScreen {...props} data={sharedContent} />}
         </Stack.Screen>
         <Stack.Screen
           name="NewsView"
@@ -179,8 +198,8 @@ async function schedulePushNotification() {
   await Notifications.scheduleNotificationAsync({
     content: {
       title: "You've got mail! 📬",
-      body: 'Here is the notification body',
-      data: { data: 'goes here' },
+      body: "Here is the notification body",
+      data: { data: "goes here" },
     },
     trigger: { seconds: 2 },
   });
@@ -189,28 +208,29 @@ async function schedulePushNotification() {
 async function registerForPushNotificationsAsync() {
   let token;
   if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
-    if (existingStatus !== 'granted') {
+    if (existingStatus !== "granted") {
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
     }
-    if (finalStatus !== 'granted') {
-      alert('Failed to get push token for push notification!');
+    if (finalStatus !== "granted") {
+      alert("Failed to get push token for push notification!");
       return;
     }
     token = (await Notifications.getExpoPushTokenAsync()).data;
     console.log(token);
   } else {
-    alert('Must use physical device for Push Notifications');
+    alert("Must use physical device for Push Notifications");
   }
 
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
+  if (Platform.OS === "android") {
+    await Notifications.setNotificationChannelAsync("default", {
+      name: "default",
       importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
+      lightColor: "#FF231F7C",
     });
   }
 

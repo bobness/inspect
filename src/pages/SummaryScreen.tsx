@@ -1,4 +1,10 @@
-import React, { useEffect, useCallback, useState, useRef, useMemo } from "react";
+import React, {
+  useEffect,
+  useCallback,
+  useState,
+  useRef,
+  useMemo,
+} from "react";
 
 import commonStyle from "../styles/CommonStyle";
 import {
@@ -12,7 +18,6 @@ import {
   Platform,
 } from "react-native";
 import { RichEditor, RichToolbar } from "react-native-pell-rich-editor";
-import BottomToolbar from "../components/BottomToolbar";
 import { Input, CheckBox, Button } from "react-native-elements";
 import { useIsFocused } from "@react-navigation/native";
 import { getAuthUser } from "../store/auth";
@@ -26,7 +31,7 @@ interface Props {
   navigation: any;
 }
 
-const htmlRegex = new RegExp("<head>[^]*<title>([^]+)</title>[^]*</head>");
+const titleRegex = new RegExp("<head>[^]*<title>([^]+)</title>[^]*</head>");
 
 export default function SummaryScreen(props: Props) {
   const {
@@ -73,9 +78,9 @@ export default function SummaryScreen(props: Props) {
   useEffect(() => {
     if (isFocused) {
       const fetchTempData = async () => {
-        const tempTitle = await AsyncStorage.getItem('draft_title');
-        const tempContent = await AsyncStorage.getItem('draft_content');
-        const isDraft = await AsyncStorage.getItem('is_draft');
+        const tempTitle = await AsyncStorage.getItem("draft_title");
+        const tempContent = await AsyncStorage.getItem("draft_content");
+        const isDraft = await AsyncStorage.getItem("is_draft");
 
         if (tempTitle) {
           setTitle(tempTitle);
@@ -86,16 +91,16 @@ export default function SummaryScreen(props: Props) {
         if (isDraft) {
           setChecked(isDraft ? true : false);
         }
-      }
+      };
       fetchTempData();
     }
 
     return () => {
       const setTempData = async () => {
-        await AsyncStorage.setItem('draft_title', title || '');
-        await AsyncStorage.setItem('draft_content', description || '');
-        await AsyncStorage.setItem('is_draft', checked ? 'true' : '');
-      }
+        await AsyncStorage.setItem("draft_title", title || "");
+        await AsyncStorage.setItem("draft_content", description || "");
+        await AsyncStorage.setItem("is_draft", checked ? "true" : "");
+      };
       setTempData();
     };
   }, [isFocused]);
@@ -113,7 +118,7 @@ export default function SummaryScreen(props: Props) {
       Promise.all([
         instance.get<string>(data.weblink).then((result) => {
           const html = result.data;
-          const match = html.match(htmlRegex);
+          const match = html.match(titleRegex);
           if (match && match[1]) {
             const docTitle = match[1];
             setDefaultTitle(docTitle);
@@ -125,13 +130,14 @@ export default function SummaryScreen(props: Props) {
           }
         }),
       ]).then(() => setLoading(false));
-      setDescriptionText(data.weblink + '\n');
+      setDescriptionText(data.weblink + "\n");
     }
-    if (data.text) {
-      setDescriptionText(data.text + '\n');
-      setSnippets([...snippets, { value: data.text }]);
-    }
-  }, [data])
+    // FIXME: selecting text in an article and sharing it does not include the weblink, so how should we do snippets?
+    // if (data.text && data.text !== data.weblink) {
+    //   setDescriptionText(data.text + "\n");
+    //   setSnippets([...snippets, { value: data.text }]);
+    // }
+  }, [data]);
 
   const cleanup = useCallback(() => {
     setSource(undefined);
@@ -152,8 +158,8 @@ export default function SummaryScreen(props: Props) {
       };
       const result = await postSummary(summary);
       await sendNotification({
-        title: 'A new summary was created!',
-        text: 'A new summary was created!',
+        title: "A new summary was created!",
+        text: "A new summary was created!",
         summary_id: result?.id,
       });
       cleanup();
@@ -164,16 +170,16 @@ export default function SummaryScreen(props: Props) {
 
   const handleCancel = () => {
     Alert.alert(
-      'Are you sure?',
-      'Are you sure cancel current draft?',
+      "Are you sure?",
+      "Are you sure you want to cancel?",
       [
         {
-          text: 'Yes',
+          text: "Yes",
           onPress: () => {
             cleanup();
-            navigation.navigate('Home');
-          }
-        }
+            navigation.navigate("Home");
+          },
+        },
       ],
       {
         cancelable: true,
@@ -188,10 +194,7 @@ export default function SummaryScreen(props: Props) {
   }, [useDefaultTitle]);
 
   return (
-    <KeyboardAvoidingView
-      style={commonStyle.containerView}
-      behavior="padding"
-    >
+    <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={commonStyle.pageContainer}>
           <View style={{ flex: 1, padding: 10, marginBottom: 30 }}>
@@ -199,7 +202,9 @@ export default function SummaryScreen(props: Props) {
             <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
               {defaultTitle}
             </Text>
-            <Text style={{ color: "blue", marginBottom: 10 }}>{cleanedUrl}</Text>
+            <Text style={{ color: "blue", marginBottom: 10 }}>
+              {cleanedUrl}
+            </Text>
             <Input
               ref={titleInputRef}
               label="Title"
@@ -212,37 +217,50 @@ export default function SummaryScreen(props: Props) {
               autoCompleteType={undefined}
             />
             <CheckBox
-              title='Use existing title?'
+              title="Use existing title?"
               checked={useDefaultTitle}
               onPress={() => setUseDefaultTitle(!useDefaultTitle)}
             />
-            <ScrollView style={{ paddingLeft: 10, paddingRight: 10 }}>
-              <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
-                <Text style={{ fontWeight: 'bold', marginBottom: 10, color: 'gray' }}>Snippets:</Text>
+            {/* <ScrollView style={{ paddingLeft: 10, paddingRight: 10 }}>
+              <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                style={{ flex: 1 }}
+              >
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    marginBottom: 10,
+                    color: "gray",
+                  }}
+                >
+                  Snippets:
+                </Text>
                 <RichEditor
                   useContainer={false}
                   containerStyle={{ minHeight: 300 }}
                   ref={richText}
                   initialContentHTML={description}
-                  onChange={descriptionText => {
+                  onChange={(descriptionText) => {
                     setDescriptionText(descriptionText);
                   }}
-
                 />
               </KeyboardAvoidingView>
             </ScrollView>
-            <RichToolbar
-              editor={richText}
-            />
-            <CheckBox
-              title='Is Draft?'
+            <RichToolbar editor={richText} /> */}
+            {/* TODO: disabling this until there's a better user story */}
+            {/* <CheckBox
+              title="Is Draft?"
               checked={checked}
               onPress={() => setChecked(!checked)}
-            />
-            <Button disabled={checked} title="Create Summary" onPress={submitShare} />
+            /> */}
             <Button
-              containerStyle={{ backgroundColor: '#FF6600' }}
-              title="Cancel & Ignore this draft"
+              disabled={!title}
+              title="Create Summary"
+              onPress={submitShare}
+            />
+            <Button
+              containerStyle={{ backgroundColor: "#FF6600" }}
+              title="Cancel"
               onPress={handleCancel}
             />
           </View>

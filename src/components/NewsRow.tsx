@@ -12,6 +12,7 @@ interface Props {
   onSwipe: () => void;
 }
 
+// FIXME: dragging gets stuck
 const NewsRow = ({ item, onPress, onSwipe }: Props) => {
   const offset = useSharedValue({ x: 0, y: 0 });
   const start = useSharedValue({ x: 0, y: 0 });

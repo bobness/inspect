@@ -18,10 +18,6 @@ import {
   getSuggestAuthors,
   followAuthor,
 } from "../store/news";
-import {
-  useAnimatedStyle,
-  useSharedValue,
-} from "react-native-reanimated";
 // import ShareModal from "../components/ShareModal";
 import { useIsFocused } from "@react-navigation/native";
 import NewsRow from "../components/NewsRow";
@@ -51,12 +47,6 @@ export default function HomeScreen(props: Props) {
       handleAuthorRefresh();
     }
   }, [isFocused]);
-
-  // useEffect(() => {
-  //   if (shareUrl) {
-  //     setShareModalVisible(true);
-  //   }
-  // }, [shareUrl]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -98,17 +88,6 @@ export default function HomeScreen(props: Props) {
       handleRefresh();
     });
   };
-
-  const offset = useSharedValue({ x: 0, y: 0 });
-  const start = useSharedValue({ x: 0, y: 0 });
-  const animatedStyles = useAnimatedStyle(() => {
-    return {
-      transform: [
-        { translateX: offset.value.x },
-        { translateY: offset.value.y },
-      ],
-    };
-  });
 
   const renderItem = useCallback(
     ({ item }: any) => (
@@ -182,6 +161,7 @@ export default function HomeScreen(props: Props) {
                   onRefresh={handleRefresh}
                 />
               )}
+              {/* FIXME: is in front of the above news, rather than below it */}
               {authorsData && authorsData.length > 0 && (
                 <>
                   <Text
