@@ -152,16 +152,6 @@ export default function HomeScreen(props: Props) {
           <View style={commonStyle.pageContainer}>
             <View style={{ flex: 1, padding: 10 }}>
               <Text style={commonStyle.logoText}>INSPECT</Text>
-              {newsData && newsData.length > 0 && (
-                <FlatList
-                  data={newsData}
-                  renderItem={renderItem}
-                  style={{ flex: 1, width: "100%" }}
-                  refreshing={isRefreshing}
-                  onRefresh={handleRefresh}
-                />
-              )}
-              {/* FIXME: is in front of the above news, rather than below it */}
               {authorsData && authorsData.length > 0 && (
                 <>
                   <Text
@@ -181,6 +171,15 @@ export default function HomeScreen(props: Props) {
                     onRefresh={handleAuthorRefresh}
                   />
                 </>
+              )}
+              {newsData && newsData.length > 0 && (
+                <FlatList
+                  data={newsData}
+                  renderItem={renderItem}
+                  style={{ flex: 1, width: "100%" }}
+                  refreshing={isRefreshing}
+                  onRefresh={handleRefresh}
+                />
               )}
               {!newsData && (
                 <View
