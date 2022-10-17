@@ -132,11 +132,16 @@ export default function SummaryScreen(props: Props) {
       ]).then(() => setLoading(false));
       setDescriptionText(data.weblink + "\n");
     }
-    // FIXME: selecting text in an article and sharing it does not include the weblink, so how should we do snippets?
-    // if (data.text && data.text !== data.weblink) {
-    //   setDescriptionText(data.text + "\n");
-    //   setSnippets([...snippets, { value: data.text }]);
-    // }
+
+    if (data.text) {
+      setDescriptionText(data.text + "\n");
+      setSnippets([...snippets, { value: data.text }]);
+    }
+    if (data.weblink) {
+      const weblinkText = "<a href=\"" + data.weblink + "\">" + data.weblink + "</a>\n";
+      setDescriptionText(weblinkText);
+      setSnippets([...snippets, { value: weblinkText }]);
+    }
   }, [data]);
 
   const cleanup = useCallback(() => {
