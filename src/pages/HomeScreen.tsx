@@ -176,9 +176,7 @@ export default function HomeScreen(props: Props) {
                 <FlatList
                   data={newsData}
                   renderItem={renderItem}
-                  style={{ flex: 1, width: "100%" }}
-                  refreshing={isRefreshing}
-                  onRefresh={handleRefresh}
+                  style={{ flex: 1, width: "100%", height: '100%' }}
                 />
               )}
               {!newsData && (

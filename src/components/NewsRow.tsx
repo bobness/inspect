@@ -25,22 +25,18 @@ const NewsRow = ({ item, onPress, onSwipe }: Props) => {
       .runOnJS(true)
       .onStart(() => {})
       .onUpdate((e) => {
-        if (e.translationX < 0) {
           offset.value = {
             x: e.translationX + start.value.x,
-            y: start.value.y,
+            y: e.translationY + start.value.y,
           };
-        }
       })
       .onEnd(() => {
-        if (offset.value.x < 0) {
           start.value = {
             x: offset.value.x,
             y: offset.value.y,
           };
           start.value = offset.value;
           onSwipe();
-        }
       });
 
   return (
@@ -50,7 +46,6 @@ const NewsRow = ({ item, onPress, onSwipe }: Props) => {
           bottomDivider
           hasTVPreferredFocus={undefined}
           tvParallaxProperties={undefined}
-          style={{ flex: 1, width: "100%" }}
           // style={animatedStyles}
           onPress={onPress}
         >
