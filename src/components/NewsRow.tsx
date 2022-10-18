@@ -25,18 +25,20 @@ const NewsRow = ({ item, onPress, onSwipe }: Props) => {
       .runOnJS(true)
       .onStart(() => {})
       .onUpdate((e) => {
+        if (e.translationX < 0) {
           offset.value = {
             x: e.translationX + start.value.x,
-            y: e.translationY + start.value.y,
+            y: start.value.y,
           };
+        }
       })
       .onEnd(() => {
-          start.value = {
-            x: offset.value.x,
-            y: offset.value.y,
-          };
-          start.value = offset.value;
-          onSwipe();
+        start.value = {
+          x: offset.value.x,
+          y: offset.value.y,
+        };
+        start.value = offset.value;
+        onSwipe();
       });
 
   return (

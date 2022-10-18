@@ -58,12 +58,10 @@ export default function App() {
   const navigationRef = useNavigationContainerRef();
   const [user, setUser] = useState<any | undefined>();
   const [notification, setNotification] = useState<Notification | undefined>();
-  const [sharedContent, setSharedContent] = useState<ShareObject | undefined>();
   const notificationListener = useRef<Subscription | undefined>();
   const responseListener = useRef<Subscription | undefined>();
 
   const handleShare = useCallback(([shareObject]: ShareObject[]) => {
-    setSharedContent(shareObject);
     navigationRef.navigate("CreateSummary", {
       data: shareObject,
     });
@@ -161,7 +159,7 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen name="Home" options={{ headerShown: false }}>
-          {(props: any) => <HomeScreen {...props} data={sharedContent} />}
+          {(props: any) => <HomeScreen {...props} />}
         </Stack.Screen>
         <Stack.Screen
           name="NewsView"

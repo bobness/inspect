@@ -29,7 +29,6 @@ interface ShareObject {
 
 interface Props {
   navigation: any;
-  data: ShareObject;
 }
 
 export default function HomeScreen(props: Props) {
@@ -176,7 +175,7 @@ export default function HomeScreen(props: Props) {
                 <FlatList
                   data={newsData}
                   renderItem={renderItem}
-                  style={{ flex: 1, width: "100%", height: '100%' }}
+                  style={{ flex: 1, width: "100%", height: "100%" }}
                 />
               )}
               {!newsData && (
