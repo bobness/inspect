@@ -22,7 +22,11 @@ const getProfileInformation = (userId) => {
 
 const updateProfile = (data) => {
     return instance.put('/users', data).then(res => res.data);
-}
+};
+
+const updateUserExpoToken = (expo_token) => {
+    return instance.put('/notification', { expo_token }).then(res => res.data);
+};
 
 export {
     userLogin,
@@ -31,4 +35,5 @@ export {
     getAuthUser,
     getProfileInformation,
     updateProfile,
+    updateUserExpoToken,
 }

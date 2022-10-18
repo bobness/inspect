@@ -1,11 +1,18 @@
 import "react-native-gesture-handler";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { View, ActivityIndicator } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
+import { View, ActivityIndicator, Platform } from "react-native";
+import {
+  NavigationContainer,
+  useNavigation,
+  useNavigationContainerRef,
+} from "@react-navigation/native";
 
 import ReceiveSharingIntent from "react-native-receive-sharing-intent";
+import * as TaskManager from "expo-task-manager";
+import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "./src/pages/LoginScreen";
@@ -16,8 +23,31 @@ import AuthorViewScreen from "./src/pages/AuthorViewScreen";
 import AuthorNewsViewScreen from "./src/pages/AuthorNewsViewScreen";
 import ProfileScreen from "./src/pages/ProfileScreen";
 import ShareModal from "./src/components/ShareModal";
+import { updateUserExpoToken } from "./src/store/auth";
+import SummaryScreen from "./src/pages/SummaryScreen";
+import { Subscription } from "expo-modules-core";
 
 const Stack: any = createNativeStackNavigator();
+
+const BACKGROUND_NOTIFICATION_TASK = "BACKGROUND-NOTIFICATION-TASK";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
+TaskManager.defineTask(
+  BACKGROUND_NOTIFICATION_TASK,
+  ({ data, error, executionInfo }) => {
+    console.log("Received a notification in the background!");
+    // Do something with the notification data
+  }
+);
+
+Notifications.registerTaskAsync(BACKGROUND_NOTIFICATION_TASK);
 
 interface ShareObject {
   text: string | null;
@@ -25,16 +55,18 @@ interface ShareObject {
 }
 
 export default function App() {
+  const navigationRef = useNavigationContainerRef();
   const [user, setUser] = useState<any | undefined>();
-  const [shareUrl, setShareUrl] = useState<string | undefined>();
+  const [notification, setNotification] = useState<Notification | undefined>();
+  const [sharedContent, setSharedContent] = useState<ShareObject | undefined>();
+  const notificationListener = useRef<Subscription | undefined>();
+  const responseListener = useRef<Subscription | undefined>();
 
   const handleShare = useCallback(([shareObject]: ShareObject[]) => {
-    // FIXME: still happening multiple times
-    if (shareObject.weblink && shareUrl !== shareObject.weblink) {
-      // console.log("*** setting shareUrl: ", shareObject.weblink); // DEBUG
-      setShareUrl(shareObject.weblink);
-    }
-    // else if (shareObject.text) {}
+    setSharedContent(shareObject);
+    navigationRef.navigate("CreateSummary", {
+      data: shareObject,
+    });
   }, []);
   ReceiveSharingIntent.getReceivedFiles(
     handleShare,
@@ -44,11 +76,23 @@ export default function App() {
     "net.datagotchi.inspect"
   );
 
+  const handleToken = async (token: any) => {
+    if (token) {
+      if (user && !user.expo_token) {
+        await updateUserExpoToken(token);
+        user.expo_token = token;
+        setUser(user);
+        await AsyncStorage.setItem("@user", JSON.stringify(user));
+      }
+    }
+  };
+
   useEffect(() => {
     const fetchUser = async () => {
       const userInfo = await AsyncStorage.getItem("@user");
       if (userInfo) {
-        setUser(JSON.parse(userInfo));
+        const storedUserInfo = JSON.parse(userInfo);
+        setUser(storedUserInfo);
       } else {
         setUser({
           userId: 0,
@@ -58,18 +102,53 @@ export default function App() {
     fetchUser();
   }, []);
 
-  // ReceiveSharingIntent.clearReceivedFiles();
+  useEffect(() => {
+    // FIXME: handleToken() gets called with undefined
+    registerForPushNotificationsAsync().then((token) => handleToken(token));
+
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        setNotification(notification);
+      });
+
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        const data = response.notification.request.content.data;
+        if (data && data.id) {
+          navigationRef.navigate("NewsView", { data });
+        }
+      });
+
+    return () => {
+      if (notificationListener.current) {
+        Notifications.removeNotificationSubscription(
+          notificationListener.current
+        );
+      }
+      if (responseListener.current) {
+        Notifications.removeNotificationSubscription(responseListener.current);
+      }
+    };
+  }, []);
 
   if (!user) {
     return (
-      <View>
+      <View
+        style={{
+          display: "flex",
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <ActivityIndicator />
       </View>
     );
   }
 
+  // ReceiveSharingIntent.clearReceivedFiles();
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator initialRouteName={user.userId === 0 ? "Login" : "Home"}>
         <Stack.Screen
           name="Login"
@@ -82,13 +161,7 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen name="Home" options={{ headerShown: false }}>
-          {(props: any) => (
-            <HomeScreen
-              {...props}
-              shareUrl={shareUrl}
-              setShareUrl={setShareUrl}
-            />
-          )}
+          {(props: any) => <HomeScreen {...props} data={sharedContent} />}
         </Stack.Screen>
         <Stack.Screen
           name="NewsView"
@@ -110,8 +183,56 @@ export default function App() {
           component={ProfileScreen}
           options={{ headerShown: true }}
         />
+        <Stack.Screen
+          name="CreateSummary"
+          component={SummaryScreen}
+          options={{ headerShown: false }}
+        />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
   );
+}
+
+async function schedulePushNotification() {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "You've got mail! 📬",
+      body: "Here is the notification body",
+      data: { data: "goes here" },
+    },
+    trigger: { seconds: 2 },
+  });
+}
+
+async function registerForPushNotificationsAsync() {
+  let token;
+  if (Device.isDevice) {
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== "granted") {
+      alert("Failed to get push token for push notification!");
+      return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+    console.log(token);
+  } else {
+    alert("Must use physical device for Push Notifications");
+  }
+
+  if (Platform.OS === "android") {
+    await Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#FF231F7C",
+    });
+  }
+
+  return token;
 }

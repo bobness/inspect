@@ -21,7 +21,7 @@ const getNewsById = (newsId) => {
 };
 
 const postSummary = (summary) => {
-  return instance.post("/summaries", summary);
+  return instance.post("/summaries", summary).then((res) => res.data);
 };
 
 const postComment = (commentData) => {
@@ -44,6 +44,10 @@ const followAuthor = (followerData) => {
   return instance.post("/followers", followerData);
 };
 
+const sendNotification = (data) => {
+  return instance.post("/notification", data).then(res => res.data);
+};
+
 export {
   getUnreadNews,
   markAsRead,
@@ -56,4 +60,5 @@ export {
   deleteSummary,
   getSuggestAuthors,
   followAuthor,
+  sendNotification,
 };

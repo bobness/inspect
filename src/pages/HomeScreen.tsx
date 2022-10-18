@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState, useRef } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 
 import commonStyle from "../styles/CommonStyle";
 import {
@@ -9,9 +9,7 @@ import {
   View,
   FlatList,
   ActivityIndicator,
-  Image,
 } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ListItem, Avatar, Button } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
 import {
@@ -20,28 +18,28 @@ import {
   getSuggestAuthors,
   followAuthor,
 } from "../store/news";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-} from "react-native-reanimated";
-import ShareModal from "../components/ShareModal";
+// import ShareModal from "../components/ShareModal";
 import { useIsFocused } from "@react-navigation/native";
 import NewsRow from "../components/NewsRow";
 
+interface ShareObject {
+  text: string | null;
+  weblink: string | null;
+}
+
 interface Props {
   navigation: any;
-  shareUrl?: string;
-  setShareUrl: (value: string | undefined) => void;
+  data: ShareObject;
 }
 
 export default function HomeScreen(props: Props) {
   const isFocused = useIsFocused();
 
-  const { navigation, shareUrl, setShareUrl } = props;
+  const { navigation } = props;
   const [newsData, setNewsData] = useState<any[] | undefined>();
   const [authorsData, setAuthorsData] = useState<any[] | undefined>();
   const [isRefreshing, setRefreshing] = useState<boolean>(false);
-  const [shareModalVisible, setShareModalVisible] = useState(false);
+  // const [shareModalVisible, setShareModalVisible] = useState(false);
 
   useEffect(() => {
     if (isFocused) {
@@ -49,12 +47,6 @@ export default function HomeScreen(props: Props) {
       handleAuthorRefresh();
     }
   }, [isFocused]);
-
-  useEffect(() => {
-    if (shareUrl) {
-      setShareModalVisible(true);
-    }
-  }, [shareUrl]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -96,17 +88,6 @@ export default function HomeScreen(props: Props) {
       handleRefresh();
     });
   };
-
-  const offset = useSharedValue({ x: 0, y: 0 });
-  const start = useSharedValue({ x: 0, y: 0 });
-  const animatedStyles = useAnimatedStyle(() => {
-    return {
-      transform: [
-        { translateX: offset.value.x },
-        { translateY: offset.value.y },
-      ],
-    };
-  });
 
   const renderItem = useCallback(
     ({ item }: any) => (
@@ -154,7 +135,7 @@ export default function HomeScreen(props: Props) {
   return (
     <>
       {/* FIXME: remove `ShareModal` here for notification deep linking */}
-      <ShareModal
+      {/* <ShareModal
         modalVisible={shareModalVisible}
         url={shareUrl}
         hideOverlay={() => {
@@ -162,7 +143,7 @@ export default function HomeScreen(props: Props) {
           setShareUrl(undefined);
         }}
         refreshFeed={handleRefresh}
-      />
+      /> */}
       <KeyboardAvoidingView
         style={commonStyle.containerView}
         behavior="padding"
@@ -171,15 +152,6 @@ export default function HomeScreen(props: Props) {
           <View style={commonStyle.pageContainer}>
             <View style={{ flex: 1, padding: 10 }}>
               <Text style={commonStyle.logoText}>INSPECT</Text>
-              {newsData && newsData.length > 0 && (
-                <FlatList
-                  data={newsData}
-                  renderItem={renderItem}
-                  style={{ flex: 1, width: "100%" }}
-                  refreshing={isRefreshing}
-                  onRefresh={handleRefresh}
-                />
-              )}
               {authorsData && authorsData.length > 0 && (
                 <>
                   <Text
@@ -199,6 +171,13 @@ export default function HomeScreen(props: Props) {
                     onRefresh={handleAuthorRefresh}
                   />
                 </>
+              )}
+              {newsData && newsData.length > 0 && (
+                <FlatList
+                  data={newsData}
+                  renderItem={renderItem}
+                  style={{ flex: 1, width: "100%", height: '100%' }}
+                />
               )}
               {!newsData && (
                 <View

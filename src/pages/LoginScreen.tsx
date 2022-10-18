@@ -23,10 +23,8 @@ export default function LoginScreen({ navigation }: any) {
   const emailRef: any = useRef(null);
   const passwordRef: any = useRef(null);
   const [loading, setLoading] = useState(false);
-  //   const [email, setEmail] = useState("test@test.com");
-  //   const [password, setPassword] = useState("W");
-  const [email, setEmail] = useState("bob@datagotchi.net");
-  const [password, setPassword] = useState("p4ssw0rd");
+  const [email, setEmail] = useState<string | undefined>();
+  const [password, setPassword] = useState<string | undefined>();
   const onLoginPress = () => {
     if (!email) {
       Alert.alert("Email is required.");
@@ -90,6 +88,7 @@ export default function LoginScreen({ navigation }: any) {
               onChangeText={(value: string) => setEmail(value)}
               editable={!loading}
               autoCapitalize="none"
+              autoCorrect={false}
             />
             <TextInput
               ref={passwordRef}
@@ -101,6 +100,7 @@ export default function LoginScreen({ navigation }: any) {
               onChangeText={(value: string) => setPassword(value)}
               editable={!loading}
               autoCapitalize="none"
+              autoCorrect={false}
             />
             <Button
               buttonStyle={styles.loginButton}
