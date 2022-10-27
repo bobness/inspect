@@ -60,6 +60,7 @@ export default function App() {
   const [notification, setNotification] = useState<Notification | undefined>();
   const notificationListener = useRef<Subscription | undefined>();
   const responseListener = useRef<Subscription | undefined>();
+  const [expoToken, setExpoToken] = useState<string | undefined>();
 
   const handleShare = useCallback(([shareObject]: ShareObject[]) => {
     navigationRef.navigate("CreateSummary", {
@@ -73,17 +74,6 @@ export default function App() {
     },
     "net.datagotchi.inspect"
   );
-
-  const handleToken = async (token: any) => {
-    if (token) {
-      if (user && !user.expo_token) {
-        await updateUserExpoToken(token);
-        user.expo_token = token;
-        setUser(user);
-        await AsyncStorage.setItem("@user", JSON.stringify(user));
-      }
-    }
-  };
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -101,8 +91,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // FIXME: handleToken() gets called with undefined
-    registerForPushNotificationsAsync().then((token) => handleToken(token));
+    registerForPushNotificationsAsync().then((token) => setExpoToken(token));
 
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
@@ -129,6 +118,15 @@ export default function App() {
     };
   }, []);
 
+  const handleOnLogin = (userObject: any) => {
+    if (expoToken) {
+      updateUserExpoToken(expoToken);
+      userObject.expo_token = expoToken;
+      AsyncStorage.setItem("@user", JSON.stringify(userObject));
+      setUser(userObject);
+    }
+  };
+
   if (!user) {
     return (
       <View
@@ -148,11 +146,11 @@ export default function App() {
   return (
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator initialRouteName={user.userId === 0 ? "Login" : "Home"}>
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="Login" options={{ headerShown: false }}>
+          {(props: any) => (
+            <LoginScreen {...props} onLoginCallback={handleOnLogin} />
+          )}
+        </Stack.Screen>
         <Stack.Screen
           name="Register"
           component={RegisterScreen}
@@ -217,8 +215,12 @@ async function registerForPushNotificationsAsync() {
       alert("Failed to get push token for push notification!");
       return;
     }
-    token = (await Notifications.getExpoPushTokenAsync()).data;
-    console.log(token);
+    try {
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+    } catch (err) {
+      alert(err);
+    }
+    alert(`New token: ${token}`);
   } else {
     alert("Must use physical device for Push Notifications");
   }

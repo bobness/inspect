@@ -19,7 +19,12 @@ import { setToken } from "../store/api";
 
 const appId = "1047121222092614";
 
-export default function LoginScreen({ navigation }: any) {
+interface Props {
+  navigation: any;
+  onLoginCallback: (userObject: any) => void;
+}
+
+export default function LoginScreen({ navigation, onLoginCallback }: Props) {
   const emailRef: any = useRef(null);
   const passwordRef: any = useRef(null);
   const [loading, setLoading] = useState(false);
@@ -50,6 +55,7 @@ export default function LoginScreen({ navigation }: any) {
       await AsyncStorage.setItem("@access_token", res.token);
       await AsyncStorage.setItem("@user", JSON.stringify(res));
       setToken(res.token);
+      onLoginCallback(res);
       navigation.navigate("Home");
     });
   };

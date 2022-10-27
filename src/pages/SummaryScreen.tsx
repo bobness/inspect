@@ -138,7 +138,8 @@ export default function SummaryScreen(props: Props) {
       setSnippets([...snippets, { value: data.text }]);
     }
     if (data.weblink) {
-      const weblinkText = "<a href=\"" + data.weblink + "\">" + data.weblink + "</a>\n";
+      const weblinkText =
+        '<a href="' + data.weblink + '">' + data.weblink + "</a>\n";
       setDescriptionText(weblinkText);
       setSnippets([...snippets, { value: weblinkText }]);
     }
@@ -164,10 +165,11 @@ export default function SummaryScreen(props: Props) {
       const result = await postSummary(summary);
       await sendNotification({
         title: "A new summary was created!",
-        text: "A new summary was created!",
+        text: summary.title,
         summary_id: result?.id,
       });
       cleanup();
+      navigation.navigate("Home");
     } else {
       Alert.alert("Please specify a title for your summary");
     }
