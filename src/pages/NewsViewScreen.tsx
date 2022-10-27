@@ -37,6 +37,8 @@ import {
   markAsRead,
   postComment,
   postReaction,
+  sendNotification,
+  updateSummary,
 } from "../store/news";
 import moment from "moment";
 import AutoHeightWebView from "react-native-autoheight-webview";
@@ -45,12 +47,21 @@ import { Dimensions } from "react-native";
 import { getAuthUser } from "../store/auth";
 import { AuthUser } from "../types";
 
-export default function NewsViewScreen(props: any) {
+interface Props {
+  route: {
+    params: { data: any };
+  };
+  navigation: any;
+  setSummaryIdCallback: (id: number | undefined) => void;
+}
+
+export default function NewsViewScreen(props: Props) {
   const {
     route: {
       params: { data },
     },
     navigation,
+    setSummaryIdCallback: setCurrentSummaryId,
   } = props;
   let richText: any = useRef(null);
   const [newsData, setNewsData] = useState<any | undefined>();
@@ -70,6 +81,7 @@ export default function NewsViewScreen(props: any) {
 
   const getNewsDataById = (id: number) => {
     setLoading(true);
+    setCurrentSummaryId(id);
     getNewsById(id).then((result) => {
       setNewsData(result);
       setLoading(false);
@@ -293,6 +305,16 @@ export default function NewsViewScreen(props: any) {
     navigation.navigate("Home");
   }, [navigation, data]);
 
+  const publishDraft = useCallback(async () => {
+    await updateSummary(data.id, { is_draft: false });
+    await sendNotification({
+      title: "A summary was published!",
+      text: data.title,
+      summary_id: data.id,
+    });
+    navigation.navigate("Home");
+  }, []);
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
@@ -350,7 +372,6 @@ export default function NewsViewScreen(props: any) {
                     color: "blue",
                   }}
                   onPress={() => {
-                    // TODO: open it in an html viewer (maybe in a modal) to add more snippets
                     Linking.openURL(newsData.url);
                   }}
                 >
@@ -376,7 +397,7 @@ export default function NewsViewScreen(props: any) {
                   onRefresh={handleRefresh}
                 />
               )}
-              {newsData.snippets.length === 0 && (
+              {newsData.is_draft && newsData.snippets.length === 0 && (
                 <Text style={{ textAlign: "center" }}>
                   Click the link to add some snippets as evidence for this
                   summary
@@ -389,11 +410,20 @@ export default function NewsViewScreen(props: any) {
                   justifyContent: "center",
                 }}
               >
-                <Button
-                  onPress={archiveItem}
-                  title="✔️ Archive"
-                  style={{ width: 100, padding: 10 }}
-                />
+                {newsData.is_draft && (
+                  <Button
+                    onPress={publishDraft}
+                    title="✔️ Publish"
+                    style={{ width: 100, padding: 10 }}
+                  />
+                )}
+                {!newsData.is_draft && (
+                  <Button
+                    onPress={archiveItem}
+                    title="✔️ Archive"
+                    style={{ width: 100, padding: 10 }}
+                  />
+                )}
                 {authUser?.id == newsData.user_id && (
                   <Button
                     onPress={deleteItem}

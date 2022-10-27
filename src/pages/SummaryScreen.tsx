@@ -17,18 +17,17 @@ import {
   ScrollView,
   Platform,
 } from "react-native";
-import { RichEditor, RichToolbar } from "react-native-pell-rich-editor";
 import { Input, CheckBox, Button } from "react-native-elements";
 import { useIsFocused } from "@react-navigation/native";
 import { getAuthUser } from "../store/auth";
-import { postSummary, sendNotification } from "../store/news";
+import { postSummary, sendNotification, updateSummary } from "../store/news";
 import { AuthUser, Source } from "../types";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { instance } from "../store/api";
 
 interface Props {
   route: any;
   navigation: any;
+  currentSummaryId?: number;
 }
 
 const titleRegex = new RegExp("<head>[^]*<title>([^]+)</title>[^]*</head>");
@@ -39,14 +38,14 @@ export default function SummaryScreen(props: Props) {
       params: { data },
     },
     navigation,
+    currentSummaryId,
   } = props;
   const isFocused = useIsFocused();
   const [cleanedUrl, setCleanedUrl] = useState<string | undefined>();
   const [source, setSource] = useState<Source | undefined>();
   const titleInputRef = useRef(null);
-  const richText = useRef(null);
   const [loading, setLoading] = useState(false);
-  const [checked, setChecked] = useState(true);
+  const [isDraftChecked, setIsDraftChecked] = useState(true);
   const [title, setTitle] = useState<string | undefined>();
   const [description, setDescriptionText] = useState<string | undefined>();
   const [authUser, setAuthUser] = useState<AuthUser | undefined>();
@@ -75,35 +74,35 @@ export default function SummaryScreen(props: Props) {
     }
   }, []);
 
-  useEffect(() => {
-    if (isFocused) {
-      const fetchTempData = async () => {
-        const tempTitle = await AsyncStorage.getItem("draft_title");
-        const tempContent = await AsyncStorage.getItem("draft_content");
-        const isDraft = await AsyncStorage.getItem("is_draft");
+  // useEffect(() => {
+  //   if (isFocused) {
+  //     const fetchTempData = async () => {
+  //       const tempTitle = await AsyncStorage.getItem("draft_title");
+  //       const tempContent = await AsyncStorage.getItem("draft_content");
+  //       const isDraft = await AsyncStorage.getItem("is_draft");
 
-        if (tempTitle) {
-          setTitle(tempTitle);
-        }
-        if (tempContent) {
-          setDescriptionText(tempContent);
-        }
-        if (isDraft) {
-          setChecked(isDraft ? true : false);
-        }
-      };
-      fetchTempData();
-    }
+  //       if (tempTitle) {
+  //         setTitle(tempTitle);
+  //       }
+  //       if (tempContent) {
+  //         setDescriptionText(tempContent);
+  //       }
+  //       if (isDraft) {
+  //         setIsDraftChecked(isDraft ? true : false);
+  //       }
+  //     };
+  //     fetchTempData();
+  //   }
 
-    return () => {
-      const setTempData = async () => {
-        await AsyncStorage.setItem("draft_title", title || "");
-        await AsyncStorage.setItem("draft_content", description || "");
-        await AsyncStorage.setItem("is_draft", checked ? "true" : "");
-      };
-      setTempData();
-    };
-  }, [isFocused]);
+  //   return () => {
+  //     const setTempData = async () => {
+  //       await AsyncStorage.setItem("draft_title", title || "");
+  //       await AsyncStorage.setItem("draft_content", description || "");
+  //       await AsyncStorage.setItem("is_draft", isDraftChecked ? "true" : "");
+  //     };
+  //     setTempData();
+  //   };
+  // }, [isFocused]);
 
   useEffect(() => {
     getAuthUser().then((user) => {
@@ -130,19 +129,19 @@ export default function SummaryScreen(props: Props) {
           }
         }),
       ]).then(() => setLoading(false));
-      setDescriptionText(data.weblink + "\n");
+      // setDescriptionText(data.weblink + "\n");
     }
 
     if (data.text) {
-      setDescriptionText(data.text + "\n");
+      // setDescriptionText(data.text + "\n");
       setSnippets([...snippets, { value: data.text }]);
     }
-    if (data.weblink) {
-      const weblinkText =
-        '<a href="' + data.weblink + '">' + data.weblink + "</a>\n";
-      setDescriptionText(weblinkText);
-      setSnippets([...snippets, { value: weblinkText }]);
-    }
+    // if (data.weblink) {
+    //   const weblinkText =
+    //     '<a href="' + data.weblink + '">' + data.weblink + "</a>\n";
+    //   setDescriptionText(weblinkText);
+    //   // setSnippets([...snippets, { value: weblinkText }]);
+    // }
   }, [data]);
 
   const cleanup = useCallback(() => {
@@ -160,20 +159,47 @@ export default function SummaryScreen(props: Props) {
         title,
         user_id: authUser.id,
         source_id: source?.id,
-        snippets,
+        is_draft: isDraftChecked,
       };
       const result = await postSummary(summary);
-      await sendNotification({
-        title: "A new summary was created!",
-        text: summary.title,
-        summary_id: result?.id,
-      });
-      cleanup();
-      navigation.navigate("Home");
+      if (isDraftChecked) {
+        cleanup();
+        // FIXME: not working!
+        navigation.navigate("NewsView", { data: result });
+      } else {
+        await sendNotification({
+          title: "A new summary was created!",
+          text: summary.title,
+          summary_id: result.id,
+        });
+        cleanup();
+        navigation.navigate("Home");
+      }
     } else {
       Alert.alert("Please specify a title for your summary");
     }
   }, [authUser, cleanup, title]);
+
+  const submitUpdate = useCallback(async () => {
+    const updateBlock = {
+      snippets,
+    };
+    const result = await updateSummary(currentSummaryId, updateBlock);
+    // FIXME: enable adding snippets after publishing it?
+    if (isDraftChecked) {
+      cleanup();
+      // FIXME: not working!
+      navigation.navigate("NewsView", { data: result });
+    } else {
+      await sendNotification({
+        title: "A summary was updated!",
+        text: result.title,
+        summary_id: result.id,
+      });
+      cleanup();
+      navigation.navigate("Home");
+    }
+  }, []);
 
   const handleCancel = () => {
     Alert.alert(
@@ -219,6 +245,9 @@ export default function SummaryScreen(props: Props) {
               value={title}
               editable={!loading}
               onChangeText={(text: string) => {
+                if (text !== defaultTitle) {
+                  setUseDefaultTitle(false);
+                }
                 setTitle(text);
               }}
               autoCompleteType={undefined}
@@ -228,43 +257,29 @@ export default function SummaryScreen(props: Props) {
               checked={useDefaultTitle}
               onPress={() => setUseDefaultTitle(!useDefaultTitle)}
             />
-            {/* <ScrollView style={{ paddingLeft: 10, paddingRight: 10 }}>
-              <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={{ flex: 1 }}
-              >
-                <Text
-                  style={{
-                    fontWeight: "bold",
-                    marginBottom: 10,
-                    color: "gray",
-                  }}
-                >
-                  Snippets:
-                </Text>
-                <RichEditor
-                  useContainer={false}
-                  containerStyle={{ minHeight: 300 }}
-                  ref={richText}
-                  initialContentHTML={description}
-                  onChange={(descriptionText) => {
-                    setDescriptionText(descriptionText);
-                  }}
-                />
-              </KeyboardAvoidingView>
-            </ScrollView>
-            <RichToolbar editor={richText} /> */}
-            {/* TODO: disabling this until there's a better user story */}
-            {/* <CheckBox
-              title="Is Draft?"
-              checked={checked}
-              onPress={() => setChecked(!checked)}
-            /> */}
-            <Button
-              disabled={!title}
-              title="Create Summary"
-              onPress={submitShare}
-            />
+            {!currentSummaryId && (
+              <CheckBox
+                title="Make it a draft"
+                checked={isDraftChecked}
+                onPress={() => setIsDraftChecked(!isDraftChecked)}
+              />
+            )}
+            {!currentSummaryId && !isDraftChecked && (
+              <Text style={{ color: "red" }}>
+                This will get shared when created
+              </Text>
+            )}
+            {currentSummaryId && <Text>summaryId: {currentSummaryId}</Text>}
+            {currentSummaryId && (
+              <Button title="Update Summary" onPress={submitUpdate} />
+            )}
+            {!currentSummaryId && (
+              <Button
+                disabled={!title}
+                title="Create Summary"
+                onPress={submitShare}
+              />
+            )}
             <Button
               containerStyle={{ backgroundColor: "#FF6600" }}
               title="Cancel"

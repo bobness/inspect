@@ -20,6 +20,7 @@ const NewsRow = ({ item, onPress, onSwipe }: Props) => {
     transform: [{ translateX: offset.value.x }, { translateY: offset.value.y }],
   }));
 
+  // FIXME: tapping on a row seems to archive it!
   const archive = () =>
     Gesture.Pan()
       .runOnJS(true)
@@ -40,6 +41,8 @@ const NewsRow = ({ item, onPress, onSwipe }: Props) => {
         start.value = offset.value;
         onSwipe();
       });
+
+  // FIXME: decorate summaries that are drafts
 
   return (
     <GestureDetector gesture={archive()}>

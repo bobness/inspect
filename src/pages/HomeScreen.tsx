@@ -18,7 +18,6 @@ import {
   getSuggestAuthors,
   followAuthor,
 } from "../store/news";
-// import ShareModal from "../components/ShareModal";
 import { useIsFocused } from "@react-navigation/native";
 import NewsRow from "../components/NewsRow";
 
@@ -29,18 +28,19 @@ interface ShareObject {
 
 interface Props {
   navigation: any;
+  clearCurrentSummaryId: () => void;
 }
 
 export default function HomeScreen(props: Props) {
   const isFocused = useIsFocused();
 
-  const { navigation } = props;
+  const { clearCurrentSummaryId, navigation } = props;
   const [newsData, setNewsData] = useState<any[] | undefined>();
   const [authorsData, setAuthorsData] = useState<any[] | undefined>();
   const [isRefreshing, setRefreshing] = useState<boolean>(false);
-  // const [shareModalVisible, setShareModalVisible] = useState(false);
 
   useEffect(() => {
+    clearCurrentSummaryId();
     if (isFocused) {
       handleRefresh();
       handleAuthorRefresh();
@@ -133,16 +133,6 @@ export default function HomeScreen(props: Props) {
 
   return (
     <>
-      {/* FIXME: remove `ShareModal` here for notification deep linking */}
-      {/* <ShareModal
-        modalVisible={shareModalVisible}
-        url={shareUrl}
-        hideOverlay={() => {
-          setShareModalVisible(false);
-          setShareUrl(undefined);
-        }}
-        refreshFeed={handleRefresh}
-      /> */}
       <KeyboardAvoidingView
         style={commonStyle.containerView}
         behavior="padding"
