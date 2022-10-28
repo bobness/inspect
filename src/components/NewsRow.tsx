@@ -12,7 +12,7 @@ interface Props {
   onSwipe: () => void;
 }
 
-// FIXME: dragging gets stuck
+// TODO: dragging gets stuck
 const NewsRow = ({ item, onPress, onSwipe }: Props) => {
   const offset = useSharedValue({ x: 0, y: 0 });
   const start = useSharedValue({ x: 0, y: 0 });
@@ -20,7 +20,7 @@ const NewsRow = ({ item, onPress, onSwipe }: Props) => {
     transform: [{ translateX: offset.value.x }, { translateY: offset.value.y }],
   }));
 
-  // FIXME: tapping on a row seems to archive it!
+  // TODO: tapping on a row seems to archive it!
   const archive = () =>
     Gesture.Pan()
       .runOnJS(true)

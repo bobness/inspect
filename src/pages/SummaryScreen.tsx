@@ -50,7 +50,7 @@ export default function SummaryScreen(props: Props) {
   const [source, setSource] = useState<Source | undefined>();
   const titleInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
-  const [isDraftChecked, setIsDraftChecked] = useState(true);
+  const [isDraft, setIsDraft] = useState(true);
   const [title, setTitle] = useState<string | undefined>();
   const [authUser, setAuthUser] = useState<AuthUser | undefined>();
   const [snippets, setSnippets] = useState<any[]>([]);
@@ -64,7 +64,7 @@ export default function SummaryScreen(props: Props) {
         setTitle(summary.title);
         setSnippets(summary.snippets);
         setCleanedUrl(summary.url);
-        setIsDraftChecked(summary.is_draft);
+        setIsDraft(summary.is_draft);
       });
     }
   }, [currentSummaryId]);
@@ -137,10 +137,10 @@ export default function SummaryScreen(props: Props) {
         title,
         user_id: authUser.id,
         source_id: source?.id,
-        is_draft: isDraftChecked,
+        is_draft: isDraft,
       };
       const result = await postSummary(summary);
-      if (isDraftChecked) {
+      if (isDraft) {
         cleanup();
         // FIXME: not working!
         navigation.navigate("NewsView", { data: result });
@@ -163,7 +163,7 @@ export default function SummaryScreen(props: Props) {
       snippets: [newSnippet],
     };
     await updateSummary(currentSummaryId, updateBlock);
-    if (isDraftChecked) {
+    if (isDraft) {
       cleanup();
       navigation.navigate("NewsView", { data: { id: currentSummaryId } });
     } else {
@@ -237,12 +237,12 @@ export default function SummaryScreen(props: Props) {
                 />
                 <CheckBox
                   title="Make it a draft"
-                  checked={isDraftChecked}
-                  onPress={() => setIsDraftChecked(!isDraftChecked)}
+                  checked={isDraft}
+                  onPress={() => setIsDraft(!isDraft)}
                 />
               </>
             )}
-            {!currentSummaryId && !isDraftChecked && (
+            {!currentSummaryId && !isDraft && (
               <Text style={{ color: "red" }}>
                 This will get shared when created
               </Text>

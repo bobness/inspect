@@ -475,11 +475,11 @@ export default function NewsViewScreen(props: Props) {
                   />
                 )}
               </View>
-              {/* <BottomAction
+              <BottomAction
                 title={newsData.title}
                 content={getContent()}
                 url={newsData.logo_uri && { uri: newsData.logo_uri }}
-              /> */}
+              />
             </View>
           )}
           {!newsData && (
