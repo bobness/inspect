@@ -20,7 +20,12 @@ import {
 import { Input, CheckBox, Button } from "react-native-elements";
 import { useIsFocused } from "@react-navigation/native";
 import { getAuthUser } from "../store/auth";
-import { postSummary, sendNotification, updateSummary } from "../store/news";
+import {
+  getNewsById,
+  postSummary,
+  sendNotification,
+  updateSummary,
+} from "../store/news";
 import { AuthUser, Source } from "../types";
 import { instance } from "../store/api";
 
@@ -40,18 +45,29 @@ export default function SummaryScreen(props: Props) {
     navigation,
     currentSummaryId,
   } = props;
-  const isFocused = useIsFocused();
+
   const [cleanedUrl, setCleanedUrl] = useState<string | undefined>();
   const [source, setSource] = useState<Source | undefined>();
   const titleInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [isDraftChecked, setIsDraftChecked] = useState(true);
   const [title, setTitle] = useState<string | undefined>();
-  const [description, setDescriptionText] = useState<string | undefined>();
   const [authUser, setAuthUser] = useState<AuthUser | undefined>();
   const [snippets, setSnippets] = useState<any[]>([]);
+  const [newSnippet, setNewSnippet] = useState<any | undefined>();
   const [defaultTitle, setDefaultTitle] = useState<string | undefined>();
   const [useDefaultTitle, setUseDefaultTitle] = useState(false);
+
+  useEffect(() => {
+    if (currentSummaryId) {
+      getNewsById(currentSummaryId).then((summary) => {
+        setTitle(summary.title);
+        setSnippets(summary.snippets);
+        setCleanedUrl(summary.url);
+        setIsDraftChecked(summary.is_draft);
+      });
+    }
+  }, [currentSummaryId]);
 
   const urlRegex = useMemo(
     () => RegExp("https?://.*\\.([a-zA-Z0-9]+\\.[a-z]+)\\/.*"),
@@ -73,36 +89,6 @@ export default function SummaryScreen(props: Props) {
       return justUrl;
     }
   }, []);
-
-  // useEffect(() => {
-  //   if (isFocused) {
-  //     const fetchTempData = async () => {
-  //       const tempTitle = await AsyncStorage.getItem("draft_title");
-  //       const tempContent = await AsyncStorage.getItem("draft_content");
-  //       const isDraft = await AsyncStorage.getItem("is_draft");
-
-  //       if (tempTitle) {
-  //         setTitle(tempTitle);
-  //       }
-  //       if (tempContent) {
-  //         setDescriptionText(tempContent);
-  //       }
-  //       if (isDraft) {
-  //         setIsDraftChecked(isDraft ? true : false);
-  //       }
-  //     };
-  //     fetchTempData();
-  //   }
-
-  //   return () => {
-  //     const setTempData = async () => {
-  //       await AsyncStorage.setItem("draft_title", title || "");
-  //       await AsyncStorage.setItem("draft_content", description || "");
-  //       await AsyncStorage.setItem("is_draft", isDraftChecked ? "true" : "");
-  //     };
-  //     setTempData();
-  //   };
-  // }, [isFocused]);
 
   useEffect(() => {
     getAuthUser().then((user) => {
@@ -129,20 +115,12 @@ export default function SummaryScreen(props: Props) {
           }
         }),
       ]).then(() => setLoading(false));
-      // setDescriptionText(data.weblink + "\n");
     }
 
     if (data.text) {
-      // setDescriptionText(data.text + "\n");
-      setSnippets([...snippets, { value: data.text }]);
+      setNewSnippet({ value: data.text });
     }
-    // if (data.weblink) {
-    //   const weblinkText =
-    //     '<a href="' + data.weblink + '">' + data.weblink + "</a>\n";
-    //   setDescriptionText(weblinkText);
-    //   // setSnippets([...snippets, { value: weblinkText }]);
-    // }
-  }, [data]);
+  }, [data.text, data.weblink]);
 
   const cleanup = useCallback(() => {
     setSource(undefined);
@@ -182,24 +160,22 @@ export default function SummaryScreen(props: Props) {
 
   const submitUpdate = useCallback(async () => {
     const updateBlock = {
-      snippets,
+      snippets: [newSnippet],
     };
-    const result = await updateSummary(currentSummaryId, updateBlock);
-    // FIXME: enable adding snippets after publishing it?
+    await updateSummary(currentSummaryId, updateBlock);
     if (isDraftChecked) {
       cleanup();
-      // FIXME: not working!
-      navigation.navigate("NewsView", { data: result });
+      navigation.navigate("NewsView", { data: { id: currentSummaryId } });
     } else {
       await sendNotification({
         title: "A summary was updated!",
-        text: result.title,
-        summary_id: result.id,
+        text: title,
+        summary_id: currentSummaryId,
       });
       cleanup();
       navigation.navigate("Home");
     }
-  }, []);
+  }, [currentSummaryId, newSnippet]);
 
   const handleCancel = () => {
     Alert.alert(
@@ -243,7 +219,7 @@ export default function SummaryScreen(props: Props) {
               label="Title"
               placeholder="New title that explains the contribution of the article"
               value={title}
-              editable={!loading}
+              editable={!loading && !currentSummaryId}
               onChangeText={(text: string) => {
                 if (text !== defaultTitle) {
                   setUseDefaultTitle(false);
@@ -252,24 +228,48 @@ export default function SummaryScreen(props: Props) {
               }}
               autoCompleteType={undefined}
             />
-            <CheckBox
-              title="Use existing title?"
-              checked={useDefaultTitle}
-              onPress={() => setUseDefaultTitle(!useDefaultTitle)}
-            />
             {!currentSummaryId && (
-              <CheckBox
-                title="Make it a draft"
-                checked={isDraftChecked}
-                onPress={() => setIsDraftChecked(!isDraftChecked)}
-              />
+              <>
+                <CheckBox
+                  title="Use existing title?"
+                  checked={useDefaultTitle}
+                  onPress={() => setUseDefaultTitle(!useDefaultTitle)}
+                />
+                <CheckBox
+                  title="Make it a draft"
+                  checked={isDraftChecked}
+                  onPress={() => setIsDraftChecked(!isDraftChecked)}
+                />
+              </>
             )}
             {!currentSummaryId && !isDraftChecked && (
               <Text style={{ color: "red" }}>
                 This will get shared when created
               </Text>
             )}
-            {currentSummaryId && <Text>summaryId: {currentSummaryId}</Text>}
+            {currentSummaryId && (
+              <>
+                <ScrollView>
+                  {snippets.map((snippet) => (
+                    <Text
+                      key={`snippet #${snippet.id}`}
+                      style={{
+                        borderColor: "black",
+                        borderWidth: 1,
+                      }}
+                    >
+                      {snippet.value}
+                    </Text>
+                  ))}
+                  <Text
+                    key="new snippet"
+                    style={{ borderColor: "yellow", borderWidth: 5 }}
+                  >
+                    {newSnippet?.value}
+                  </Text>
+                </ScrollView>
+              </>
+            )}
             {currentSummaryId && (
               <Button title="Update Summary" onPress={submitUpdate} />
             )}

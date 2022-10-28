@@ -40,8 +40,8 @@ export default function HomeScreen(props: Props) {
   const [isRefreshing, setRefreshing] = useState<boolean>(false);
 
   useEffect(() => {
-    clearCurrentSummaryId();
     if (isFocused) {
+      clearCurrentSummaryId();
       handleRefresh();
       handleAuthorRefresh();
     }

@@ -53,7 +53,13 @@ interface ShareObject {
   weblink: string | null;
 }
 
+interface NavigationPath {
+  pathString: string;
+  args: any;
+}
+
 export default function App() {
+  // TODO: not sure how to type this for its .navigate() arguments
   const navigationRef = useNavigationContainerRef();
   const [user, setUser] = useState<any | undefined>();
   const [notification, setNotification] = useState<Notification | undefined>();
@@ -63,6 +69,17 @@ export default function App() {
   const [currentSummaryId, setCurrentSummaryId] = useState<
     number | undefined
   >();
+
+  const [navigationIsReady, setNavigationIsReady] = useState(false);
+
+  const [queuedPath, setQueuedPath] = useState<NavigationPath | undefined>();
+  useEffect(() => {
+    if (navigationIsReady && queuedPath) {
+      const { pathString, args } = queuedPath;
+      setQueuedPath(undefined);
+      navigationRef.navigate(pathString, args);
+    }
+  }, [navigationIsReady]);
 
   const handleShare = useCallback(([shareObject]: ShareObject[]) => {
     navigationRef.navigate("CreateSummary", {
@@ -146,7 +163,10 @@ export default function App() {
 
   // ReceiveSharingIntent.clearReceivedFiles();
   return (
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer
+      ref={navigationRef}
+      onReady={() => setNavigationIsReady(true)}
+    >
       <Stack.Navigator initialRouteName={user.userId === 0 ? "Login" : "Home"}>
         <Stack.Screen name="Login" options={{ headerShown: false }}>
           {(props: any) => (
@@ -170,7 +190,7 @@ export default function App() {
           {(props: any) => (
             <NewsViewScreen
               {...props}
-              setSummaryIdCallback={setCurrentSummaryId}
+              setCurrentSummaryId={setCurrentSummaryId}
             />
           )}
         </Stack.Screen>

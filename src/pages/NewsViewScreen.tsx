@@ -42,6 +42,7 @@ import {
 } from "../store/news";
 import moment from "moment";
 import AutoHeightWebView from "react-native-autoheight-webview";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import { Dimensions } from "react-native";
 import { getAuthUser } from "../store/auth";
@@ -52,7 +53,7 @@ interface Props {
     params: { data: any };
   };
   navigation: any;
-  setSummaryIdCallback: (id: number | undefined) => void;
+  setCurrentSummaryId: (id: number | undefined) => void;
 }
 
 export default function NewsViewScreen(props: Props) {
@@ -61,7 +62,7 @@ export default function NewsViewScreen(props: Props) {
       params: { data },
     },
     navigation,
-    setSummaryIdCallback: setCurrentSummaryId,
+    setCurrentSummaryId,
   } = props;
   let richText: any = useRef(null);
   const [newsData, setNewsData] = useState<any | undefined>();
@@ -170,6 +171,11 @@ export default function NewsViewScreen(props: Props) {
     if (newsData) {
       return (
         <View style={{ marginTop: 10 }}>
+          <FontAwesome
+            name="quote-left"
+            size={30}
+            style={{ alignSelf: "flex-start" }}
+          />
           <TouchableOpacity
             onPress={() => {
               selectCommentId(item.id);
@@ -183,6 +189,11 @@ export default function NewsViewScreen(props: Props) {
               <Text style={{ flex: 1, flexWrap: "wrap" }}>{item.value}</Text>
             </View>
           </TouchableOpacity>
+          <FontAwesome
+            name="quote-right"
+            size={30}
+            style={{ alignSelf: "flex-end" }}
+          />
           <View
             style={{
               paddingLeft: 36,
@@ -372,6 +383,7 @@ export default function NewsViewScreen(props: Props) {
                     color: "blue",
                   }}
                   onPress={() => {
+                    // TODO: reduce the number of stacks that iOS creates from going back and forth from Safari
                     Linking.openURL(newsData.url);
                   }}
                 >
@@ -392,14 +404,44 @@ export default function NewsViewScreen(props: Props) {
                 <FlatList
                   data={newsData.snippets}
                   renderItem={renderSnippet}
-                  style={{ flex: 1, width: "100%" }}
+                  style={{
+                    width: "100%",
+                    flexGrow: 0,
+                  }}
                   refreshing={loading}
                   onRefresh={handleRefresh}
                 />
               )}
-              {newsData.is_draft && newsData.snippets.length === 0 && (
-                <Text style={{ textAlign: "center" }}>
-                  Click the link to add some snippets as evidence for this
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginTop: 10,
+                  marginBottom: 10,
+                }}
+              >
+                <View
+                  style={{ flex: 1, height: 1, backgroundColor: "black" }}
+                />
+                <View>
+                  <Text style={{ width: 50, textAlign: "center" }}>
+                    Actions
+                  </Text>
+                </View>
+                <View
+                  style={{ flex: 1, height: 1, backgroundColor: "black" }}
+                />
+              </View>
+              {newsData.snippets.length > 0 && (
+                <Text style={{ textAlign: "center", fontStyle: "italic" }}>
+                  Tap the link above to add more snippets as evidence for this
+                  summary
+                </Text>
+              )}
+              {newsData.snippets.length === 0 && (
+                <Text style={{ textAlign: "center", fontStyle: "italic" }}>
+                  Tap the link above to add some snippets as evidence for this{" "}
+                  <Text style={{ fontWeight: "bold" }}>draft </Text>
                   summary
                 </Text>
               )}
@@ -420,7 +462,7 @@ export default function NewsViewScreen(props: Props) {
                 {!newsData.is_draft && (
                   <Button
                     onPress={archiveItem}
-                    title="✔️ Archive"
+                    title="🗂 Archive"
                     style={{ width: 100, padding: 10 }}
                   />
                 )}
@@ -432,11 +474,11 @@ export default function NewsViewScreen(props: Props) {
                   />
                 )}
               </View>
-              <BottomAction
+              {/* <BottomAction
                 title={newsData.title}
                 content={getContent()}
                 url={newsData.logo_uri && { uri: newsData.logo_uri }}
-              />
+              /> */}
             </View>
           )}
           {!newsData && (
