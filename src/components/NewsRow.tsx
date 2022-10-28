@@ -5,9 +5,10 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
+import { Summary } from "../types";
 
 interface Props {
-  item: any;
+  item: Summary;
   onPress: (e: any) => void;
   onSwipe: () => void;
 }
@@ -53,11 +54,13 @@ const NewsRow = ({ item, onPress, onSwipe }: Props) => {
           tvParallaxProperties={undefined}
           // style={animatedStyles}
           onPress={onPress}
+          style={{ borderStyle: "dashed" }}
+          key={`summary #${item.id}`}
         >
           <Avatar
             // title={item.title[0]}
             // titleStyle={{ color: "black" }}
-            source={item.avatar_uri && { uri: item.avatar_uri }}
+            source={(item.avatar_uri as any) && { uri: item.avatar_uri }}
             // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
           />
           <ListItem.Content>
@@ -66,7 +69,7 @@ const NewsRow = ({ item, onPress, onSwipe }: Props) => {
           <Avatar
             // title={item.title[0]}
             // titleStyle={{ color: "black" }}
-            source={item.logo_uri && { uri: item.logo_uri }}
+            source={(item.logo_uri as any) && { uri: item.logo_uri }}
             // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
           />
         </ListItem>

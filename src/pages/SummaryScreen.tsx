@@ -26,7 +26,7 @@ import {
   sendNotification,
   updateSummary,
 } from "../store/news";
-import { AuthUser, Source } from "../types";
+import { User, Source } from "../types";
 import { instance } from "../store/api";
 
 interface Props {
@@ -52,7 +52,7 @@ export default function SummaryScreen(props: Props) {
   const [loading, setLoading] = useState(false);
   const [isDraft, setIsDraft] = useState(true);
   const [title, setTitle] = useState<string | undefined>();
-  const [authUser, setAuthUser] = useState<AuthUser | undefined>();
+  const [authUser, setAuthUser] = useState<User | undefined>();
   const [snippets, setSnippets] = useState<any[]>([]);
   const [newSnippet, setNewSnippet] = useState<any | undefined>();
   const [defaultTitle, setDefaultTitle] = useState<string | undefined>();

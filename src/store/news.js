@@ -48,6 +48,10 @@ const followAuthor = (followerData) => {
   return instance.post("/followers", followerData);
 };
 
+const unfollowAuthor = (authorId) => {
+  return instance.delete(`/followers/${authorId}`);
+};
+
 const sendNotification = (data) => {
   return instance.post("/notification", data).then((res) => res.data);
 };
@@ -64,6 +68,7 @@ export {
   deleteSummary,
   getSuggestAuthors,
   followAuthor,
+  unfollowAuthor,
   sendNotification,
   updateSummary,
 };

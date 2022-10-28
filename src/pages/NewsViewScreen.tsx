@@ -46,7 +46,7 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import { Dimensions } from "react-native";
 import { getAuthUser } from "../store/auth";
-import { AuthUser } from "../types";
+import { User } from "../types";
 
 interface Props {
   route: {
@@ -74,7 +74,7 @@ export default function NewsViewScreen(props: Props) {
   const [visibleViewCommentModal, setVisibleViewCommentModal] = useState(false);
   const [emoji, setEmoji] = useState("🤔");
   const [loading, setLoading] = useState(false);
-  const [authUser, setAuthUser] = useState<AuthUser | undefined>();
+  const [authUser, setAuthUser] = useState<User | undefined>();
 
   const convertDate = (date_str: string) => {
     return moment(date_str).fromNow();

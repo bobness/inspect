@@ -168,6 +168,9 @@ export default function HomeScreen(props: Props) {
                   style={{ flex: 1, width: "100%", height: "100%" }}
                 />
               )}
+              {newsData && newsData.length === 0 && (
+                <Text>No news right now!</Text>
+              )}
               {!newsData && (
                 <View
                   style={{
