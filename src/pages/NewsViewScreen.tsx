@@ -459,13 +459,14 @@ export default function NewsViewScreen(props: Props) {
                     style={{ width: 100, padding: 10 }}
                   />
                 )}
-                {!newsData.is_draft && (
+                {/* TODO: archiving on this screen shouldn't show if it's already archived */}
+                {/* {!newsData.is_draft && (
                   <Button
                     onPress={archiveItem}
                     title="🗂 Archive"
                     style={{ width: 100, padding: 10 }}
                   />
-                )}
+                )} */}
                 {authUser?.id == newsData.user_id && (
                   <Button
                     onPress={deleteItem}
