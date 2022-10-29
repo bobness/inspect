@@ -54,7 +54,6 @@ const NewsRow = ({ item, onPress, onSwipe }: Props) => {
           tvParallaxProperties={undefined}
           // style={animatedStyles}
           onPress={onPress}
-          style={{ borderStyle: "dashed" }}
           key={`summary #${item.id}`}
         >
           <Avatar
