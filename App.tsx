@@ -22,7 +22,6 @@ import NewsViewScreen from "./src/pages/NewsViewScreen";
 import AuthorViewScreen from "./src/pages/AuthorViewScreen";
 import AuthorNewsViewScreen from "./src/pages/AuthorNewsViewScreen";
 import ProfileScreen from "./src/pages/ProfileScreen";
-import ShareModal from "./src/components/ShareModal";
 import { updateUserExpoToken } from "./src/store/auth";
 import SummaryScreen from "./src/pages/SummaryScreen";
 import { Subscription } from "expo-modules-core";
@@ -54,13 +53,33 @@ interface ShareObject {
   weblink: string | null;
 }
 
+interface NavigationPath {
+  pathString: string;
+  args: any;
+}
+
 export default function App() {
+  // TODO: not sure how to type this for its .navigate() arguments
   const navigationRef = useNavigationContainerRef();
   const [user, setUser] = useState<any | undefined>();
   const [notification, setNotification] = useState<Notification | undefined>();
   const notificationListener = useRef<Subscription | undefined>();
   const responseListener = useRef<Subscription | undefined>();
   const [expoToken, setExpoToken] = useState<string | undefined>();
+  const [currentSummaryId, setCurrentSummaryId] = useState<
+    number | undefined
+  >();
+
+  const [navigationIsReady, setNavigationIsReady] = useState(false);
+
+  const [queuedPath, setQueuedPath] = useState<NavigationPath | undefined>();
+  useEffect(() => {
+    if (navigationIsReady && queuedPath) {
+      const { pathString, args } = queuedPath;
+      setQueuedPath(undefined);
+      navigationRef.navigate(pathString, args);
+    }
+  }, [navigationIsReady]);
 
   const handleShare = useCallback(([shareObject]: ShareObject[]) => {
     navigationRef.navigate("CreateSummary", {
@@ -144,7 +163,10 @@ export default function App() {
 
   // ReceiveSharingIntent.clearReceivedFiles();
   return (
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer
+      ref={navigationRef}
+      onReady={() => setNavigationIsReady(true)}
+    >
       <Stack.Navigator initialRouteName={user.userId === 0 ? "Login" : "Home"}>
         <Stack.Screen name="Login" options={{ headerShown: false }}>
           {(props: any) => (
@@ -157,13 +179,21 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen name="Home" options={{ headerShown: false }}>
-          {(props: any) => <HomeScreen {...props} />}
+          {(props: any) => (
+            <HomeScreen
+              {...props}
+              clearCurrentSummaryId={() => setCurrentSummaryId(undefined)}
+            />
+          )}
         </Stack.Screen>
-        <Stack.Screen
-          name="NewsView"
-          component={NewsViewScreen}
-          options={{ headerShown: true }}
-        />
+        <Stack.Screen name="NewsView" options={{ headerShown: true }}>
+          {(props: any) => (
+            <NewsViewScreen
+              {...props}
+              setCurrentSummaryId={setCurrentSummaryId}
+            />
+          )}
+        </Stack.Screen>
         <Stack.Screen
           name="AuthorView"
           component={AuthorViewScreen}
@@ -179,11 +209,11 @@ export default function App() {
           component={ProfileScreen}
           options={{ headerShown: true }}
         />
-        <Stack.Screen
-          name="CreateSummary"
-          component={SummaryScreen}
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="CreateSummary" options={{ headerShown: false }}>
+          {(props: any) => (
+            <SummaryScreen {...props} currentSummaryId={currentSummaryId} />
+          )}
+        </Stack.Screen>
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

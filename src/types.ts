@@ -4,6 +4,18 @@ export interface Source {
   logo_uri: string;
 }
 
-export interface AuthUser {
+export interface User {
   id: number;
+}
+
+export interface Summary {
+  id?: number;
+  url: string;
+  title: string;
+  user_id: number;
+  source_id: number;
+  is_draft: boolean;
+  logo_uri?: string;
+  avatar_uri?: string;
+  is_archived?: boolean;
 }

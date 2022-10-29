@@ -32,6 +32,7 @@ import {
   RichToolbar,
   SelectionChangeListener,
 } from "react-native-pell-rich-editor";
+import { Summary } from "../types";
 
 export default function ProfileScreen(props: any) {
   const { navigation } = props;
@@ -131,12 +132,25 @@ export default function ProfileScreen(props: any) {
     }
   };
 
+  const getNewsItemStyle = useCallback((item: Summary) => {
+    const baseStyle = { flex: 1, width: "100%" };
+    if (item.is_draft) {
+      return {
+        ...baseStyle,
+        borderWidth: 1,
+        borderStyle: "dashed" as const,
+        backgroundColor: "#ccc",
+      };
+    }
+    return baseStyle;
+  }, []);
+
   const renderNewsItem = ({ item }: any) => (
     <ListItem
       bottomDivider
       hasTVPreferredFocus={undefined}
       tvParallaxProperties={undefined}
-      style={{ flex: 1, width: "100%" }}
+      style={getNewsItemStyle(item)}
       onPress={() => {
         // TODO: doesn't work
         navigation.navigate("NewsView", { data: item });

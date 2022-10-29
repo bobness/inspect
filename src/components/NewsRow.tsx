@@ -5,14 +5,15 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
+import { Summary } from "../types";
 
 interface Props {
-  item: any;
+  item: Summary;
   onPress: (e: any) => void;
   onSwipe: () => void;
 }
 
-// FIXME: dragging gets stuck
+// TODO: dragging gets stuck
 const NewsRow = ({ item, onPress, onSwipe }: Props) => {
   const offset = useSharedValue({ x: 0, y: 0 });
   const start = useSharedValue({ x: 0, y: 0 });
@@ -20,6 +21,7 @@ const NewsRow = ({ item, onPress, onSwipe }: Props) => {
     transform: [{ translateX: offset.value.x }, { translateY: offset.value.y }],
   }));
 
+  // TODO: tapping on a row seems to archive it!
   const archive = () =>
     Gesture.Pan()
       .runOnJS(true)
@@ -50,11 +52,12 @@ const NewsRow = ({ item, onPress, onSwipe }: Props) => {
           tvParallaxProperties={undefined}
           // style={animatedStyles}
           onPress={onPress}
+          key={`summary #${item.id}`}
         >
           <Avatar
             // title={item.title[0]}
             // titleStyle={{ color: "black" }}
-            source={item.avatar_uri && { uri: item.avatar_uri }}
+            source={(item.avatar_uri as any) && { uri: item.avatar_uri }}
             // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
           />
           <ListItem.Content>
@@ -63,7 +66,7 @@ const NewsRow = ({ item, onPress, onSwipe }: Props) => {
           <Avatar
             // title={item.title[0]}
             // titleStyle={{ color: "black" }}
-            source={item.logo_uri && { uri: item.logo_uri }}
+            source={(item.logo_uri as any) && { uri: item.logo_uri }}
             // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
           />
         </ListItem>

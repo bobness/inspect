@@ -37,20 +37,32 @@ import {
   markAsRead,
   postComment,
   postReaction,
+  sendNotification,
+  updateSummary,
 } from "../store/news";
 import moment from "moment";
 import AutoHeightWebView from "react-native-autoheight-webview";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import { Dimensions } from "react-native";
 import { getAuthUser } from "../store/auth";
-import { AuthUser } from "../types";
+import { Summary, User } from "../types";
 
-export default function NewsViewScreen(props: any) {
+interface Props {
+  route: {
+    params: { data: any };
+  };
+  navigation: any;
+  setCurrentSummaryId: (id: number | undefined) => void;
+}
+
+export default function NewsViewScreen(props: Props) {
   const {
     route: {
       params: { data },
     },
     navigation,
+    setCurrentSummaryId,
   } = props;
   let richText: any = useRef(null);
   const [newsData, setNewsData] = useState<any | undefined>();
@@ -62,7 +74,7 @@ export default function NewsViewScreen(props: any) {
   const [visibleViewCommentModal, setVisibleViewCommentModal] = useState(false);
   const [emoji, setEmoji] = useState("🤔");
   const [loading, setLoading] = useState(false);
-  const [authUser, setAuthUser] = useState<AuthUser | undefined>();
+  const [authUser, setAuthUser] = useState<User | undefined>();
 
   const convertDate = (date_str: string) => {
     return moment(date_str).fromNow();
@@ -70,6 +82,7 @@ export default function NewsViewScreen(props: any) {
 
   const getNewsDataById = (id: number) => {
     setLoading(true);
+    setCurrentSummaryId(id);
     getNewsById(id).then((result) => {
       setNewsData(result);
       setLoading(false);
@@ -158,6 +171,11 @@ export default function NewsViewScreen(props: any) {
     if (newsData) {
       return (
         <View style={{ marginTop: 10 }}>
+          <FontAwesome
+            name="quote-left"
+            size={30}
+            style={{ alignSelf: "flex-start" }}
+          />
           <TouchableOpacity
             onPress={() => {
               selectCommentId(item.id);
@@ -171,6 +189,11 @@ export default function NewsViewScreen(props: any) {
               <Text style={{ flex: 1, flexWrap: "wrap" }}>{item.value}</Text>
             </View>
           </TouchableOpacity>
+          <FontAwesome
+            name="quote-right"
+            size={30}
+            style={{ alignSelf: "flex-end" }}
+          />
           <View
             style={{
               paddingLeft: 36,
@@ -293,6 +316,16 @@ export default function NewsViewScreen(props: any) {
     navigation.navigate("Home");
   }, [navigation, data]);
 
+  const publishDraft = useCallback(async () => {
+    await updateSummary(data.id, { is_draft: false });
+    await sendNotification({
+      title: "A summary was published!",
+      text: data.title,
+      summary_id: data.id,
+    });
+    navigation.navigate("Home");
+  }, []);
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
@@ -312,12 +345,30 @@ export default function NewsViewScreen(props: any) {
     });
   }, [navigation]);
 
+  const getViewStyle = useCallback((item: Summary) => {
+    const baseStyle = {
+      flex: 1,
+      padding: 10,
+      backgroundColor: "white",
+      borderWidth: 1,
+      borderRadius: 5,
+    };
+    if (item.is_draft) {
+      return {
+        ...baseStyle,
+        backgroundColor: "#ccc",
+        borderStyle: "dashed" as const,
+      };
+    }
+    return baseStyle;
+  }, []);
+
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={commonStyle.pageContainer}>
           {newsData && (
-            <View style={{ flex: 1, padding: 10 }}>
+            <View style={getViewStyle(newsData)}>
               <View
                 style={{
                   justifyContent: "space-between",
@@ -350,7 +401,7 @@ export default function NewsViewScreen(props: any) {
                     color: "blue",
                   }}
                   onPress={() => {
-                    // TODO: open it in an html viewer (maybe in a modal) to add more snippets
+                    // TODO: reduce the number of stacks that iOS creates from going back and forth from Safari
                     Linking.openURL(newsData.url);
                   }}
                 >
@@ -371,17 +422,34 @@ export default function NewsViewScreen(props: any) {
                 <FlatList
                   data={newsData.snippets}
                   renderItem={renderSnippet}
-                  style={{ flex: 1, width: "100%" }}
+                  style={{
+                    width: "100%",
+                    flexGrow: 0,
+                  }}
                   refreshing={loading}
                   onRefresh={handleRefresh}
                 />
               )}
-              {newsData.snippets.length === 0 && (
-                <Text style={{ textAlign: "center" }}>
-                  Click the link to add some snippets as evidence for this
-                  summary
-                </Text>
-              )}
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginTop: 10,
+                  marginBottom: 10,
+                }}
+              >
+                <View
+                  style={{ flex: 1, height: 1, backgroundColor: "black" }}
+                />
+                <View>
+                  <Text style={{ width: 50, textAlign: "center" }}>
+                    Actions
+                  </Text>
+                </View>
+                <View
+                  style={{ flex: 1, height: 1, backgroundColor: "black" }}
+                />
+              </View>
               <View
                 style={{
                   flexDirection: "row",
@@ -389,24 +457,59 @@ export default function NewsViewScreen(props: any) {
                   justifyContent: "center",
                 }}
               >
-                <Button
-                  onPress={archiveItem}
-                  title="✔️ Archive"
-                  style={{ width: 100, padding: 10 }}
-                />
+                <View style={{ width: "30%" }}>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      fontStyle: "italic",
+                      borderWidth: 1,
+                      borderColor: "black",
+                      padding: 10,
+                    }}
+                  >
+                    Tap the link above to add{" "}
+                    {newsData.snippets.length === 0 ? "some " : "more "}
+                    snippets as evidence for this summary
+                  </Text>
+                </View>
+                {newsData.is_draft && (
+                  <Button
+                    onPress={publishDraft}
+                    title="✔️ Publish"
+                    buttonStyle={{ backgroundColor: "green" }}
+                    style={{
+                      width: 100,
+                      padding: 10,
+                    }}
+                  />
+                )}
+                {!newsData.is_draft && !newsData.is_archived && (
+                  <Button
+                    onPress={archiveItem}
+                    title="🗂 Archive"
+                    buttonStyle={{ backgroundColor: "orange" }}
+                    style={{ width: 100, padding: 10 }}
+                  />
+                )}
                 {authUser?.id == newsData.user_id && (
                   <Button
                     onPress={deleteItem}
                     title="🗑 Delete"
-                    style={{ width: 100, padding: 10 }}
+                    buttonStyle={{ backgroundColor: "red" }}
+                    style={{
+                      width: 100,
+                      padding: 10,
+                    }}
                   />
                 )}
               </View>
-              <BottomAction
-                title={newsData.title}
-                content={getContent()}
-                url={newsData.logo_uri && { uri: newsData.logo_uri }}
-              />
+              {!newsData.is_draft && (
+                <BottomAction
+                  title={newsData.title}
+                  content={getContent()}
+                  url={newsData.logo_uri && { uri: newsData.logo_uri }}
+                />
+              )}
             </View>
           )}
           {!newsData && (

@@ -24,6 +24,10 @@ const postSummary = (summary) => {
   return instance.post("/summaries", summary).then((res) => res.data);
 };
 
+const updateSummary = (id, updateBlock) => {
+  return instance.put(`/summaries/${id}`, updateBlock).then((res) => res.data);
+};
+
 const postComment = (commentData) => {
   return instance.post("/comments", commentData);
 };
@@ -44,8 +48,12 @@ const followAuthor = (followerData) => {
   return instance.post("/followers", followerData);
 };
 
+const unfollowAuthor = (authorId) => {
+  return instance.delete(`/followers/${authorId}`);
+};
+
 const sendNotification = (data) => {
-  return instance.post("/notification", data).then(res => res.data);
+  return instance.post("/notification", data).then((res) => res.data);
 };
 
 export {
@@ -60,5 +68,7 @@ export {
   deleteSummary,
   getSuggestAuthors,
   followAuthor,
+  unfollowAuthor,
   sendNotification,
+  updateSummary,
 };
