@@ -17,4 +17,5 @@ export interface Summary {
   is_draft: boolean;
   logo_uri?: string;
   avatar_uri?: string;
+  is_archived?: boolean;
 }

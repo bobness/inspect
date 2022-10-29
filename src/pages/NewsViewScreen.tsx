@@ -46,7 +46,7 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import { Dimensions } from "react-native";
 import { getAuthUser } from "../store/auth";
-import { User } from "../types";
+import { Summary, User } from "../types";
 
 interface Props {
   route: {
@@ -345,12 +345,30 @@ export default function NewsViewScreen(props: Props) {
     });
   }, [navigation]);
 
+  const getViewStyle = useCallback((item: Summary) => {
+    const baseStyle = {
+      flex: 1,
+      padding: 10,
+      backgroundColor: "white",
+      borderWidth: 1,
+      borderRadius: 5,
+    };
+    if (item.is_draft) {
+      return {
+        ...baseStyle,
+        backgroundColor: "#ccc",
+        borderStyle: "dashed" as const,
+      };
+    }
+    return baseStyle;
+  }, []);
+
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={commonStyle.pageContainer}>
           {newsData && (
-            <View style={{ flex: 1, padding: 10 }}>
+            <View style={getViewStyle(newsData)}>
               <View
                 style={{
                   justifyContent: "space-between",
@@ -432,19 +450,6 @@ export default function NewsViewScreen(props: Props) {
                   style={{ flex: 1, height: 1, backgroundColor: "black" }}
                 />
               </View>
-              {newsData.snippets.length > 0 && (
-                <Text style={{ textAlign: "center", fontStyle: "italic" }}>
-                  Tap the link above to add more snippets as evidence for this
-                  summary
-                </Text>
-              )}
-              {newsData.snippets.length === 0 && (
-                <Text style={{ textAlign: "center", fontStyle: "italic" }}>
-                  Tap the link above to add some snippets as evidence for this{" "}
-                  <Text style={{ fontWeight: "bold" }}>draft </Text>
-                  summary
-                </Text>
-              )}
               <View
                 style={{
                   flexDirection: "row",
@@ -452,34 +457,59 @@ export default function NewsViewScreen(props: Props) {
                   justifyContent: "center",
                 }}
               >
+                <View style={{ width: "30%" }}>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      fontStyle: "italic",
+                      borderWidth: 1,
+                      borderColor: "black",
+                      padding: 10,
+                    }}
+                  >
+                    Tap the link above to add{" "}
+                    {newsData.snippets.length === 0 ? "some " : "more "}
+                    snippets as evidence for this summary
+                  </Text>
+                </View>
                 {newsData.is_draft && (
                   <Button
                     onPress={publishDraft}
                     title="✔️ Publish"
-                    style={{ width: 100, padding: 10 }}
+                    buttonStyle={{ backgroundColor: "green" }}
+                    style={{
+                      width: 100,
+                      padding: 10,
+                    }}
                   />
                 )}
-                {/* TODO: archiving on this screen shouldn't show if it's already archived */}
-                {/* {!newsData.is_draft && (
+                {!newsData.is_draft && !newsData.is_archived && (
                   <Button
                     onPress={archiveItem}
                     title="🗂 Archive"
+                    buttonStyle={{ backgroundColor: "orange" }}
                     style={{ width: 100, padding: 10 }}
                   />
-                )} */}
+                )}
                 {authUser?.id == newsData.user_id && (
                   <Button
                     onPress={deleteItem}
                     title="🗑 Delete"
-                    style={{ width: 100, padding: 10 }}
+                    buttonStyle={{ backgroundColor: "red" }}
+                    style={{
+                      width: 100,
+                      padding: 10,
+                    }}
                   />
                 )}
               </View>
-              <BottomAction
-                title={newsData.title}
-                content={getContent()}
-                url={newsData.logo_uri && { uri: newsData.logo_uri }}
-              />
+              {!newsData.is_draft && (
+                <BottomAction
+                  title={newsData.title}
+                  content={getContent()}
+                  url={newsData.logo_uri && { uri: newsData.logo_uri }}
+                />
+              )}
             </View>
           )}
           {!newsData && (
