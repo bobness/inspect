@@ -43,8 +43,6 @@ const NewsRow = ({ item, onPress, onSwipe }: Props) => {
         onSwipe();
       });
 
-  // FIXME: decorate summaries that are drafts
-
   return (
     <GestureDetector gesture={archive()}>
       <Animated.View style={animatedStyles}>
