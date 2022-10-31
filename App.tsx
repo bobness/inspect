@@ -250,7 +250,6 @@ async function registerForPushNotificationsAsync() {
     } catch (err) {
       alert(err);
     }
-    alert(`New token: ${token}`);
   } else {
     alert("Must use physical device for Push Notifications");
   }
