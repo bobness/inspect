@@ -46,7 +46,7 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import { Dimensions } from "react-native";
 import { getAuthUser } from "../store/auth";
-import { Summary, User } from "../types";
+import { Reaction, Summary, User } from "../types";
 
 interface Props {
   route: {
@@ -65,7 +65,7 @@ export default function NewsViewScreen(props: Props) {
     setCurrentSummaryId,
   } = props;
   let richText: any = useRef(null);
-  const [newsData, setNewsData] = useState<any | undefined>();
+  const [newsData, setNewsData] = useState<Summary | undefined>();
   const [selectedCommentId, selectCommentId]: any = useState(null);
   const [selectedComments, setSelectedComments] = useState([]);
   const [commentText, setCommentText] = useState("");
@@ -153,20 +153,60 @@ export default function NewsViewScreen(props: Props) {
     });
   };
 
-  const getComments = (snippet_id: number) => {
-    return newsData.comments.filter(
-      (reaction: any) => reaction.snippet_id == snippet_id
-    );
+  const getComments = useCallback(
+    (snippet_id: number) => {
+      return newsData.comments.filter(
+        (reaction: any) => reaction.snippet_id == snippet_id
+      );
+    },
+    [newsData]
+  );
+
+  const getReactions = useCallback(
+    (snippet_id: number) => {
+      if (newsData?.reactions) {
+        return newsData.reactions.filter(
+          (reaction: any) => reaction.snippet_id == snippet_id
+        );
+      }
+    },
+    [newsData]
+  );
+
+  // const sortByDate = (a: Reaction, b: Reaction) => {
+  //   const dateA = new Date(a.created_at).valueOf();
+  //   const dateB = new Date(b.created_at).valueOf();
+  //   return dateA - dateB;
+  // };
+
+  interface ReactionMap {
+    [reaction: string]: number;
+  }
+
+  const reduceByAmount = (result: ReactionMap, item: Reaction) => {
+    if (Object.hasOwn(result, item.reaction)) {
+      result[item.reaction] += 1;
+    } else {
+      result[item.reaction] = 1;
+    }
+    return result;
   };
 
-  const getEmojis = (snippet_id: number) => {
-    return newsData.reactions.filter(
-      (reaction: any) => reaction.snippet_id == snippet_id
-    );
+  const showTopEmoji = (reactions: any[]) => {
+    if (reactions.length > 0) {
+      // TODO: figure out a better way to combine sorting by amount and date
+      const map = reactions /*.sort(sortByDate)*/
+        .reduce(reduceByAmount, {});
+      const topEmoji = Object.keys(map).sort((a: string, b: string) => {
+        return map[b] - map[a];
+      })[0];
+      return topEmoji;
+    }
+    return "";
   };
 
   const renderSnippet = ({ item }: any) => {
-    const emojis = getEmojis(item.id);
+    const emojis = getReactions(item.id);
     const commments = getComments(item.id);
     if (newsData) {
       return (
@@ -184,7 +224,7 @@ export default function NewsViewScreen(props: Props) {
           >
             <View style={{ flexDirection: "row", paddingVertical: 5 }}>
               <Text style={{ paddingRight: 10, fontSize: 20, minWidth: 35 }}>
-                {emojis.length > 0 ? emojis[0].reaction : ""}
+                {showTopEmoji(emojis)}
               </Text>
               <Text style={{ flex: 1, flexWrap: "wrap" }}>{item.value}</Text>
             </View>
@@ -203,10 +243,11 @@ export default function NewsViewScreen(props: Props) {
             }}
           >
             <View style={{ flexDirection: "row" }}>
-              <Text style={{ fontSize: 16, color: "grey" }}>
+              {/* TODO: enable adding comment emojis */}
+              {/* <Text style={{ fontSize: 16, color: "grey" }}>
                 {emojis.length > 0 ? emojis[0].reaction : ""}{" "}
                 {emojis.length > 0 ? emojis.length : ""}
-              </Text>
+              </Text> */}
               <TouchableOpacity
                 onPress={() => {
                   if (commments.length > 0) {
@@ -269,15 +310,6 @@ export default function NewsViewScreen(props: Props) {
         <View style={{ marginTop: 10 }}>
           <AutoHeightWebView
             style={{ width: Dimensions.get("window").width - 15, height: 50 }}
-            customStyle={`
-                            * {
-                                font-family: 'Times New Roman';
-                            }
-                            p {
-                                font-size: 14px;
-                                line-height: 30px;
-                            }
-                        `}
             onSizeUpdated={(size) => console.log(size.height)}
             files={[
               {
@@ -401,7 +433,7 @@ export default function NewsViewScreen(props: Props) {
                     color: "blue",
                   }}
                   onPress={() => {
-                    // TODO: reduce the number of stacks that iOS creates from going back and forth from Safari
+                    // TODO: measure/reduce the number of stack items that iOS creates from going back and forth from Safari
                     Linking.openURL(newsData.url);
                   }}
                 >
@@ -566,7 +598,7 @@ export default function NewsViewScreen(props: Props) {
                   justifyContent: "space-between",
                 }}
               >
-                <Text>Feedback:</Text>
+                <Text>New Comment</Text>
                 <TouchableOpacity
                   onPress={handleSaveFeedback}
                   style={{
@@ -582,11 +614,16 @@ export default function NewsViewScreen(props: Props) {
                   <Icon
                     name="save"
                     type="font-awesome-5"
-                    color="#ccc"
+                    color={commentText?.length > 0 ? "black" : "#ccc"}
                     style={{ paddingHorizontal: 10 }}
                     tvParallaxProperties={undefined}
                   />
-                  <Text style={{ color: "grey", fontWeight: "bold" }}>
+                  <Text
+                    style={{
+                      color: commentText?.length > 0 ? "black" : "grey",
+                      fontWeight: "bold",
+                    }}
+                  >
                     Save
                   </Text>
                 </TouchableOpacity>
