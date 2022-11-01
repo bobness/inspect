@@ -46,7 +46,7 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import { Dimensions } from "react-native";
 import { getAuthUser } from "../store/auth";
-import { Reaction, Summary, User } from "../types";
+import { Comment, Reaction, Summary, User } from "../types";
 
 interface Props {
   route: {
@@ -67,7 +67,7 @@ export default function NewsViewScreen(props: Props) {
   let richText: any = useRef(null);
   const [newsData, setNewsData] = useState<Summary | undefined>();
   const [selectedCommentId, selectCommentId]: any = useState(null);
-  const [selectedComments, setSelectedComments] = useState([]);
+  const [selectedComments, setSelectedComments] = useState<Comment[]>([]);
   const [commentText, setCommentText] = useState("");
   const [visible, setVisible] = useState(false);
   const [visibleCommentModal, setVisibleCommentModal] = useState(false);
@@ -155,9 +155,12 @@ export default function NewsViewScreen(props: Props) {
 
   const getComments = useCallback(
     (snippet_id: number) => {
-      return newsData.comments.filter(
-        (reaction: any) => reaction.snippet_id == snippet_id
-      );
+      if (newsData?.comments) {
+        return newsData.comments.filter(
+          (reaction: any) => reaction.snippet_id == snippet_id
+        );
+      }
+      return [];
     },
     [newsData]
   );
@@ -192,8 +195,8 @@ export default function NewsViewScreen(props: Props) {
     return result;
   };
 
-  const showTopEmoji = (reactions: any[]) => {
-    if (reactions.length > 0) {
+  const showTopEmoji = (reactions?: any[]) => {
+    if (reactions && reactions.length > 0) {
       // TODO: figure out a better way to combine sorting by amount and date
       const map = reactions /*.sort(sortByDate)*/
         .reduce(reduceByAmount, {});
@@ -253,9 +256,9 @@ export default function NewsViewScreen(props: Props) {
                   if (commments.length > 0) {
                     selectCommentId(item.id);
                     setSelectedComments(
-                      newsData.comments.filter(
+                      newsData.comments?.filter(
                         (c: any) => c.snippet_id == item.id
-                      )
+                      ) ?? []
                     );
                     toggleViewCommentOverlay();
                   } else {
@@ -412,7 +415,11 @@ export default function NewsViewScreen(props: Props) {
                 <Avatar
                   // title={newsData?.title[0]}
                   // titleStyle={{ color: "black" }}
-                  source={newsData?.avatar_uri && { uri: newsData?.avatar_uri }}
+                  source={
+                    (newsData?.avatar_uri as any) && {
+                      uri: newsData?.avatar_uri,
+                    }
+                  }
                   // containerStyle={{
                   //   borderColor: "green",
                   //   borderWidth: 1,
@@ -442,7 +449,9 @@ export default function NewsViewScreen(props: Props) {
                 <Avatar
                   // title={newsData?.title[0]}
                   // titleStyle={{ color: "black" }}
-                  source={newsData.logo_uri && { uri: newsData.logo_uri }}
+                  source={
+                    (newsData.logo_uri as any) && { uri: newsData.logo_uri }
+                  }
                   // containerStyle={{
                   //   borderColor: "green",
                   //   borderWidth: 1,
@@ -450,7 +459,7 @@ export default function NewsViewScreen(props: Props) {
                   // }}
                 />
               </View>
-              {newsData.snippets.length > 0 && (
+              {newsData?.snippets && newsData.snippets.length > 0 && (
                 <FlatList
                   data={newsData.snippets}
                   renderItem={renderSnippet}
@@ -500,7 +509,9 @@ export default function NewsViewScreen(props: Props) {
                     }}
                   >
                     Tap the link above to add{" "}
-                    {newsData.snippets.length === 0 ? "some " : "more "}
+                    {newsData?.snippets && newsData.snippets.length === 0
+                      ? "some "
+                      : "more "}
                     snippets as evidence for this summary
                   </Text>
                 </View>
@@ -539,7 +550,7 @@ export default function NewsViewScreen(props: Props) {
                 <BottomAction
                   title={newsData.title}
                   content={getContent()}
-                  url={newsData.logo_uri && { uri: newsData.logo_uri }}
+                  url={(newsData.logo_uri as any) && { uri: newsData.logo_uri }}
                 />
               )}
             </View>

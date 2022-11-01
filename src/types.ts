@@ -38,4 +38,5 @@ export interface Summary {
   is_archived?: boolean;
   comments?: Comment[];
   reactions?: Reaction[];
+  snippets?: any[]; // TODO: type Snippets
 }
