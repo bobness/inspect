@@ -35,12 +35,12 @@ const NewsRow = ({ item, onPress, onSwipe }: Props) => {
         }
       })
       .onEnd(() => {
-        start.value = {
-          x: offset.value.x,
-          y: offset.value.y,
-        };
-        start.value = offset.value;
-        onSwipe();
+        // TODO: make this a % of the element's width, ideally
+        if (offset.value.x < -150) {
+          onSwipe();
+        } else {
+          offset.value = start.value;
+        }
       });
 
   return (
