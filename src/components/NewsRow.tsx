@@ -13,7 +13,8 @@ interface Props {
   onSwipe: () => void;
 }
 
-// TODO: dragging gets stuck
+const SWIPE_THRESHOLD = -150;
+
 const NewsRow = ({ item, onPress, onSwipe }: Props) => {
   const offset = useSharedValue({ x: 0, y: 0 });
   const start = useSharedValue({ x: 0, y: 0 });
@@ -21,7 +22,6 @@ const NewsRow = ({ item, onPress, onSwipe }: Props) => {
     transform: [{ translateX: offset.value.x }, { translateY: offset.value.y }],
   }));
 
-  // TODO: tapping on a row seems to archive it!
   const archive = () =>
     Gesture.Pan()
       .runOnJS(true)
@@ -36,7 +36,7 @@ const NewsRow = ({ item, onPress, onSwipe }: Props) => {
       })
       .onEnd(() => {
         // TODO: make this a % of the element's width, ideally
-        if (offset.value.x < -150) {
+        if (offset.value.x < SWIPE_THRESHOLD) {
           onSwipe();
         } else {
           offset.value = start.value;
