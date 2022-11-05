@@ -30,7 +30,7 @@ import {
   RichToolbar,
   actions,
 } from "react-native-pell-rich-editor";
-import BottomAction from "../components/BottomAction";
+import ShareMenu from "../components/ShareMenu";
 import {
   deleteSummary,
   getNewsById,
@@ -123,7 +123,7 @@ export default function NewsViewScreen(props: Props) {
   const getContent = () => {
     let content = "";
     if (newsData && newsData?.snippets) {
-      content = newsData?.snippets.map((item: any) => item.value).join(" ");
+      content = newsData?.snippets.map((item: any) => item.value).join("\n\n");
     }
     return content;
   };
@@ -547,10 +547,10 @@ export default function NewsViewScreen(props: Props) {
                 )}
               </View>
               {!newsData.is_draft && (
-                <BottomAction
+                <ShareMenu
                   title={newsData.title}
                   content={getContent()}
-                  url={(newsData.logo_uri as any) && { uri: newsData.logo_uri }}
+                  url={newsData.url}
                 />
               )}
             </View>

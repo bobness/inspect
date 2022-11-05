@@ -1,7 +1,4 @@
-import BottomAction from "./BottomAction"
-import BottomToolbar from "./BottomAction"
+import ShareMenu from "./ShareMenu";
+import BottomToolbar from "./ShareMenu";
 
-export {
-    BottomAction,
-    BottomToolbar,
-}
+export { ShareMenu as BottomAction, BottomToolbar };

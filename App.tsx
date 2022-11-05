@@ -5,7 +5,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View, ActivityIndicator, Platform } from "react-native";
 import {
   NavigationContainer,
-  useNavigation,
   useNavigationContainerRef,
 } from "@react-navigation/native";
 
