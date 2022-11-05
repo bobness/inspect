@@ -35,7 +35,7 @@ interface Props {
   currentSummaryId?: number;
 }
 
-const titleRegex = new RegExp("<head>[^]*<title>([^]+)</title>[^]*</head>");
+const titleRegex = RegExp("<head.*>[^]*<title>([^]+)</title>[^]*</head>");
 
 export default function SummaryScreen(props: Props) {
   const {
@@ -120,7 +120,6 @@ export default function SummaryScreen(props: Props) {
   };
 
   useEffect(() => {
-    // alert(`useEffect on 'data': ${JSON.stringify(data)}`); // DEBUG
     if (data.weblink) {
       processSharedUrl(data.weblink);
     } else if (data.text) {
