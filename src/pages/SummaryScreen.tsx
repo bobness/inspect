@@ -173,7 +173,11 @@ export default function SummaryScreen(props: Props) {
     const updateBlock = {
       snippets: [newSnippet],
     };
-    await updateSummary(currentSummaryId, updateBlock);
+    try {
+      await updateSummary(currentSummaryId, updateBlock);
+    } catch (err) {
+      alert(`Error! ${err}`);
+    }
     if (isDraft) {
       cleanup();
       navigation.navigate("NewsView", { data: { id: currentSummaryId } });
@@ -281,6 +285,12 @@ export default function SummaryScreen(props: Props) {
                   >
                     {newSnippet?.value}
                   </Text>
+                  {newSnippet?.value.length > 1000 && (
+                    <Text style={{ color: "red" }}>
+                      WARNING: your selection is greater than the max length
+                      (1000), so updating may not work
+                    </Text>
+                  )}
                 </ScrollView>
               </>
             )}
