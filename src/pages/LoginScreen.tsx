@@ -17,7 +17,7 @@ import * as Facebook from "expo-facebook";
 import { userLogin } from "../store/auth";
 import { setToken } from "../store/api";
 
-const appId = "1047121222092614";
+const appId = "461371912646826";
 
 interface Props {
   navigation: any;
@@ -72,7 +72,8 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
         const response = await fetch(
           `https://graph.facebook.com/me?access_token=${loginResponse.token}`
         );
-        Alert.alert("Logged in!", `Hi ${(await response.json()).name}!`);
+        // Alert.alert("Logged in!", `Hi ${(await response.json()).name}!`);
+        // TODO: register in db, etc.
       }
     } catch ({ message }) {
       Alert.alert(`Facebook Login Error: ${message}`);
@@ -114,7 +115,7 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
               title="Login"
               disabled={loading}
             />
-            <View style={[{ marginTop: 10, alignItems: "center" }]}>
+            {/* <View style={[{ marginTop: 10, alignItems: "center" }]}>
               <Text
                 style={{ color: "#c4c3cb", fontSize: 16, fontWeight: "700" }}
               >
@@ -131,7 +132,7 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
                   <SocialIcon type="linkedin" />
                 </TouchableOpacity>
               </View>
-            </View>
+            </View> */}
             <View style={[{ marginTop: 10, alignItems: "center" }]}>
               <Text
                 style={{ color: "#c4c3cb", fontSize: 16, fontWeight: "700" }}
@@ -144,7 +145,7 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
                   onPress={() => navigation.navigate("Register")}
                   disabled={loading}
                 >
-                  <Text>Signup with manually</Text>
+                  <Text>Signup</Text>
                 </TouchableOpacity>
               </View>
             </View>

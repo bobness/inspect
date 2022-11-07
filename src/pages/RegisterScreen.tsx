@@ -59,17 +59,21 @@ export default function RegisterScreen({ navigation }: any) {
       password,
     };
     setLoading(true);
-    userRegister(postData).then(async (res) => {
-      setLoading(false);
-      if (res.code !== 200) {
-        Alert.alert(res.message);
-        return;
-      }
-      await AsyncStorage.setItem("access_token", res.token);
-      await AsyncStorage.setItem("user", JSON.stringify(res));
-      setToken(res.token);
-      navigation.navigate("Home");
-    });
+    userRegister(postData)
+      .then(async (res) => {
+        setLoading(false);
+        if (res.code > 201) {
+          Alert.alert(res.message);
+          return;
+        }
+        await AsyncStorage.setItem("access_token", res.token);
+        await AsyncStorage.setItem("user", JSON.stringify(res));
+        setToken(res.token);
+        navigation.navigate("Home");
+      })
+      .catch((err) => {
+        alert(`Error! - ${err}`);
+      });
   };
 
   return (
@@ -86,6 +90,7 @@ export default function RegisterScreen({ navigation }: any) {
               onChangeText={(v: string) => setUserName(v)}
               value={username}
               editable={!loading}
+              autoCorrect={false}
             />
             <TextInput
               ref={emailRef}
@@ -95,6 +100,8 @@ export default function RegisterScreen({ navigation }: any) {
               onChangeText={(v: string) => setEmail(v)}
               value={email}
               editable={!loading}
+              autoCapitalize="none"
+              autoCorrect={false}
             />
             <TextInput
               ref={passwordRef}
@@ -105,6 +112,8 @@ export default function RegisterScreen({ navigation }: any) {
               onChangeText={(v: string) => setPassword(v)}
               value={password}
               editable={!loading}
+              autoCapitalize="none"
+              autoCorrect={false}
             />
             <TextInput
               ref={confirmPasswordRef}
@@ -115,6 +124,8 @@ export default function RegisterScreen({ navigation }: any) {
               onChangeText={(v: string) => setConfirmPassword(v)}
               value={confirmPassword}
               editable={!loading}
+              autoCapitalize="none"
+              autoCorrect={false}
             />
             <Button
               buttonStyle={styles.registerButton}

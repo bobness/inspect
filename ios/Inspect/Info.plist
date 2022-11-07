@@ -32,11 +32,23 @@
         <key>CFBundleURLSchemes</key>
         <array>
           <string>exp+inspect</string>
+          <string>fb461371912646826</string>
         </array>
       </dict>
     </array>
+    <key>FacebookAppID</key>
+      <string>461371912646826</string>
+    <key>FacebookClientToken</key>
+      <string>52a174ede8c273009a1f3f0aea4bb24b</string>
+    <key>FacebookDisplayName</key>
+      <string>Datagotchi Inspect</string>
+    <key>LSApplicationQueriesSchemes</key>
+      <array>
+        <string>fbapi</string>
+        <string>fb-messenger-share-api</string>
+      </array>
     <key>CFBundleVersion</key>
-    <string>9</string>
+    <string>10</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>NSAppTransportSecurity</key>
