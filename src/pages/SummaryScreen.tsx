@@ -265,8 +265,7 @@ export default function SummaryScreen(props: Props) {
                     <Text
                       key={`snippet #${snippet.id}`}
                       style={{
-                        borderColor: "black",
-                        borderWidth: 1,
+                        opacity: 0.5,
                       }}
                     >
                       {snippet.value}
@@ -274,7 +273,7 @@ export default function SummaryScreen(props: Props) {
                   ))}
                   <Text
                     key="new snippet"
-                    style={{ borderColor: "yellow", borderWidth: 5 }}
+                    style={{ borderStyle: "dashed", backgroundColor: "#ccc" }}
                   >
                     {newSnippet?.value}
                   </Text>

@@ -389,11 +389,10 @@ export default function NewsViewScreen(props: Props) {
       borderRadius: 5,
     };
     if (item.is_draft) {
-      return {
-        ...baseStyle,
+      return Object.assign(baseStyle, {
         backgroundColor: "#ccc",
         borderStyle: "dashed" as const,
-      };
+      });
     }
     return baseStyle;
   }, []);
