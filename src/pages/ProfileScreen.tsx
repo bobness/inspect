@@ -51,6 +51,7 @@ export default function ProfileScreen(props: any) {
   const [insertLinkText, setInsertLinkText] = useState<string | undefined>();
 
   useEffect(() => {
+    setRefreshing(true);
     getAuthUser()
       .then((data) => {
         setProfileData({
@@ -60,16 +61,26 @@ export default function ProfileScreen(props: any) {
         });
       })
       .catch((err) => {
-        console.error("error! ", err);
-      });
+        Alert.alert(`Error! ${err}`);
+      })
+      .finally(() => setRefreshing(false));
   }, []);
+
+  useEffect(() => {
+    navigation.addListener("focus", () => handleRefresh());
+  }, [navigation]);
 
   const handleRefresh = () => {
     setRefreshing(true);
-    getAuthUser().then((data) => {
-      setRefreshing(false);
-      setProfileData(data);
-    });
+    getAuthUser()
+      .then((data) => {
+        setProfileData({
+          ...data,
+          password: "",
+          confirmPassword: "",
+        });
+      })
+      .finally(() => setRefreshing(false));
   };
 
   React.useLayoutEffect(() => {
