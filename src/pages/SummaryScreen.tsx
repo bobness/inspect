@@ -35,7 +35,7 @@ interface Props {
   currentSummaryId?: number;
 }
 
-const titleRegex = new RegExp("<head>[^]*<title>([^]+)</title>[^]*</head>");
+const titleRegex = RegExp("<head.*>[^]*<title>([^]+)</title>[^]*</head>");
 
 export default function SummaryScreen(props: Props) {
   const {
@@ -69,17 +69,19 @@ export default function SummaryScreen(props: Props) {
     }
   }, [currentSummaryId]);
 
-  const urlRegex = useMemo(
+  const urlRegex = useMemo(() => RegExp(/https?:\/\S+/), []);
+
+  const baseUrlRegex = useMemo(
     () => RegExp("https?://.*\\.([a-zA-Z0-9]+\\.[a-z]+)\\/.*"),
     []
   );
 
   const parseBaseUrl = useCallback(
     (fullUrl: string) => {
-      const match = fullUrl.match(urlRegex);
+      const match = fullUrl.match(baseUrlRegex);
       return match ? match[1] : undefined;
     },
-    [urlRegex]
+    [baseUrlRegex]
   );
 
   const cleanUrl = useCallback((url?: string) => {
@@ -96,29 +98,38 @@ export default function SummaryScreen(props: Props) {
     });
   }, []);
 
+  const processSharedUrl = (url: string) => {
+    setLoading(true);
+    setCleanedUrl(cleanUrl(url));
+    const baseUrl = parseBaseUrl(url);
+    Promise.all([
+      instance.get<string>(url).then((result) => {
+        const html = result.data;
+        const match = html.match(titleRegex);
+        if (match && match[1]) {
+          const docTitle = match[1];
+          setDefaultTitle(docTitle);
+        }
+      }),
+      instance.get(`/sources/${baseUrl}`).then((res) => {
+        if (res.data) {
+          setSource(res.data);
+        }
+      }),
+    ]).then(() => setLoading(false));
+  };
+
   useEffect(() => {
     if (data.weblink) {
-      setCleanedUrl(cleanUrl(data.weblink));
-      const baseUrl = parseBaseUrl(data.weblink);
-      Promise.all([
-        instance.get<string>(data.weblink).then((result) => {
-          const html = result.data;
-          const match = html.match(titleRegex);
-          if (match && match[1]) {
-            const docTitle = match[1];
-            setDefaultTitle(docTitle);
-          }
-        }),
-        instance.get(`/sources/${baseUrl}`).then((res) => {
-          if (res.data) {
-            setSource(res.data);
-          }
-        }),
-      ]).then(() => setLoading(false));
-    }
-
-    if (data.text) {
-      setNewSnippet({ value: data.text });
+      processSharedUrl(data.weblink);
+    } else if (data.text) {
+      // Google News returns the url in the text object, not weblink
+      const match = data.text.match(urlRegex);
+      if (match) {
+        processSharedUrl(match[0]);
+      } else {
+        setNewSnippet({ value: data.text });
+      }
     }
   }, [data.text, data.weblink]);
 
@@ -254,8 +265,7 @@ export default function SummaryScreen(props: Props) {
                     <Text
                       key={`snippet #${snippet.id}`}
                       style={{
-                        borderColor: "black",
-                        borderWidth: 1,
+                        opacity: 0.5,
                       }}
                     >
                       {snippet.value}
@@ -263,7 +273,7 @@ export default function SummaryScreen(props: Props) {
                   ))}
                   <Text
                     key="new snippet"
-                    style={{ borderColor: "yellow", borderWidth: 5 }}
+                    style={{ borderStyle: "dashed", backgroundColor: "#ccc" }}
                   >
                     {newSnippet?.value}
                   </Text>

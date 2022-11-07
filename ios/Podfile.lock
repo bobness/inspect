@@ -472,6 +472,8 @@ PODS:
   - RNScreens (3.15.0):
     - React-Core
     - React-RCTImage
+  - RNShare (8.0.0):
+    - React-Core
   - RNVectorIcons (9.2.0):
     - React-Core
   - TOCropViewController (2.6.1)
@@ -544,6 +546,7 @@ DEPENDENCIES:
   - RNImageCropPicker (from `../node_modules/react-native-image-crop-picker`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNShare (from `../node_modules/react-native-share`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - UMAppLoader (from `../node_modules/unimodules-app-loader/ios`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -685,6 +688,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNShare:
+    :path: "../node_modules/react-native-share"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
   UMAppLoader:
@@ -761,6 +766,7 @@ SPEC CHECKSUMS:
   RNImageCropPicker: ffbba608264885c241cbf3a8f78eb7aeeb978241
   RNReanimated: 2cf7451318bb9cc430abeec8d67693f9cf4e039c
   RNScreens: 4a1af06327774490d97342c00aee0c2bafb497b7
+  RNShare: 36aa3e6958373a0ad1c95a1c960adef589da3794
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   TOCropViewController: edfd4f25713d56905ad1e0b9f5be3fbe0f59c863
   UMAppLoader: 6185e8c45922f187002b85afae097961c4781df4
