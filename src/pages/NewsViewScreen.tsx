@@ -21,7 +21,7 @@ import {
   Alert,
   Linking,
 } from "react-native";
-import { Avatar, Overlay, Icon, Button } from "react-native-elements";
+import { Avatar, Overlay, Icon, Button, Input } from "react-native-elements";
 import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import BottomToolbar from "../components/BottomToolbar";
@@ -75,6 +75,7 @@ export default function NewsViewScreen(props: Props) {
   const [emoji, setEmoji] = useState("🤔");
   const [loading, setLoading] = useState(false);
   const [authUser, setAuthUser] = useState<User | undefined>();
+  const [editTitleMode, setEditTitleMode] = useState(false);
 
   const convertDate = (date_str: string) => {
     return moment(date_str).fromNow();
@@ -430,21 +431,54 @@ export default function NewsViewScreen(props: Props) {
                     });
                   }}
                 />
-                <Text
-                  style={{
-                    fontSize: 18,
-                    flex: 1,
-                    paddingHorizontal: 10,
-                    textAlign: "center",
-                    color: "blue",
-                  }}
-                  onPress={() => {
-                    // TODO: measure/reduce the number of stack items that iOS creates from going back and forth from Safari
-                    Linking.openURL(newsData.url);
-                  }}
-                >
-                  {newsData.title}
-                </Text>
+                {!editTitleMode && (
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      flex: 1,
+                      paddingHorizontal: 10,
+                      textAlign: "center",
+                      color: "blue",
+                    }}
+                    onPress={() => {
+                      // TODO: measure/reduce the number of stack items that iOS creates from going back and forth from Safari
+                      Linking.openURL(newsData.url);
+                    }}
+                  >
+                    {newsData.title}
+                  </Text>
+                )}
+                {editTitleMode && (
+                  <Input
+                    // ref={titleInputRef}
+                    label="Title"
+                    placeholder="New title that explains the contribution of the article"
+                    value={newsData.title}
+                    // editable={!loading}
+                    onChangeText={(text: string) => {
+                      // if (text !== defaultTitle) {
+                      //   setUseDefaultTitle(false);
+                      // }
+                      setNewsData({
+                        ...newsData,
+                        title: text,
+                      });
+                    }}
+                    blurOnSubmit={true}
+                    onBlur={() =>
+                      updateSummary(newsData.id, {
+                        title: newsData.title,
+                      }).then(() => setEditTitleMode(false))
+                    }
+                    autoCompleteType={undefined}
+                  />
+                )}
+                {authUser?.id == newsData.user_id && (
+                  <Button
+                    title="Edit Title"
+                    onPress={() => setEditTitleMode(true)}
+                  />
+                )}
                 <Avatar
                   // title={newsData?.title[0]}
                   // titleStyle={{ color: "black" }}
