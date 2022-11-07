@@ -273,7 +273,11 @@ export default function SummaryScreen(props: Props) {
                   ))}
                   <Text
                     key="new snippet"
-                    style={{ borderStyle: "dashed", backgroundColor: "#ccc" }}
+                    style={{
+                      borderWidth: 1,
+                      borderStyle: "dashed",
+                      backgroundColor: "#ccc",
+                    }}
                   >
                     {newSnippet?.value}
                   </Text>
