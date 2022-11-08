@@ -123,12 +123,14 @@ export default function SummaryScreen(props: Props) {
     if (data.weblink) {
       processSharedUrl(data.weblink);
     } else if (data.text) {
-      // Google News returns the url in the text object, not weblink
-      const match = data.text.match(urlRegex);
-      if (match) {
-        processSharedUrl(match[0]);
-      } else {
+      if (currentSummaryId) {
         setNewSnippet({ value: data.text });
+      } else {
+        // Google News returns the url in the text object, not weblink
+        const match = data.text.match(urlRegex);
+        if (match) {
+          processSharedUrl(match[0]);
+        }
       }
     }
   }, [data.text, data.weblink]);

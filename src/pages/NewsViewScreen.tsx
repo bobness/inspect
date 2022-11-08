@@ -83,12 +83,15 @@ export default function NewsViewScreen(props: Props) {
 
   const getNewsDataById = (id: number) => {
     setLoading(true);
-    setCurrentSummaryId(id);
     getNewsById(id).then((result) => {
       setNewsData(result);
       setLoading(false);
     });
   };
+
+  useEffect(() => {
+    setCurrentSummaryId(undefined);
+  }, []);
 
   useEffect(() => {
     getNewsDataById(data.id);
@@ -441,6 +444,7 @@ export default function NewsViewScreen(props: Props) {
                       color: "blue",
                     }}
                     onPress={() => {
+                      setCurrentSummaryId(newsData.id);
                       // TODO: measure/reduce the number of stack items that iOS creates from going back and forth from Safari
                       Linking.openURL(newsData.url);
                     }}
