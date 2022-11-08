@@ -204,7 +204,7 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="Profile"
+          name="My Profile"
           component={ProfileScreen}
           options={{ headerShown: true }}
         />

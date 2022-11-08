@@ -275,16 +275,19 @@ export default function SummaryScreen(props: Props) {
                       {snippet.value}
                     </Text>
                   ))}
-                  <Text
+                  <View
                     key="new snippet"
                     style={{
+                      borderRadius: 5,
                       borderWidth: 1,
+                      borderColor: "black",
                       borderStyle: "dashed",
                       backgroundColor: "#ccc",
+                      padding: 10,
                     }}
                   >
-                    {newSnippet?.value}
-                  </Text>
+                    <Text>{newSnippet?.value}</Text>
+                  </View>
                   {newSnippet?.value.length > 1000 && (
                     <Text style={{ color: "red" }}>
                       WARNING: your selection is greater than the max length

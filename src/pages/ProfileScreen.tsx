@@ -137,7 +137,8 @@ export default function ProfileScreen(props: any) {
         ...baseStyle,
         borderWidth: 1,
         borderStyle: "dashed" as const,
-        backgroundColor: "#ccc",
+        backgroundColor: "#ccc", // FIXME: does not show
+        borderRadius: 5,
       };
     }
     return baseStyle;
@@ -150,7 +151,6 @@ export default function ProfileScreen(props: any) {
       tvParallaxProperties={undefined}
       style={getNewsItemStyle(item)}
       onPress={() => {
-        // TODO: doesn't work
         navigation.navigate("NewsView", { data: item });
       }}
     >
@@ -409,23 +409,25 @@ export default function ProfileScreen(props: any) {
               </ScrollView>
             </TabView.Item>
             <TabView.Item style={{ width: "100%" }}>
-              <Text>Summaries: {JSON.stringify(profileData?.summaries)}</Text>
-              {profileData?.summaries && profileData.summaries?.length > 0 && (
-                <FlatList
-                  data={profileData?.summaries ?? {}}
-                  renderItem={renderNewsItem}
-                  style={{ flex: 1, width: "100%" }}
-                  refreshing={isRefreshing}
-                  onRefresh={handleRefresh}
-                />
-              )}
-              {profileData?.summaries && profileData.summaries.length === 0 && (
-                <Text>
-                  You have no article summaries. To create one, view the article
-                  in another app like Safari, Apple News, or Google News, and
-                  share it into Inspect.
-                </Text>
-              )}
+              <>
+                {profileData?.summaries && profileData.summaries.length > 0 && (
+                  <FlatList
+                    data={profileData.summaries}
+                    renderItem={renderNewsItem}
+                    style={{ flex: 1, width: "100%" }}
+                    refreshing={isRefreshing}
+                    onRefresh={handleRefresh}
+                  />
+                )}
+                {profileData?.summaries &&
+                  profileData.summaries.length === 0 && (
+                    <Text>
+                      You have no article summaries. To create one, view the
+                      article in another app like Safari, Apple News, or Google
+                      News, and share it into Inspect.
+                    </Text>
+                  )}
+              </>
             </TabView.Item>
             <TabView.Item style={{ width: "100%" }}>
               <FlatList
