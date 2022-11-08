@@ -68,6 +68,7 @@ export default function AuthorViewScreen(props: any) {
       onPress={() => {
         navigation.navigate("AuthorNewsView", { data: item });
       }}
+      key={`summary #${item.id}`}
     >
       <Icon type="font-awesome" name="file" tvParallaxProperties={undefined} />
       <ListItem.Content>

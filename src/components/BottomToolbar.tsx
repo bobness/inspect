@@ -166,7 +166,7 @@ export default function BottomToolbar({ navigation }: any) {
           flex: 1,
         }}
         onPress={() => {
-          navigation.navigate("Profile");
+          navigation.navigate("My Profile");
         }}
       >
         <FontAwesomeIcon name="user" size={20} color="black" />

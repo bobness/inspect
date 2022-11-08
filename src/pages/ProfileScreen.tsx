@@ -103,44 +103,31 @@ export default function ProfileScreen(props: any) {
     });
   }, [navigation]);
 
-  const handleSave = async (fieldName: string) => {
-    switch (fieldName) {
-      case "username":
-        setLoading(true);
-        await updateProfile({ username: profileData.username });
-        setLoading(false);
-        break;
-      case "password":
-      // if (!profileData.confirmPassword) {
-      //   Alert.alert("Confirm Password is required.");
-      //   confirmPasswordRef.current.focus();
-      //   return;
-      // }
-      case "confirmPassword":
-        if (profileData.password && profileData.confirmPassword) {
-          if (profileData.password !== profileData.confirmPassword) {
-            Alert.alert("Please make sure your passwords match.");
-            setProfileData({ ...profileData, confirmPassword: "" });
-            confirmPasswordRef.current.focus();
-            return;
-          }
-          setLoading(true);
-          await updateProfile({ password: profileData.password });
-          setProfileData({ ...profileData, password: "", confirmPassword: "" });
-          setLoading(false);
-        }
-        break;
-      case "avatar_uri":
-        setLoading(true);
-        await updateProfile({ avatar_uri: profileData.avatar_uri });
-        setLoading(false);
-        break;
-      case "profile":
-        setLoading(true);
-        await updateProfile({ profile: profileData.profile });
-        setLoading(false);
-      default:
+  // TOOD: make this more intelligent to only save items that have been updated
+  const handleSave = async () => {
+    setLoading(true);
+    const updateBlock = {
+      email: profileData.email,
+      username: profileData.username,
+      avatar_uri: profileData.avatar_uri,
+      profile: profileData.profile,
+    };
+    if (profileData.password && profileData.confirmPassword) {
+      if (profileData.password !== profileData.confirmPassword) {
+        Alert.alert("Please make sure your passwords match.");
+        setProfileData({ ...profileData, confirmPassword: "" });
+        confirmPasswordRef.current.focus();
+        return;
+      }
+      await updateProfile({
+        ...updateBlock,
+        password: profileData.password,
+      });
+    } else {
+      await updateProfile(updateBlock);
     }
+    setProfileData({ ...profileData, password: "", confirmPassword: "" });
+    setLoading(false);
   };
 
   const getNewsItemStyle = useCallback((item: Summary) => {
@@ -150,7 +137,8 @@ export default function ProfileScreen(props: any) {
         ...baseStyle,
         borderWidth: 1,
         borderStyle: "dashed" as const,
-        backgroundColor: "#ccc",
+        backgroundColor: "#ccc", // FIXME: does not show
+        borderRadius: 5,
       };
     }
     return baseStyle;
@@ -163,7 +151,6 @@ export default function ProfileScreen(props: any) {
       tvParallaxProperties={undefined}
       style={getNewsItemStyle(item)}
       onPress={() => {
-        // TODO: doesn't work
         navigation.navigate("NewsView", { data: item });
       }}
     >
@@ -210,7 +197,7 @@ export default function ProfileScreen(props: any) {
 
   useEffect(() => {
     if (profileData?.avatar_uri) {
-      handleSave("avatar_uri");
+      handleSave();
     }
   }, [profileData?.avatar_uri]);
 
@@ -299,7 +286,6 @@ export default function ProfileScreen(props: any) {
                   onChangeText={(text: string) => {
                     setProfileData({ ...profileData, email: text });
                   }}
-                  onBlur={() => handleSave("email")}
                   autoCompleteType={undefined}
                   autoCapitalize="none"
                 />
@@ -313,7 +299,6 @@ export default function ProfileScreen(props: any) {
                   onChangeText={(text: string) => {
                     setProfileData({ ...profileData, username: text });
                   }}
-                  onBlur={() => handleSave("username")}
                   autoCompleteType={undefined}
                   autoCapitalize="none"
                 />
@@ -327,7 +312,6 @@ export default function ProfileScreen(props: any) {
                   onChangeText={(text: string) => {
                     setProfileData({ ...profileData, password: text });
                   }}
-                  onBlur={() => handleSave("password")}
                   secureTextEntry={true}
                   autoCompleteType={undefined}
                   autoCapitalize="none"
@@ -343,7 +327,6 @@ export default function ProfileScreen(props: any) {
                   onChangeText={(text: string) => {
                     setProfileData({ ...profileData, confirmPassword: text });
                   }}
-                  onBlur={() => handleSave("confirmPassword")}
                   secureTextEntry={true}
                   autoCompleteType={undefined}
                   autoCapitalize="none"
@@ -380,10 +363,7 @@ export default function ProfileScreen(props: any) {
                     setProfileData({ ...profileData, profile: text });
                   }}
                 />
-                <Button
-                  title="Save Profile"
-                  onPress={() => handleSave("profile")}
-                />
+                <Button title="Save" onPress={() => handleSave()} />
                 <Overlay
                   isVisible={insertLinkModalVisible}
                   onBackdropPress={() => {
@@ -429,13 +409,25 @@ export default function ProfileScreen(props: any) {
               </ScrollView>
             </TabView.Item>
             <TabView.Item style={{ width: "100%" }}>
-              <FlatList
-                data={profileData?.summaries ?? {}}
-                renderItem={renderNewsItem}
-                style={{ flex: 1, width: "100%" }}
-                refreshing={isRefreshing}
-                onRefresh={handleRefresh}
-              />
+              <>
+                {profileData?.summaries && profileData.summaries.length > 0 && (
+                  <FlatList
+                    data={profileData.summaries}
+                    renderItem={renderNewsItem}
+                    style={{ flex: 1, width: "100%" }}
+                    refreshing={isRefreshing}
+                    onRefresh={handleRefresh}
+                  />
+                )}
+                {profileData?.summaries &&
+                  profileData.summaries.length === 0 && (
+                    <Text>
+                      You have no article summaries. To create one, view the
+                      article in another app like Safari, Apple News, or Google
+                      News, and share it into Inspect.
+                    </Text>
+                  )}
+              </>
             </TabView.Item>
             <TabView.Item style={{ width: "100%" }}>
               <FlatList

@@ -473,12 +473,6 @@ export default function NewsViewScreen(props: Props) {
                     autoCompleteType={undefined}
                   />
                 )}
-                {authUser?.id == newsData.user_id && (
-                  <Button
-                    title="Edit Title"
-                    onPress={() => setEditTitleMode(true)}
-                  />
-                )}
                 <Avatar
                   // title={newsData?.title[0]}
                   // titleStyle={{ color: "black" }}
@@ -492,6 +486,12 @@ export default function NewsViewScreen(props: Props) {
                   // }}
                 />
               </View>
+              {authUser?.id == newsData.user_id && (
+                <Button
+                  title="Edit Title"
+                  onPress={() => setEditTitleMode(true)}
+                />
+              )}
               {newsData?.snippets && newsData.snippets.length > 0 && (
                 <FlatList
                   data={newsData.snippets}
