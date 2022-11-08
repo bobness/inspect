@@ -103,6 +103,7 @@ export default function ProfileScreen(props: any) {
     });
   }, [navigation]);
 
+  // TOOD: make this more intelligent to only save items that have been updated
   const handleSave = async () => {
     setLoading(true);
     const updateBlock = {
