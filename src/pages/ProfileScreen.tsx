@@ -54,7 +54,6 @@ export default function ProfileScreen(props: any) {
     setRefreshing(true);
     getAuthUser()
       .then((data) => {
-        // console.log("*** got profile data: ", JSON.stringify(data.summaries));
         setProfileData({
           ...data,
           password: "",
@@ -107,6 +106,7 @@ export default function ProfileScreen(props: any) {
   const handleSave = async () => {
     setLoading(true);
     const updateBlock = {
+      email: profileData.email,
       username: profileData.username,
       avatar_uri: profileData.avatar_uri,
       profile: profileData.profile,
@@ -118,11 +118,10 @@ export default function ProfileScreen(props: any) {
         confirmPasswordRef.current.focus();
         return;
       }
-      const newUpdateBlock = {
+      await updateProfile({
         ...updateBlock,
         password: profileData.password,
-      };
-      await updateProfile(newUpdateBlock);
+      });
     } else {
       await updateProfile(updateBlock);
     }
