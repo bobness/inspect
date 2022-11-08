@@ -311,12 +311,41 @@ export default function NewsViewScreen(props: Props) {
     }
   };
 
-  const renderCommentItem = ({ item }: any) => {
+  const AVATAR_WIDTH = 50;
+
+  const renderCommentItem = (item: Comment) => {
     return (
       <View style={{ flex: 1, width: "100%" }}>
-        <View style={{ marginTop: 10 }}>
+        <View style={{ marginTop: 10, flexDirection: "row" }}>
+          <Avatar
+            // title={newsData?.title[0]}
+            // titleStyle={{ color: "black" }}
+            source={
+              (item.avatar_uri as any) && {
+                uri: item.avatar_uri,
+              }
+            }
+            containerStyle={{
+              width: AVATAR_WIDTH,
+              height: AVATAR_WIDTH,
+              marginRight: 5,
+            }}
+            // containerStyle={{
+            //   borderColor: "green",
+            //   borderWidth: 1,
+            //   padding: 3,
+            // }}
+            onPress={() => {
+              navigation.navigate("AuthorView", {
+                data: { id: item.user_id },
+              });
+            }}
+          />
           <AutoHeightWebView
-            style={{ width: Dimensions.get("window").width - 15, height: 50 }}
+            style={{
+              width: Dimensions.get("window").width - 15 - AVATAR_WIDTH,
+              height: 50,
+            }}
             onSizeUpdated={(size) => console.log(size.height)}
             files={[
               {
