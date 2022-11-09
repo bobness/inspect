@@ -292,7 +292,7 @@ export default function NewsViewScreen(props: Props) {
       text: data.title,
       summary_id: data.id,
     });
-    navigation.navigate("Home");
+    getNewsDataById(data.id);
   }, []);
 
   React.useLayoutEffect(() => {
