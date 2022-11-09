@@ -224,7 +224,7 @@ export default function NewsViewScreen(props: Props) {
           />
           <View
             style={{
-              flexDirection: "row",
+              flexDirection: "column",
               justifyContent: "space-between",
               alignItems: "center",
             }}
@@ -238,13 +238,6 @@ export default function NewsViewScreen(props: Props) {
                   )}
                   style={{ flex: 1, marginTop: 5, width: "100%" }}
                 />
-              )}
-              {comments.length === 0 && (
-                <View
-                  style={{ justifyContent: "center", alignItems: "center" }}
-                >
-                  <Text style={{ color: "#ddd" }}>No comments</Text>
-                </View>
               )}
             </View>
             <View>
