@@ -40,13 +40,14 @@ import {
   sendNotification,
   updateSummary,
 } from "../store/news";
-import moment from "moment";
 import AutoHeightWebView from "react-native-autoheight-webview";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import { Dimensions } from "react-native";
 import { getAuthUser } from "../store/auth";
 import { Comment, Reaction, Summary, User } from "../types";
+import CommentRow from "../components/CommentRow";
+import { convertDate } from "../util";
 
 interface Props {
   route: {
@@ -67,19 +68,13 @@ export default function NewsViewScreen(props: Props) {
   let richText: any = useRef(null);
   const [newsData, setNewsData] = useState<Summary | undefined>();
   const [selectedCommentId, selectCommentId]: any = useState(null);
-  const [selectedComments, setSelectedComments] = useState<Comment[]>([]);
   const [commentText, setCommentText] = useState("");
   const [visible, setVisible] = useState(false);
   const [visibleCommentModal, setVisibleCommentModal] = useState(false);
-  const [visibleViewCommentModal, setVisibleViewCommentModal] = useState(false);
   const [emoji, setEmoji] = useState("🤔");
   const [loading, setLoading] = useState(false);
   const [authUser, setAuthUser] = useState<User | undefined>();
   const [editTitleMode, setEditTitleMode] = useState(false);
-
-  const convertDate = (date_str: string) => {
-    return moment(date_str).fromNow();
-  };
 
   const getNewsDataById = (id: number) => {
     setLoading(true);
@@ -114,14 +109,6 @@ export default function NewsViewScreen(props: Props) {
       selectCommentId(null);
     }
     setVisibleCommentModal(!visibleCommentModal);
-  };
-
-  const toggleViewCommentOverlay = () => {
-    if (visibleViewCommentModal) {
-      setSelectedComments([]);
-      selectCommentId(null);
-    }
-    setVisibleViewCommentModal(!visibleViewCommentModal);
   };
 
   const getContent = () => {
@@ -180,12 +167,6 @@ export default function NewsViewScreen(props: Props) {
     [newsData]
   );
 
-  // const sortByDate = (a: Reaction, b: Reaction) => {
-  //   const dateA = new Date(a.created_at).valueOf();
-  //   const dateB = new Date(b.created_at).valueOf();
-  //   return dateA - dateB;
-  // };
-
   interface ReactionMap {
     [reaction: string]: number;
   }
@@ -214,7 +195,7 @@ export default function NewsViewScreen(props: Props) {
 
   const renderSnippet = ({ item }: any) => {
     const emojis = getReactions(item.id);
-    const commments = getComments(item.id);
+    const comments = getComments(item.id);
     if (newsData) {
       return (
         <View style={{ marginTop: 10 }}>
@@ -243,44 +224,28 @@ export default function NewsViewScreen(props: Props) {
           />
           <View
             style={{
-              paddingLeft: 36,
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
             }}
           >
             <View style={{ flexDirection: "row" }}>
-              {/* TODO: enable adding comment emojis */}
-              {/* <Text style={{ fontSize: 16, color: "grey" }}>
-                {emojis.length > 0 ? emojis[0].reaction : ""}{" "}
-                {emojis.length > 0 ? emojis.length : ""}
-              </Text> */}
-              <TouchableOpacity
-                onPress={() => {
-                  if (commments.length > 0) {
-                    selectCommentId(item.id);
-                    setSelectedComments(
-                      newsData.comments?.filter(
-                        (c: any) => c.snippet_id == item.id
-                      ) ?? []
-                    );
-                    toggleViewCommentOverlay();
-                  } else {
-                    Alert.alert("No comments");
-                  }
-                }}
-              >
-                <Icon
-                  name="comment-dots"
-                  type="font-awesome-5"
-                  color="#ccc"
-                  style={{ paddingHorizontal: 10 }}
-                  tvParallaxProperties={undefined}
+              {comments.length > 0 && (
+                <FlatList
+                  data={comments}
+                  renderItem={({ item }) => (
+                    <CommentRow item={item} navigation={navigation} />
+                  )}
+                  style={{ flex: 1, marginTop: 5, width: "100%" }}
                 />
-              </TouchableOpacity>
-              <Text style={{ fontSize: 16, color: "grey" }}>
-                {commments.length > 0 ? commments.length : ""}
-              </Text>
+              )}
+              {comments.length === 0 && (
+                <View
+                  style={{ justifyContent: "center", alignItems: "center" }}
+                >
+                  <Text style={{ color: "#ddd" }}>No comments</Text>
+                </View>
+              )}
             </View>
             <View>
               <TouchableOpacity
@@ -309,34 +274,6 @@ export default function NewsViewScreen(props: Props) {
         </View>
       );
     }
-  };
-
-  const renderCommentItem = ({ item }: any) => {
-    return (
-      <View style={{ flex: 1, width: "100%" }}>
-        <View style={{ marginTop: 10 }}>
-          <AutoHeightWebView
-            style={{ width: Dimensions.get("window").width - 15, height: 50 }}
-            onSizeUpdated={(size) => console.log(size.height)}
-            files={[
-              {
-                href: "cssfileaddress",
-                type: "text/css",
-                rel: "stylesheet",
-              },
-            ]}
-            source={{ html: item.comment }}
-            scalesPageToFit={true}
-            viewportContent={"width=device-width, user-scalable=no"}
-          />
-        </View>
-        <View style={{ alignItems: "flex-end", marginTop: 5 }}>
-          <Text style={{ fontSize: 11, color: "grey" }}>
-            {convertDate(item.created_at)}
-          </Text>
-        </View>
-      </View>
-    );
   };
 
   const handleRefresh = () => {
@@ -490,6 +427,9 @@ export default function NewsViewScreen(props: Props) {
                   // }}
                 />
               </View>
+              {newsData.updated_at && (
+                <Text>Updated {convertDate(newsData.updated_at)}</Text>
+              )}
               {authUser?.id == newsData.user_id && (
                 <Button
                   title="Edit Title"
@@ -704,44 +644,6 @@ export default function NewsViewScreen(props: Props) {
                   ),
                 }}
               />
-            </SafeAreaView>
-          </Overlay>
-
-          <Overlay
-            isVisible={visibleViewCommentModal}
-            onBackdropPress={toggleViewCommentOverlay}
-            fullScreen={true}
-          >
-            <SafeAreaView style={{ flex: 1 }}>
-              <TouchableOpacity
-                style={{ alignSelf: "flex-end" }}
-                onPress={() => toggleViewCommentOverlay()}
-              >
-                <MaterialIcon name="close" color={"black"} size={24} />
-              </TouchableOpacity>
-              <View
-                style={{
-                  marginTop: 10,
-                  height: "100%",
-                  flex: 1,
-                  width: "100%",
-                }}
-              >
-                {selectedComments.length > 0 && (
-                  <FlatList
-                    data={selectedComments}
-                    renderItem={renderCommentItem}
-                    style={{ flex: 1, marginTop: 5, width: "100%" }}
-                  />
-                )}
-                {selectedComments.length === 0 && (
-                  <View
-                    style={{ justifyContent: "center", alignItems: "center" }}
-                  >
-                    <Text style={{ color: "#ddd" }}>No comments</Text>
-                  </View>
-                )}
-              </View>
             </SafeAreaView>
           </Overlay>
         </View>

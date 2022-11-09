@@ -15,6 +15,7 @@ export interface Comment {
   created_at: string;
   user_id: number;
   summary_id: number;
+  avatar_uri?: string;
 }
 
 export interface Reaction {
@@ -36,6 +37,7 @@ export interface Summary {
   logo_uri?: string;
   avatar_uri?: string;
   is_archived?: boolean;
+  updated_at: string;
   comments?: Comment[];
   reactions?: Reaction[];
   snippets?: any[]; // TODO: type Snippets
