@@ -233,7 +233,9 @@ export default function NewsViewScreen(props: Props) {
               {comments.length > 0 && (
                 <FlatList
                   data={comments}
-                  renderItem={renderCommentItem}
+                  renderItem={({ item }) => (
+                    <CommentRow item={item} navigation={navigation} />
+                  )}
                   style={{ flex: 1, marginTop: 5, width: "100%" }}
                 />
               )}
@@ -274,9 +276,6 @@ export default function NewsViewScreen(props: Props) {
     }
   };
 
-  const renderCommentItem = ({ item }: any) => (
-    <CommentRow item={item} navigation={navigation} />
-  );
   const handleRefresh = () => {
     getNewsDataById(data.id);
   };
