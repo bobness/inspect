@@ -40,13 +40,13 @@ import {
   sendNotification,
   updateSummary,
 } from "../store/news";
-import moment from "moment";
 import AutoHeightWebView from "react-native-autoheight-webview";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import { Dimensions } from "react-native";
 import { getAuthUser } from "../store/auth";
 import { Comment, Reaction, Summary, User } from "../types";
+import CommentRow from "../components/CommentRow";
 
 interface Props {
   route: {
@@ -76,10 +76,6 @@ export default function NewsViewScreen(props: Props) {
   const [loading, setLoading] = useState(false);
   const [authUser, setAuthUser] = useState<User | undefined>();
   const [editTitleMode, setEditTitleMode] = useState(false);
-
-  const convertDate = (date_str: string) => {
-    return moment(date_str).fromNow();
-  };
 
   const getNewsDataById = (id: number) => {
     setLoading(true);
@@ -214,7 +210,7 @@ export default function NewsViewScreen(props: Props) {
 
   const renderSnippet = ({ item }: any) => {
     const emojis = getReactions(item.id);
-    const commments = getComments(item.id);
+    const comments = getComments(item.id);
     if (newsData) {
       return (
         <View style={{ marginTop: 10 }}>
@@ -243,7 +239,6 @@ export default function NewsViewScreen(props: Props) {
           />
           <View
             style={{
-              paddingLeft: 36,
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
@@ -255,7 +250,7 @@ export default function NewsViewScreen(props: Props) {
                 {emojis.length > 0 ? emojis[0].reaction : ""}{" "}
                 {emojis.length > 0 ? emojis.length : ""}
               </Text> */}
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 onPress={() => {
                   if (commments.length > 0) {
                     selectCommentId(item.id);
@@ -277,10 +272,21 @@ export default function NewsViewScreen(props: Props) {
                   style={{ paddingHorizontal: 10 }}
                   tvParallaxProperties={undefined}
                 />
-              </TouchableOpacity>
-              <Text style={{ fontSize: 16, color: "grey" }}>
-                {commments.length > 0 ? commments.length : ""}
-              </Text>
+              </TouchableOpacity> */}
+              {comments.length > 0 && (
+                <FlatList
+                  data={comments}
+                  renderItem={renderCommentItem}
+                  style={{ flex: 1, marginTop: 5, width: "100%" }}
+                />
+              )}
+              {comments.length === 0 && (
+                <View
+                  style={{ justifyContent: "center", alignItems: "center" }}
+                >
+                  <Text style={{ color: "#ddd" }}>No comments</Text>
+                </View>
+              )}
             </View>
             <View>
               <TouchableOpacity
@@ -311,63 +317,9 @@ export default function NewsViewScreen(props: Props) {
     }
   };
 
-  const AVATAR_WIDTH = 50;
-
-  const renderCommentItem = (item: Comment) => {
-    return (
-      <View style={{ flex: 1, width: "100%" }}>
-        <View style={{ marginTop: 10, flexDirection: "row" }}>
-          <Avatar
-            // title={newsData?.title[0]}
-            // titleStyle={{ color: "black" }}
-            source={
-              (item.avatar_uri as any) && {
-                uri: item.avatar_uri,
-              }
-            }
-            containerStyle={{
-              width: AVATAR_WIDTH,
-              height: AVATAR_WIDTH,
-              marginRight: 5,
-            }}
-            // containerStyle={{
-            //   borderColor: "green",
-            //   borderWidth: 1,
-            //   padding: 3,
-            // }}
-            onPress={() => {
-              navigation.navigate("AuthorView", {
-                data: { id: item.user_id },
-              });
-            }}
-          />
-          <AutoHeightWebView
-            style={{
-              width: Dimensions.get("window").width - 15 - AVATAR_WIDTH,
-              height: 50,
-            }}
-            onSizeUpdated={(size) => console.log(size.height)}
-            files={[
-              {
-                href: "cssfileaddress",
-                type: "text/css",
-                rel: "stylesheet",
-              },
-            ]}
-            source={{ html: item.comment }}
-            scalesPageToFit={true}
-            viewportContent={"width=device-width, user-scalable=no"}
-          />
-        </View>
-        <View style={{ alignItems: "flex-end", marginTop: 5 }}>
-          <Text style={{ fontSize: 11, color: "grey" }}>
-            {convertDate(item.created_at)}
-          </Text>
-        </View>
-      </View>
-    );
-  };
-
+  const renderCommentItem = ({ item }: any) => (
+    <CommentRow item={item} navigation={navigation} />
+  );
   const handleRefresh = () => {
     getNewsDataById(data.id);
   };
@@ -736,7 +688,7 @@ export default function NewsViewScreen(props: Props) {
             </SafeAreaView>
           </Overlay>
 
-          <Overlay
+          {/* <Overlay
             isVisible={visibleViewCommentModal}
             onBackdropPress={toggleViewCommentOverlay}
             fullScreen={true}
@@ -772,7 +724,7 @@ export default function NewsViewScreen(props: Props) {
                 )}
               </View>
             </SafeAreaView>
-          </Overlay>
+          </Overlay> */}
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>

@@ -37,7 +37,7 @@ export interface Summary {
   logo_uri?: string;
   avatar_uri?: string;
   is_archived?: boolean;
-  updated_at: number;
+  updated_at: string;
   comments?: Comment[];
   reactions?: Reaction[];
   snippets?: any[]; // TODO: type Snippets
