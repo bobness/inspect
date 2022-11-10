@@ -6,6 +6,7 @@ export interface Source {
 
 export interface User {
   id: number;
+  email: string;
 }
 
 export interface Comment {

@@ -58,7 +58,7 @@ export default function HomeScreen(props: Props) {
         if (err.response && err.response.status === 401) {
           navigation.navigate("Login");
         }
-        console.log("error getting news: ", err);
+        console.error("error getting news: ", err);
       });
   };
 
@@ -74,7 +74,7 @@ export default function HomeScreen(props: Props) {
         if (err.response && err.response.status === 401) {
           navigation.navigate("Login");
         }
-        console.log("error getting news: ", err);
+        console.error("error getting author data: ", err);
       });
   };
 

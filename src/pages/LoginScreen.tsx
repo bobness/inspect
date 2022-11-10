@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import styles from "../styles/LoginStyle";
@@ -16,20 +16,41 @@ import { Button, SocialIcon } from "react-native-elements";
 import * as Facebook from "expo-facebook";
 import { userLogin } from "../store/auth";
 import { setToken } from "../store/api";
+import { User } from "../types";
 
 const appId = "461371912646826";
 
 interface Props {
   navigation: any;
   onLoginCallback: (userObject: any) => void;
+  userObject: User;
 }
 
-export default function LoginScreen({ navigation, onLoginCallback }: Props) {
+export default function LoginScreen({
+  navigation,
+  onLoginCallback,
+  userObject,
+}: Props) {
   const emailRef: any = useRef(null);
   const passwordRef: any = useRef(null);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState<string | undefined>();
   const [password, setPassword] = useState<string | undefined>();
+
+  useEffect(() => {
+    AsyncStorage.getItem("@password").then((pw) => {
+      if (pw) {
+        setPassword(pw);
+      }
+    });
+    AsyncStorage.getItem("@user").then((userString) => {
+      if (userString) {
+        const user = JSON.parse(userString);
+        setEmail(user.email);
+      }
+    });
+  }, []);
+
   const onLoginPress = () => {
     if (!email) {
       Alert.alert("Email is required.");
@@ -54,6 +75,7 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
       }
       await AsyncStorage.setItem("@access_token", res.token);
       await AsyncStorage.setItem("@user", JSON.stringify(res));
+      await AsyncStorage.setItem("@password", password);
       setToken(res.token);
       onLoginCallback(res);
       navigation.navigate("Home");
