@@ -34,7 +34,7 @@ export default function LoginScreen({
   const emailRef: any = useRef(null);
   const passwordRef: any = useRef(null);
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState<string | undefined>();
+  const [email, setEmail] = useState<string | undefined>(userObject.email);
   const [password, setPassword] = useState<string | undefined>();
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function LoginScreen({
         const user = JSON.parse(userString);
         setEmail(user.email);
       }
-    });
+    })
   }, []);
 
   const onLoginPress = () => {
