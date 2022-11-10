@@ -26,11 +26,7 @@ interface Props {
   userObject: User;
 }
 
-export default function LoginScreen({
-  navigation,
-  onLoginCallback,
-  userObject,
-}: Props) {
+export default function LoginScreen({ navigation, onLoginCallback }: Props) {
   const emailRef: any = useRef(null);
   const passwordRef: any = useRef(null);
   const [loading, setLoading] = useState(false);

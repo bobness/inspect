@@ -150,11 +150,7 @@ export default function App() {
       <Stack.Navigator initialRouteName={user ? "Home" : "Login"}>
         <Stack.Screen name="Login" options={{ headerShown: false }}>
           {(props: any) => (
-            <LoginScreen
-              {...props}
-              onLoginCallback={handleOnLogin}
-              userObject={user}
-            />
+            <LoginScreen {...props} onLoginCallback={handleOnLogin} />
           )}
         </Stack.Screen>
         <Stack.Screen
