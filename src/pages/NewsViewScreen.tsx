@@ -485,7 +485,7 @@ export default function NewsViewScreen(props: Props) {
                     snippets as evidence for this summary
                   </Text>
                 </View>
-                {newsData.is_draft && (
+                {authUser?.id == newsData.user_id && newsData.is_draft && (
                   <Button
                     onPress={publishDraft}
                     title="✔️ Publish"
