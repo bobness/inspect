@@ -40,12 +40,10 @@ import {
   sendNotification,
   updateSummary,
 } from "../store/news";
-import AutoHeightWebView from "react-native-autoheight-webview";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 
-import { Dimensions } from "react-native";
 import { getAuthUser } from "../store/auth";
-import { Comment, Reaction, Summary, User } from "../types";
+import { Reaction, Summary, User } from "../types";
 import CommentRow from "../components/CommentRow";
 import { convertDate } from "../util";
 
@@ -273,10 +271,28 @@ export default function NewsViewScreen(props: Props) {
     getNewsDataById(data.id);
   };
 
-  const deleteItem = useCallback(async () => {
+  const deleteItem = useCallback(() => {
     if (data) {
-      await deleteSummary(data.id);
-      navigation.navigate("Home");
+      Alert.alert(
+        "Confirm Delete",
+        "Are you sure you want to Delete this item?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Delete",
+            onPress: async () => {
+              await deleteSummary(data.id);
+              navigation.navigate("Home");
+            },
+          },
+        ],
+        {
+          cancelable: true,
+        }
+      );
     }
   }, [navigation, data]);
 
@@ -285,14 +301,32 @@ export default function NewsViewScreen(props: Props) {
     navigation.navigate("Home");
   }, [navigation, data]);
 
-  const publishDraft = useCallback(async () => {
-    await updateSummary(data.id, { is_draft: false });
-    await sendNotification({
-      title: "A summary was published!",
-      text: data.title,
-      summary_id: data.id,
-    });
-    getNewsDataById(data.id);
+  const publishDraft = useCallback(() => {
+    Alert.alert(
+      "Confirm Publish",
+      "Are you sure you want to Publish this draft?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Publish",
+          onPress: async () => {
+            await updateSummary(data.id, { is_draft: false });
+            await sendNotification({
+              title: "A summary was published!",
+              text: data.title,
+              summary_id: data.id,
+            });
+            getNewsDataById(data.id);
+          },
+        },
+      ],
+      {
+        cancelable: true,
+      }
+    );
   }, []);
 
   React.useLayoutEffect(() => {
