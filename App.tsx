@@ -141,28 +141,13 @@ export default function App() {
     }
   };
 
-  if (!user) {
-    return (
-      <View
-        style={{
-          display: "flex",
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <ActivityIndicator />
-      </View>
-    );
-  }
-
   // ReceiveSharingIntent.clearReceivedFiles();
   return (
     <NavigationContainer
       ref={navigationRef}
       onReady={() => setNavigationIsReady(true)}
     >
-      <Stack.Navigator initialRouteName={!user ? "Login" : "Home"}>
+      <Stack.Navigator initialRouteName={user ? "Home" : "Login"}>
         <Stack.Screen name="Login" options={{ headerShown: false }}>
           {(props: any) => (
             <LoginScreen

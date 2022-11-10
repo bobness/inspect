@@ -43,6 +43,12 @@ export default function LoginScreen({
         setPassword(pw);
       }
     });
+    AsyncStorage.getItem("@user").then((userString) => {
+      if (userString) {
+        const user = JSON.parse(userString);
+        setEmail(user.email);
+      }
+    })
   }, []);
 
   const onLoginPress = () => {
