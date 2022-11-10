@@ -94,19 +94,15 @@ export default function App() {
   );
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const userInfo = await AsyncStorage.getItem("@user");
-      if (userInfo) {
-        const storedUserInfo = JSON.parse(userInfo);
-        setUser(storedUserInfo);
-      } else {
-        setUser({
-          userId: 0,
-        });
-      }
-    };
-    fetchUser();
-  }, []);
+    if (!user) {
+      AsyncStorage.getItem("@user").then((userInfo) => {
+        if (userInfo) {
+          const storedUserInfo = JSON.parse(userInfo);
+          setUser(storedUserInfo);
+        }
+      });
+    }
+  }, [user]);
 
   useEffect(() => {
     registerForPushNotificationsAsync().then((token) => setExpoToken(token));
@@ -166,10 +162,14 @@ export default function App() {
       ref={navigationRef}
       onReady={() => setNavigationIsReady(true)}
     >
-      <Stack.Navigator initialRouteName={user.userId === 0 ? "Login" : "Home"}>
+      <Stack.Navigator initialRouteName={!user ? "Login" : "Home"}>
         <Stack.Screen name="Login" options={{ headerShown: false }}>
           {(props: any) => (
-            <LoginScreen {...props} onLoginCallback={handleOnLogin} />
+            <LoginScreen
+              {...props}
+              onLoginCallback={handleOnLogin}
+              userObject={user}
+            />
           )}
         </Stack.Screen>
         <Stack.Screen
@@ -217,17 +217,6 @@ export default function App() {
       <StatusBar style="auto" />
     </NavigationContainer>
   );
-}
-
-async function schedulePushNotification() {
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: "You've got mail! 📬",
-      body: "Here is the notification body",
-      data: { data: "goes here" },
-    },
-    trigger: { seconds: 2 },
-  });
 }
 
 async function registerForPushNotificationsAsync() {
