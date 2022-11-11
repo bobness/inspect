@@ -9,6 +9,8 @@ import {
   View,
   FlatList,
   ActivityIndicator,
+  ScrollView,
+  RefreshControl,
 } from "react-native";
 import { ListItem, Avatar, Button } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
@@ -166,6 +168,8 @@ export default function HomeScreen(props: Props) {
                   data={newsData}
                   renderItem={renderItem}
                   style={{ flex: 1, width: "100%", height: "100%" }}
+                  refreshing={isRefreshing}
+                  onRefresh={handleRefresh}
                 />
               )}
               {newsData && newsData.length === 0 && (
