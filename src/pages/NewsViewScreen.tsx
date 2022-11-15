@@ -40,12 +40,12 @@ import {
   sendNotification,
   updateSummary,
 } from "../store/news";
-import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import { getAuthUser } from "../store/auth";
-import { Reaction, Summary, User } from "../types";
+import { Comment, Reaction, Summary, User } from "../types";
 import CommentRow from "../components/CommentRow";
 import { convertDate } from "../util";
+import Snippet from "../components/Snippet";
 
 interface Props {
   route: {
@@ -73,10 +73,14 @@ export default function NewsViewScreen(props: Props) {
   const [loading, setLoading] = useState(false);
   const [authUser, setAuthUser] = useState<User | undefined>();
   const [editTitleMode, setEditTitleMode] = useState(false);
+  const [globalComments, setGlobalComments] = useState<Comment[] | undefined>();
+  const [globalReactions, setGlobalReactions] = useState<
+    Reaction[] | undefined
+  >();
 
   const getNewsDataById = (id: number) => {
     setLoading(true);
-    getNewsById(id).then((result) => {
+    return getNewsById(id).then((result) => {
       setNewsData(result);
       setLoading(false);
     });
@@ -92,6 +96,26 @@ export default function NewsViewScreen(props: Props) {
       setAuthUser(user);
     });
   }, [data]);
+
+  useEffect(() => {
+    if (newsData) {
+      const snippetIds = newsData.snippets?.map((snippet) => snippet.id) ?? [];
+      if (newsData.comments) {
+        setGlobalComments(
+          newsData.comments.filter(
+            (comment) => !snippetIds.includes(comment.snippet_id)
+          )
+        );
+      }
+      if (newsData.reactions) {
+        setGlobalReactions(
+          newsData.reactions.filter(
+            (reaction) => !snippetIds.includes(reaction.snippet_id)
+          )
+        );
+      }
+    }
+  }, [newsData]);
 
   const toggleOverlay = () => {
     if (visible) {
@@ -129,146 +153,26 @@ export default function NewsViewScreen(props: Props) {
     });
   };
 
-  const handleEmojiSelect = (emoji: string) => {
-    setEmoji(emoji);
-    setVisible(false);
-    const reactionData = {
-      snippet_id: selectedCommentId,
-      reaction: emoji,
-      summary_id: data.id,
-    };
-    postReaction(reactionData).then(() => {
-      getNewsDataById(data.id);
-    });
-  };
-
-  const getComments = useCallback(
-    (snippet_id: number) => {
-      if (newsData?.comments) {
-        return newsData.comments.filter(
-          (reaction: any) => reaction.snippet_id == snippet_id
-        );
-      }
-      return [];
+  const handleEmojiSelect = useCallback(
+    (emoji: string) => {
+      setEmoji(emoji);
+      setVisible(false);
+      const reactionData = {
+        snippet_id: selectedCommentId,
+        reaction: emoji,
+        summary_id: data.id,
+      };
+      postReaction(reactionData).then(() => {
+        getNewsDataById(data.id);
+      });
     },
-    [newsData]
+    [data]
   );
 
-  const getReactions = useCallback(
-    (snippet_id: number) => {
-      if (newsData?.reactions) {
-        return newsData.reactions.filter(
-          (reaction: any) => reaction.snippet_id == snippet_id
-        );
-      }
-    },
-    [newsData]
-  );
-
-  interface ReactionMap {
-    [reaction: string]: number;
-  }
-
-  const reduceByAmount = (result: ReactionMap, item: Reaction) => {
-    if (Object.hasOwn(result, item.reaction)) {
-      result[item.reaction] += 1;
-    } else {
-      result[item.reaction] = 1;
-    }
-    return result;
-  };
-
-  const showTopEmoji = (reactions?: any[]) => {
-    if (reactions && reactions.length > 0) {
-      // TODO: figure out a better way to combine sorting by amount and date
-      const map = reactions /*.sort(sortByDate)*/
-        .reduce(reduceByAmount, {});
-      const topEmoji = Object.keys(map).sort((a: string, b: string) => {
-        return map[b] - map[a];
-      })[0];
-      return topEmoji;
-    }
-    return "";
-  };
-
-  const renderSnippet = ({ item }: any) => {
-    const emojis = getReactions(item.id);
-    const comments = getComments(item.id);
-    if (newsData) {
-      return (
-        <View style={{ marginTop: 10 }}>
-          <FontAwesome
-            name="quote-left"
-            size={30}
-            style={{ alignSelf: "flex-start" }}
-          />
-          <TouchableOpacity
-            onPress={() => {
-              selectCommentId(item.id);
-              setVisible(!visible);
-            }}
-          >
-            <View style={{ flexDirection: "row", paddingVertical: 5 }}>
-              <Text style={{ paddingRight: 10, fontSize: 20, minWidth: 35 }}>
-                {showTopEmoji(emojis)}
-              </Text>
-              <Text style={{ flex: 1, flexWrap: "wrap" }}>{item.value}</Text>
-            </View>
-          </TouchableOpacity>
-          <FontAwesome
-            name="quote-right"
-            size={30}
-            style={{ alignSelf: "flex-end" }}
-          />
-          <View
-            style={{
-              flexDirection: "column",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <View style={{ flexDirection: "row" }}>
-              {comments.length > 0 && (
-                <FlatList
-                  data={comments}
-                  renderItem={({ item }) => (
-                    <CommentRow item={item} navigation={navigation} />
-                  )}
-                  style={{ flex: 1, marginTop: 5, width: "100%" }}
-                />
-              )}
-            </View>
-            <View>
-              <TouchableOpacity
-                onPress={() => {
-                  selectCommentId(item.id);
-                  toggleCommentOverlay();
-                }}
-              >
-                <Text style={{ color: "grey" }}>Add comment</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      );
-    } else {
-      return (
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "row",
-            justifyContent: "space-around",
-            padding: 10,
-          }}
-        >
-          <ActivityIndicator />
-        </View>
-      );
-    }
-  };
-
-  const handleRefresh = () => {
-    getNewsDataById(data.id);
+  const handleRefresh = async () => {
+    setLoading(true);
+    await getNewsDataById(data.id);
+    setLoading(false);
   };
 
   const deleteItem = useCallback(() => {
@@ -373,112 +277,155 @@ export default function NewsViewScreen(props: Props) {
             <View style={getViewStyle(newsData)}>
               <View
                 style={{
+                  flex: 1,
                   justifyContent: "space-between",
-                  flexDirection: "row",
+                  flexDirection: "column",
                   paddingBottom: 10,
                   alignItems: "center",
                 }}
               >
-                <Avatar
-                  // title={newsData?.title[0]}
-                  // titleStyle={{ color: "black" }}
-                  source={
-                    (newsData?.avatar_uri as any) && {
-                      uri: newsData?.avatar_uri,
-                    }
-                  }
-                  // containerStyle={{
-                  //   borderColor: "green",
-                  //   borderWidth: 1,
-                  //   padding: 3,
-                  // }}
-                  onPress={() => {
-                    navigation.navigate("AuthorView", {
-                      data: { id: newsData.user_id },
-                    });
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
-                />
-                {!editTitleMode && (
-                  <Text
-                    style={{
-                      fontSize: 18,
-                      flex: 1,
-                      paddingHorizontal: 10,
-                      textAlign: "center",
-                      color: "blue",
-                    }}
+                >
+                  <Avatar
+                    // title={newsData?.title[0]}
+                    // titleStyle={{ color: "black" }}
+                    source={
+                      (newsData.avatar_uri as any) && {
+                        uri: newsData.avatar_uri,
+                      }
+                    }
+                    // containerStyle={{
+                    //   borderColor: "green",
+                    //   borderWidth: 1,
+                    //   padding: 3,
+                    // }}
                     onPress={() => {
-                      setCurrentSummaryId(newsData.id);
-                      // TODO: measure/reduce the number of stack items that iOS creates from going back and forth from Safari
-                      Linking.openURL(newsData.url);
-                    }}
-                  >
-                    {newsData.title}
-                  </Text>
-                )}
-                {editTitleMode && (
-                  <Input
-                    // ref={titleInputRef}
-                    label="Title"
-                    placeholder="New title that explains the contribution of the article"
-                    value={newsData.title}
-                    // editable={!loading}
-                    onChangeText={(text: string) => {
-                      // if (text !== defaultTitle) {
-                      //   setUseDefaultTitle(false);
-                      // }
-                      setNewsData({
-                        ...newsData,
-                        title: text,
+                      navigation.navigate("AuthorView", {
+                        data: { id: newsData.user_id },
                       });
                     }}
-                    blurOnSubmit={true}
-                    onBlur={() =>
-                      updateSummary(newsData.id, {
-                        title: newsData.title,
-                      }).then(() => setEditTitleMode(false))
-                    }
-                    autoCompleteType={undefined}
                   />
-                )}
-                <Avatar
-                  // title={newsData?.title[0]}
-                  // titleStyle={{ color: "black" }}
-                  source={
-                    (newsData.logo_uri as any) && { uri: newsData.logo_uri }
-                  }
-                  // containerStyle={{
-                  //   borderColor: "green",
-                  //   borderWidth: 1,
-                  //   padding: 3,
-                  // }}
-                />
-              </View>
-              {newsData.updated_at && (
-                <Text>Updated {convertDate(newsData.updated_at)}</Text>
-              )}
-              {authUser?.id == newsData.user_id && (
-                <Button
-                  title="Edit Title"
-                  onPress={() => setEditTitleMode(true)}
-                />
-              )}
-              {newsData?.snippets && newsData.snippets.length > 0 && (
-                <FlatList
-                  data={newsData.snippets}
-                  renderItem={renderSnippet}
+                  <Text style={{ paddingLeft: 10, fontSize: 18 }}>
+                    (username)
+                  </Text>
+                </View>
+
+                <View>
+                  <Avatar
+                    // title={newsData.title[0]}
+                    // titleStyle={{ color: "black" }}
+                    source={
+                      (newsData.logo_uri as any) && { uri: newsData.logo_uri }
+                    }
+                    // containerStyle={{
+                    //   borderColor: "green",
+                    //   borderWidth: 1,
+                    //   padding: 3,
+                    // }}
+                  />
+                </View>
+
+                <View>
+                  {!editTitleMode && (
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        paddingHorizontal: 10,
+                        textAlign: "center",
+                        color: "blue",
+                      }}
+                      onPress={() => {
+                        setCurrentSummaryId(newsData.id);
+                        Linking.openURL(newsData.url);
+                      }}
+                    >
+                      {newsData.title}
+                    </Text>
+                  )}
+                  {editTitleMode && (
+                    <Input
+                      // ref={titleInputRef}
+                      label="Title"
+                      placeholder="New title that explains the contribution of the article"
+                      value={newsData.title}
+                      // editable={!loading}
+                      onChangeText={(text: string) => {
+                        // if (text !== defaultTitle) {
+                        //   setUseDefaultTitle(false);
+                        // }
+                        setNewsData({
+                          ...newsData,
+                          title: text,
+                        });
+                      }}
+                      blurOnSubmit={true}
+                      onBlur={() =>
+                        updateSummary(newsData.id, {
+                          title: newsData.title,
+                        }).then(() => setEditTitleMode(false))
+                      }
+                      autoCompleteType={undefined}
+                    />
+                  )}
+                </View>
+
+                <View
                   style={{
-                    width: "100%",
-                    flexGrow: 0,
+                    marginTop: 10,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
                   }}
-                  refreshing={loading}
-                  onRefresh={handleRefresh}
-                />
+                >
+                  {newsData.updated_at && (
+                    <Text>Updated {convertDate(newsData.updated_at)}</Text>
+                  )}
+                  {authUser?.id == newsData.user_id && (
+                    <Button
+                      title="Edit Title"
+                      onPress={() => setEditTitleMode(true)}
+                    />
+                  )}
+                </View>
+              </View>
+
+              {newsData.snippets && newsData.snippets.length > 0 && (
+                <View style={{ borderWidth: 1, borderColor: "red", flex: 1 }}>
+                  <FlatList
+                    data={newsData.snippets}
+                    renderItem={({ item }) => (
+                      <Snippet
+                        snippet={item}
+                        comments={newsData.comments.filter(
+                          (comment) => comment.snippet_id == item.id
+                        )}
+                        reactions={newsData.reactions.filter(
+                          (reaction) => reaction.snippet_id == item.id
+                        )}
+                        navigation={navigation}
+                        toggleCommentOverlay={toggleCommentOverlay}
+                      />
+                    )}
+                    // style={{
+                    //   width: "100%",
+                    // }}
+                    // contentContainerStyle={{ paddingBottom: 10 }}
+                    // refreshing={loading}
+                    // onRefresh={handleRefresh}
+                  />
+                </View>
               )}
+
               <View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
+                  justifyContent: "center",
                   marginTop: 10,
                   marginBottom: 10,
                 }}
@@ -495,6 +442,7 @@ export default function NewsViewScreen(props: Props) {
                   style={{ flex: 1, height: 1, backgroundColor: "black" }}
                 />
               </View>
+
               <View
                 style={{
                   flexDirection: "row",
@@ -513,7 +461,7 @@ export default function NewsViewScreen(props: Props) {
                     }}
                   >
                     Tap the link above to add{" "}
-                    {newsData?.snippets && newsData.snippets.length === 0
+                    {newsData.snippets && newsData.snippets.length === 0
                       ? "some "
                       : "more "}
                     snippets as evidence for this summary
@@ -550,6 +498,7 @@ export default function NewsViewScreen(props: Props) {
                   />
                 )}
               </View>
+
               {!newsData.is_draft && (
                 <ShareMenu
                   title={newsData.title}

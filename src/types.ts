@@ -9,6 +9,11 @@ export interface User {
   email: string;
 }
 
+export interface Snippet {
+  id: number;
+  value: string;
+}
+
 export interface Comment {
   id: number;
   snippet_id: number;
@@ -39,7 +44,7 @@ export interface Summary {
   avatar_uri?: string;
   is_archived?: boolean;
   updated_at: string;
-  comments?: Comment[];
-  reactions?: Reaction[];
-  snippets?: any[]; // TODO: type Snippets
+  comments: Comment[];
+  reactions: Reaction[];
+  snippets: Snippet[];
 }

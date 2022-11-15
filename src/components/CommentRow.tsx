@@ -1,7 +1,7 @@
 import React from "react";
 import { Dimensions, View } from "react-native";
 import AutoHeightWebView from "react-native-autoheight-webview";
-import { Avatar, Text } from "react-native-elements";
+import { Avatar, ListItem, Text } from "react-native-elements";
 
 import { Comment } from "../types";
 import { convertDate } from "../util";
@@ -17,7 +17,12 @@ interface Props {
 
 const CommentRow = ({ item, navigation }: Props) => {
   return (
-    <View style={{ flex: 1, width: "100%" }}>
+    <ListItem
+      bottomDivider
+      hasTVPreferredFocus={undefined}
+      tvParallaxProperties={undefined}
+      key={`comment #${item.id}`}
+    >
       <View style={{ marginTop: 10, flexDirection: "row" }}>
         <Avatar
           // title={newsData?.title[0]}
@@ -52,7 +57,7 @@ const CommentRow = ({ item, navigation }: Props) => {
               LIST_PADDING,
             height: 50,
           }}
-          onSizeUpdated={(size) => console.log(size.height)}
+          // onSizeUpdated={(size) => console.log(size.height)}
           files={[
             {
               href: "cssfileaddress",
@@ -70,7 +75,7 @@ const CommentRow = ({ item, navigation }: Props) => {
           {convertDate(item.created_at)}
         </Text>
       </View>
-    </View>
+    </ListItem>
   );
 };
 
