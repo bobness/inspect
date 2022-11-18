@@ -84,9 +84,13 @@ export default function HomeScreen(props: Props) {
         onPress={() => {
           navigation.navigate("NewsView", { data: item });
         }}
-        onSwipe={(id: number) => {
+        onSwipeLeft={(id: number) => {
           "worklet";
           markAsRead(id).then(handleNewsDataRefresh);
+        }}
+        onPull={() => {
+          "worklet";
+          handleNewsDataRefresh();
         }}
       />
     ),
