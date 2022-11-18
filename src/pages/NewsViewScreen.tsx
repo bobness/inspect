@@ -271,359 +271,351 @@ export default function NewsViewScreen(props: Props) {
 
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={commonStyle.pageContainer}>
-          {newsData && (
-            <View style={getViewStyle(newsData)}>
-              <View
-                style={{
-                  flex: 1,
-                  justifyContent: "space-between",
-                  flexDirection: "column",
-                  paddingBottom: 10,
-                  alignItems: "center",
-                }}
-              >
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Avatar
-                    // title={newsData?.title[0]}
-                    // titleStyle={{ color: "black" }}
-                    source={
-                      (newsData.avatar_uri as any) && {
-                        uri: newsData.avatar_uri,
-                      }
-                    }
-                    // containerStyle={{
-                    //   borderColor: "green",
-                    //   borderWidth: 1,
-                    //   padding: 3,
-                    // }}
-                    onPress={() => {
-                      navigation.navigate("AuthorView", {
-                        data: { id: newsData.user_id },
-                      });
-                    }}
-                  />
-                  <Text style={{ paddingLeft: 10, fontSize: 18 }}>
-                    (username)
-                  </Text>
-                </View>
-
-                <View>
-                  <Avatar
-                    // title={newsData.title[0]}
-                    // titleStyle={{ color: "black" }}
-                    source={
-                      (newsData.logo_uri as any) && { uri: newsData.logo_uri }
-                    }
-                    // containerStyle={{
-                    //   borderColor: "green",
-                    //   borderWidth: 1,
-                    //   padding: 3,
-                    // }}
-                  />
-                </View>
-
-                <View>
-                  {!editTitleMode && (
-                    <Text
-                      style={{
-                        fontSize: 18,
-                        paddingHorizontal: 10,
-                        textAlign: "center",
-                        color: "blue",
-                      }}
-                      onPress={() => {
-                        setCurrentSummaryId(newsData.id);
-                        Linking.openURL(newsData.url);
-                      }}
-                    >
-                      {newsData.title}
-                    </Text>
-                  )}
-                  {editTitleMode && (
-                    <Input
-                      // ref={titleInputRef}
-                      label="Title"
-                      placeholder="New title that explains the contribution of the article"
-                      value={newsData.title}
-                      // editable={!loading}
-                      onChangeText={(text: string) => {
-                        // if (text !== defaultTitle) {
-                        //   setUseDefaultTitle(false);
-                        // }
-                        setNewsData({
-                          ...newsData,
-                          title: text,
-                        });
-                      }}
-                      blurOnSubmit={true}
-                      onBlur={() =>
-                        updateSummary(newsData.id, {
-                          title: newsData.title,
-                        }).then(() => setEditTitleMode(false))
-                      }
-                      autoCompleteType={undefined}
-                    />
-                  )}
-                </View>
-
-                <View
-                  style={{
-                    marginTop: 10,
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  {newsData.updated_at && (
-                    <Text>Updated {convertDate(newsData.updated_at)}</Text>
-                  )}
-                  {authUser?.id == newsData.user_id && (
-                    <Button
-                      title="Edit Title"
-                      onPress={() => setEditTitleMode(true)}
-                    />
-                  )}
-                </View>
-              </View>
-
-              {newsData.snippets && newsData.snippets.length > 0 && (
-                <View style={{ borderWidth: 1, borderColor: "red", flex: 1 }}>
-                  <FlatList
-                    data={newsData.snippets}
-                    renderItem={({ item }) => (
-                      <Snippet
-                        snippet={item}
-                        comments={newsData.comments.filter(
-                          (comment) => comment.snippet_id == item.id
-                        )}
-                        reactions={newsData.reactions.filter(
-                          (reaction) => reaction.snippet_id == item.id
-                        )}
-                        navigation={navigation}
-                        toggleCommentOverlay={toggleCommentOverlay}
-                      />
-                    )}
-                    // style={{
-                    //   width: "100%",
-                    // }}
-                    // contentContainerStyle={{ paddingBottom: 10 }}
-                    // refreshing={loading}
-                    // onRefresh={handleRefresh}
-                  />
-                </View>
-              )}
-
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginTop: 10,
-                  marginBottom: 10,
-                }}
-              >
-                <View
-                  style={{ flex: 1, height: 1, backgroundColor: "black" }}
-                />
-                <View>
-                  <Text style={{ width: 50, textAlign: "center" }}>
-                    Actions
-                  </Text>
-                </View>
-                <View
-                  style={{ flex: 1, height: 1, backgroundColor: "black" }}
-                />
-              </View>
-
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <View style={{ width: "30%" }}>
-                  <Text
-                    style={{
-                      textAlign: "center",
-                      fontStyle: "italic",
-                      borderWidth: 1,
-                      borderColor: "black",
-                      padding: 10,
-                    }}
-                  >
-                    Tap the link above to add{" "}
-                    {newsData.snippets && newsData.snippets.length === 0
-                      ? "some "
-                      : "more "}
-                    snippets as evidence for this summary
-                  </Text>
-                </View>
-                {authUser?.id == newsData.user_id && newsData.is_draft && (
-                  <Button
-                    onPress={publishDraft}
-                    title="✔️ Publish"
-                    buttonStyle={{ backgroundColor: "green" }}
-                    style={{
-                      width: 100,
-                      padding: 10,
-                    }}
-                  />
-                )}
-                {!newsData.is_draft && !newsData.is_archived && (
-                  <Button
-                    onPress={archiveItem}
-                    title="🗂 Archive"
-                    buttonStyle={{ backgroundColor: "orange" }}
-                    style={{ width: 100, padding: 10 }}
-                  />
-                )}
-                {authUser?.id == newsData.user_id && (
-                  <Button
-                    onPress={deleteItem}
-                    title="🗑 Delete"
-                    buttonStyle={{ backgroundColor: "red" }}
-                    style={{
-                      width: 100,
-                      padding: 10,
-                    }}
-                  />
-                )}
-              </View>
-
-              {!newsData.is_draft && (
-                <ShareMenu
-                  title={newsData.title}
-                  content={getContent()}
-                  url={newsData.url}
-                />
-              )}
-            </View>
-          )}
-          {!newsData && (
+      <View style={commonStyle.pageContainer}>
+        {newsData && (
+          <View style={getViewStyle(newsData)}>
             <View
               style={{
                 flex: 1,
-                flexDirection: "row",
-                justifyContent: "space-around",
-                padding: 10,
+                justifyContent: "space-between",
+                flexDirection: "column",
+                paddingBottom: 10,
+                alignItems: "center",
               }}
             >
-              <ActivityIndicator />
-            </View>
-          )}
-          <BottomToolbar {...props} />
-          <Overlay
-            isVisible={visible}
-            onBackdropPress={toggleOverlay}
-            fullScreen={true}
-          >
-            <SafeAreaView style={{ flex: 1 }}>
-              <TouchableOpacity
-                style={{ alignSelf: "flex-end" }}
-                onPress={() => toggleOverlay()}
-              >
-                <MaterialIcon
-                  name="close"
-                  color={"black"}
-                  size={30}
-                  style={{ marginBottom: 10 }}
-                />
-              </TouchableOpacity>
-              <EmojiSelector
-                onEmojiSelected={(emoji) => handleEmojiSelect(emoji)}
-                showSearchBar={false}
-                showTabs={true}
-                showHistory={true}
-                showSectionTitles={true}
-                category={Categories.all}
-              />
-            </SafeAreaView>
-          </Overlay>
-
-          <Overlay
-            isVisible={visibleCommentModal}
-            onBackdropPress={toggleCommentOverlay}
-            overlayStyle={{ height: 200 }}
-          >
-            <SafeAreaView>
               <View
                 style={{
+                  flex: 1,
                   flexDirection: "row",
                   alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Avatar
+                  // title={newsData?.title[0]}
+                  // titleStyle={{ color: "black" }}
+                  source={
+                    (newsData.avatar_uri as any) && {
+                      uri: newsData.avatar_uri,
+                    }
+                  }
+                  // containerStyle={{
+                  //   borderColor: "green",
+                  //   borderWidth: 1,
+                  //   padding: 3,
+                  // }}
+                  onPress={() => {
+                    navigation.navigate("AuthorView", {
+                      data: { id: newsData.user_id },
+                    });
+                  }}
+                />
+                <Text style={{ paddingLeft: 10, fontSize: 18 }}>
+                  (username)
+                </Text>
+              </View>
+
+              <View>
+                <Avatar
+                  // title={newsData.title[0]}
+                  // titleStyle={{ color: "black" }}
+                  source={
+                    (newsData.logo_uri as any) && { uri: newsData.logo_uri }
+                  }
+                  // containerStyle={{
+                  //   borderColor: "green",
+                  //   borderWidth: 1,
+                  //   padding: 3,
+                  // }}
+                />
+              </View>
+
+              <View>
+                {!editTitleMode && (
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      paddingHorizontal: 10,
+                      textAlign: "center",
+                      color: "blue",
+                    }}
+                    onPress={() => {
+                      setCurrentSummaryId(newsData.id);
+                      Linking.openURL(newsData.url);
+                    }}
+                  >
+                    {newsData.title}
+                  </Text>
+                )}
+                {editTitleMode && (
+                  <Input
+                    // ref={titleInputRef}
+                    label="Title"
+                    placeholder="New title that explains the contribution of the article"
+                    value={newsData.title}
+                    // editable={!loading}
+                    onChangeText={(text: string) => {
+                      // if (text !== defaultTitle) {
+                      //   setUseDefaultTitle(false);
+                      // }
+                      setNewsData({
+                        ...newsData,
+                        title: text,
+                      });
+                    }}
+                    blurOnSubmit={true}
+                    onBlur={() =>
+                      updateSummary(newsData.id, {
+                        title: newsData.title,
+                      }).then(() => setEditTitleMode(false))
+                    }
+                    autoCompleteType={undefined}
+                  />
+                )}
+              </View>
+
+              <View
+                style={{
+                  marginTop: 10,
+                  flexDirection: "row",
                   justifyContent: "space-between",
                 }}
               >
-                <Text>New Comment</Text>
-                <TouchableOpacity
-                  onPress={handleSaveFeedback}
+                {newsData.updated_at && (
+                  <Text>Updated {convertDate(newsData.updated_at)}</Text>
+                )}
+                {authUser?.id == newsData.user_id && (
+                  <Button
+                    title="Edit Title"
+                    onPress={() => setEditTitleMode(true)}
+                  />
+                )}
+              </View>
+            </View>
+
+            {newsData.snippets && newsData.snippets.length > 0 && (
+              <View style={{ borderWidth: 1, borderColor: "red" }}>
+                <FlatList
+                  data={newsData.snippets}
+                  renderItem={({ item }) => (
+                    <Snippet
+                      snippet={item}
+                      comments={newsData.comments.filter(
+                        (comment) => comment.snippet_id == item.id
+                      )}
+                      reactions={newsData.reactions.filter(
+                        (reaction) => reaction.snippet_id == item.id
+                      )}
+                      navigation={navigation}
+                      toggleCommentOverlay={toggleCommentOverlay}
+                    />
+                  )}
+                  // style={{
+                  //   width: "100%",
+                  // }}
+                  // contentContainerStyle={{ paddingBottom: 10 }}
+                  refreshing={loading}
+                  onRefresh={handleRefresh}
+                />
+              </View>
+            )}
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                marginTop: 10,
+                marginBottom: 10,
+              }}
+            >
+              <View style={{ flex: 1, height: 1, backgroundColor: "black" }} />
+              <View>
+                <Text style={{ width: 50, textAlign: "center" }}>Actions</Text>
+              </View>
+              <View style={{ flex: 1, height: 1, backgroundColor: "black" }} />
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <View style={{ width: "30%" }}>
+                <Text
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
+                    textAlign: "center",
+                    fontStyle: "italic",
                     borderWidth: 1,
-                    padding: 2,
-                    borderRadius: 3,
-                    paddingRight: 10,
-                    borderColor: "grey",
+                    borderColor: "black",
+                    padding: 10,
                   }}
                 >
-                  <Icon
-                    name="save"
-                    type="font-awesome-5"
-                    color={commentText?.length > 0 ? "black" : "#ccc"}
-                    style={{ paddingHorizontal: 10 }}
-                    tvParallaxProperties={undefined}
-                  />
-                  <Text
-                    style={{
-                      color: commentText?.length > 0 ? "black" : "grey",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Save
-                  </Text>
-                </TouchableOpacity>
+                  Tap the link above to add{" "}
+                  {newsData.snippets && newsData.snippets.length === 0
+                    ? "some "
+                    : "more "}
+                  snippets as evidence for this summary
+                </Text>
               </View>
-              <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={{ flex: 1 }}
-              >
-                <RichEditor
-                  ref={richText}
-                  onChange={(descriptionText) => {
-                    setCommentText(descriptionText);
+              {authUser?.id == newsData.user_id && newsData.is_draft && (
+                <Button
+                  onPress={publishDraft}
+                  title="✔️ Publish"
+                  buttonStyle={{ backgroundColor: "green" }}
+                  style={{
+                    width: 100,
+                    padding: 10,
                   }}
                 />
-              </KeyboardAvoidingView>
-              <RichToolbar
-                editor={richText}
-                actions={[
-                  actions.setBold,
-                  actions.setItalic,
-                  actions.setUnderline,
-                  actions.insertBulletsList,
-                  actions.insertOrderedList,
-                  actions.insertLink,
-                  actions.heading1,
-                ]}
-                iconMap={{
-                  [actions.heading1]: ({ tintColor }) => (
-                    <Text style={[{ color: tintColor }]}>H1</Text>
-                  ),
+              )}
+              {!newsData.is_draft && !newsData.is_archived && (
+                <Button
+                  onPress={archiveItem}
+                  title="🗂 Archive"
+                  buttonStyle={{ backgroundColor: "orange" }}
+                  style={{ width: 100, padding: 10 }}
+                />
+              )}
+              {authUser?.id == newsData.user_id && (
+                <Button
+                  onPress={deleteItem}
+                  title="🗑 Delete"
+                  buttonStyle={{ backgroundColor: "red" }}
+                  style={{
+                    width: 100,
+                    padding: 10,
+                  }}
+                />
+              )}
+            </View>
+
+            {!newsData.is_draft && (
+              <ShareMenu
+                title={newsData.title}
+                content={getContent()}
+                url={newsData.url}
+              />
+            )}
+          </View>
+        )}
+        {!newsData && (
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              justifyContent: "space-around",
+              padding: 10,
+            }}
+          >
+            <ActivityIndicator />
+          </View>
+        )}
+        <BottomToolbar {...props} />
+        <Overlay
+          isVisible={visible}
+          onBackdropPress={toggleOverlay}
+          fullScreen={true}
+        >
+          <SafeAreaView style={{ flex: 1 }}>
+            <TouchableOpacity
+              style={{ alignSelf: "flex-end" }}
+              onPress={() => toggleOverlay()}
+            >
+              <MaterialIcon
+                name="close"
+                color={"black"}
+                size={30}
+                style={{ marginBottom: 10 }}
+              />
+            </TouchableOpacity>
+            <EmojiSelector
+              onEmojiSelected={(emoji) => handleEmojiSelect(emoji)}
+              showSearchBar={false}
+              showTabs={true}
+              showHistory={true}
+              showSectionTitles={true}
+              category={Categories.all}
+            />
+          </SafeAreaView>
+        </Overlay>
+
+        <Overlay
+          isVisible={visibleCommentModal}
+          onBackdropPress={toggleCommentOverlay}
+          overlayStyle={{ height: 200 }}
+        >
+          <SafeAreaView>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Text>New Comment</Text>
+              <TouchableOpacity
+                onPress={handleSaveFeedback}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  borderWidth: 1,
+                  padding: 2,
+                  borderRadius: 3,
+                  paddingRight: 10,
+                  borderColor: "grey",
+                }}
+              >
+                <Icon
+                  name="save"
+                  type="font-awesome-5"
+                  color={commentText?.length > 0 ? "black" : "#ccc"}
+                  style={{ paddingHorizontal: 10 }}
+                  tvParallaxProperties={undefined}
+                />
+                <Text
+                  style={{
+                    color: commentText?.length > 0 ? "black" : "grey",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Save
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              style={{ flex: 1 }}
+            >
+              <RichEditor
+                ref={richText}
+                onChange={(descriptionText) => {
+                  setCommentText(descriptionText);
                 }}
               />
-            </SafeAreaView>
-          </Overlay>
-        </View>
-      </TouchableWithoutFeedback>
+            </KeyboardAvoidingView>
+            <RichToolbar
+              editor={richText}
+              actions={[
+                actions.setBold,
+                actions.setItalic,
+                actions.setUnderline,
+                actions.insertBulletsList,
+                actions.insertOrderedList,
+                actions.insertLink,
+                actions.heading1,
+              ]}
+              iconMap={{
+                [actions.heading1]: ({ tintColor }) => (
+                  <Text style={[{ color: tintColor }]}>H1</Text>
+                ),
+              }}
+            />
+          </SafeAreaView>
+        </Overlay>
+      </View>
     </KeyboardAvoidingView>
   );
 }

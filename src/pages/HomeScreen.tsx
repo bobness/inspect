@@ -22,6 +22,7 @@ import {
 } from "../store/news";
 import { useIsFocused } from "@react-navigation/native";
 import NewsRow from "../components/NewsRow";
+import useUnreadArticles from "../hooks/useUnreadArticles";
 
 interface ShareObject {
   text: string | null;
@@ -37,47 +38,33 @@ export default function HomeScreen(props: Props) {
   const isFocused = useIsFocused();
 
   const { clearCurrentSummaryId, navigation } = props;
-  const [newsData, setNewsData] = useState<any[] | undefined>();
+  const {
+    articles: newsData,
+    error,
+    loading,
+    refresh: refreshNewsData,
+  } = useUnreadArticles();
   const [authorsData, setAuthorsData] = useState<any[] | undefined>();
   const [isRefreshing, setRefreshing] = useState<boolean>(false);
 
   useEffect(() => {
     if (isFocused) {
       clearCurrentSummaryId();
-      handleRefresh();
+      handleNewsDataRefresh();
       handleAuthorRefresh();
     }
   }, [isFocused]);
 
-  const handleRefresh = () => {
-    setRefreshing(true);
-    getUnreadNews()
-      .then((data) => {
-        setRefreshing(false);
-        setNewsData(data);
-      })
-      .catch((err) => {
-        if (err.response && err.response.status === 401) {
-          navigation.navigate("Login");
-        }
-        console.error("error getting news: ", err);
-      });
+  const handleNewsDataRefresh = () => {
+    refreshNewsData();
   };
 
   const handleAuthorRefresh = () => {
     setRefreshing(true);
-    getSuggestAuthors()
-      .then((data) => {
-        setRefreshing(false);
-        setAuthorsData(data);
-      })
-      .catch((err) => {
-        setRefreshing(false);
-        if (err.response && err.response.status === 401) {
-          navigation.navigate("Login");
-        }
-        console.error("error getting author data: ", err);
-      });
+    getSuggestAuthors().then((data) => {
+      setRefreshing(false);
+      setAuthorsData(data);
+    });
   };
 
   const handleFollow = (user_id: number) => {
@@ -86,7 +73,7 @@ export default function HomeScreen(props: Props) {
     };
     followAuthor(postData).then(() => {
       setAuthorsData(undefined);
-      handleRefresh();
+      handleNewsDataRefresh();
     });
   };
 
@@ -94,11 +81,12 @@ export default function HomeScreen(props: Props) {
     ({ item }: any) => (
       <NewsRow
         item={item}
-        onPress={(e) => {
+        onPress={() => {
           navigation.navigate("NewsView", { data: item });
         }}
-        onSwipe={() => {
-          markAsRead(item.id).then(handleRefresh);
+        onSwipe={(id: number) => {
+          "worklet";
+          markAsRead(id).then(handleNewsDataRefresh);
         }}
       />
     ),
@@ -134,64 +122,60 @@ export default function HomeScreen(props: Props) {
   );
 
   return (
-    <>
-      <KeyboardAvoidingView
-        style={commonStyle.containerView}
-        behavior="padding"
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={commonStyle.pageContainer}>
-            <View style={{ flex: 1, padding: 10 }}>
-              <Text style={commonStyle.logoText}>INSPECT</Text>
-              {authorsData && authorsData.length > 0 && (
-                <>
-                  <Text
-                    style={{
-                      textAlign: "center",
-                      fontWeight: "bold",
-                      marginBottom: 10,
-                    }}
-                  >
-                    Follow others to stay up-to-date on the news!
-                  </Text>
-                  <FlatList
-                    data={authorsData}
-                    renderItem={renderAuthorItem}
-                    style={{ flex: 1, width: "100%" }}
-                    refreshing={isRefreshing}
-                    onRefresh={handleAuthorRefresh}
-                  />
-                </>
-              )}
-              {newsData && newsData.length > 0 && (
-                <FlatList
-                  data={newsData}
-                  renderItem={renderItem}
-                  style={{ flex: 1, width: "100%", height: "100%" }}
-                  refreshing={isRefreshing}
-                  onRefresh={handleRefresh}
-                />
-              )}
-              {newsData && newsData.length === 0 && (
-                <Text>No news right now!</Text>
-              )}
-              {!newsData && (
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: "row",
-                    justifyContent: "space-around",
-                    padding: 10,
-                  }}
-                >
-                  <ActivityIndicator />
-                </View>
-              )}
-            </View>
-            <BottomToolbar {...props} />
+    <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, padding: 10 }}>
+        <Text style={commonStyle.logoText}>INSPECT</Text>
+
+        {authorsData && authorsData.length > 0 && (
+          <View style={{ flex: 1 }}>
+            <Text
+              style={{
+                textAlign: "center",
+                fontWeight: "bold",
+                marginBottom: 10,
+              }}
+            >
+              Follow others to stay up-to-date on the news!
+            </Text>
+            <FlatList
+              data={authorsData}
+              renderItem={renderAuthorItem}
+              style={{
+                width: "100%",
+              }}
+              // refreshing={isRefreshing}
+              // onRefresh={handleAuthorRefresh}
+            />
           </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
-    </>
+        )}
+
+        {newsData && newsData.length > 0 && (
+          // <View
+          //   style={{
+          //     flex: 1,
+          //   }}
+          // >
+          <FlatList
+            data={newsData}
+            renderItem={renderItem}
+            style={{
+              // width: "100%",
+              borderColor: "red",
+              borderWidth: 1,
+            }}
+            // refreshing={isRefreshing}
+            // onRefresh={handleRefresh}
+          />
+          // </View>
+        )}
+
+        {newsData && newsData.length === 0 && <Text>No news right now!</Text>}
+
+        {!newsData && loading && <ActivityIndicator />}
+
+        {error && <Text style={{ color: "red" }}>{error?.message}</Text>}
+      </View>
+      <BottomToolbar navigation={props.navigation} />
+    </View>
   );
 }

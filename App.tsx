@@ -1,8 +1,14 @@
 import "react-native-gesture-handler";
-import { useCallback, useState, useRef, useEffect } from "react";
+import React, { useCallback, useState, useRef, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { View, ActivityIndicator, Platform } from "react-native";
+import {
+  View,
+  ActivityIndicator,
+  Platform,
+  FlatList,
+  Text,
+} from "react-native";
 import {
   NavigationContainer,
   useNavigationContainerRef,
@@ -24,6 +30,10 @@ import ProfileScreen from "./src/pages/ProfileScreen";
 import { updateUserExpoToken } from "./src/store/auth";
 import SummaryScreen from "./src/pages/SummaryScreen";
 import { Subscription } from "expo-modules-core";
+import { instance } from "./src/store/api";
+import { ListItem } from "react-native-elements";
+import useUnreadArticles from "./src/hooks/useUnreadArticles";
+import NewsRow from "./src/components/NewsRow";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -79,6 +89,16 @@ export default function App() {
       navigationRef.navigate(pathString, args);
     }
   }, [navigationIsReady]);
+
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response.status === 401) {
+        navigationRef.navigate("Login");
+      }
+      return error;
+    }
+  );
 
   const handleShare = useCallback(([shareObject]: ShareObject[]) => {
     navigationRef.navigate("CreateSummary", {
