@@ -41,28 +41,25 @@ export default function HomeScreen(props: Props) {
   const {
     articles: newsData,
     error,
-    loading,
+    loading: isRefreshingNewsData,
     refresh: refreshNewsData,
   } = useUnreadArticles();
   const [authorsData, setAuthorsData] = useState<any[] | undefined>();
-  const [isRefreshing, setRefreshing] = useState<boolean>(false);
+  const [isRefreshingAuthors, setRefreshingAuthors] = useState<boolean>(false);
+  const [showArchiveHint, setShowArchiveHint] = useState(false);
 
   useEffect(() => {
     if (isFocused) {
       clearCurrentSummaryId();
-      handleNewsDataRefresh();
+      refreshNewsData();
       handleAuthorRefresh();
     }
   }, [isFocused]);
 
-  const handleNewsDataRefresh = () => {
-    refreshNewsData();
-  };
-
   const handleAuthorRefresh = () => {
-    setRefreshing(true);
+    setRefreshingAuthors(true);
     getSuggestAuthors().then((data) => {
-      setRefreshing(false);
+      setRefreshingAuthors(false);
       setAuthorsData(data);
     });
   };
@@ -73,7 +70,7 @@ export default function HomeScreen(props: Props) {
     };
     followAuthor(postData).then(() => {
       setAuthorsData(undefined);
-      handleNewsDataRefresh();
+      refreshNewsData();
     });
   };
 
@@ -84,13 +81,12 @@ export default function HomeScreen(props: Props) {
         onPress={() => {
           navigation.navigate("NewsView", { data: item });
         }}
+        onLongPress={() => {
+          setShowArchiveHint(true);
+        }}
         onSwipeLeft={(id: number) => {
           "worklet";
-          markAsRead(id).then(handleNewsDataRefresh);
-        }}
-        onPull={() => {
-          "worklet";
-          handleNewsDataRefresh();
+          markAsRead(id).then(refreshNewsData);
         }}
       />
     ),
@@ -147,8 +143,8 @@ export default function HomeScreen(props: Props) {
               style={{
                 width: "100%",
               }}
-              // refreshing={isRefreshing}
-              // onRefresh={handleAuthorRefresh}
+              refreshing={isRefreshingAuthors}
+              onRefresh={handleAuthorRefresh}
             />
           </View>
         )}
@@ -167,15 +163,15 @@ export default function HomeScreen(props: Props) {
               borderColor: "red",
               borderWidth: 1,
             }}
-            // refreshing={isRefreshing}
-            // onRefresh={handleRefresh}
+            refreshing={isRefreshingNewsData}
+            onRefresh={refreshNewsData}
           />
           // </View>
         )}
 
         {newsData && newsData.length === 0 && <Text>No news right now!</Text>}
 
-        {!newsData && loading && <ActivityIndicator />}
+        {!newsData && isRefreshingNewsData && <ActivityIndicator />}
 
         {error && <Text style={{ color: "red" }}>{error?.message}</Text>}
       </View>
