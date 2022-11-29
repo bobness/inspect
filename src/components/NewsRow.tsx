@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View } from "react-native";
 import { Avatar, ListItem, Text } from "react-native-elements";
 import { Gesture, GestureDetector, State } from "react-native-gesture-handler";
 import Animated, {
+  SlideOutLeft,
   useAnimatedStyle,
   useSharedValue,
+  withSpring,
 } from "react-native-reanimated";
 import { Summary } from "../types";
 import { convertDate } from "../util";
@@ -16,9 +18,9 @@ interface Props {
   onSwipeLeft: (id: number) => void;
 }
 
-const MIN_HORIZONTAL_THRESHOLD = 50;
-const FULL_HORIZONTAL_THRESHOLD = 100;
-// const SWIPE_VERTICAL_THRESHOLD = 100;
+const MIN_HORIZONTAL_THRESHOLD = 50; // px
+const FULL_HORIZONTAL_THRESHOLD = 100; // px
+const SLIDE_OUT_DURATION = 500; // ms
 
 const NewsRow = ({ item, onPress, onLongPress, onSwipeLeft }: Props) => {
   const offset = useSharedValue({ x: 0, y: 0 });
@@ -34,7 +36,6 @@ const NewsRow = ({ item, onPress, onLongPress, onSwipeLeft }: Props) => {
   // so: create a variable on the UI thread
   const articleIdToArchive = useSharedValue(0);
   // then, on the JS thread, occasionally check it and act on it
-  // FIXME: uncomment and test before pushing to PR
   setInterval(() => {
     if (articleIdToArchive.value > 0) {
       onSwipeLeft(articleIdToArchive.value);
@@ -48,6 +49,11 @@ const NewsRow = ({ item, onPress, onLongPress, onSwipeLeft }: Props) => {
   const longPressGesture = Gesture.LongPress()
     .onStart(() => {
       isLongPressed.value = true;
+    })
+    .onTouchesUp(() => {
+      console.log("*** onTouchesUp from long press");
+      // if they release without swiping
+      isLongPressed.value = false;
     })
     .minDuration(250);
 
@@ -68,7 +74,6 @@ const NewsRow = ({ item, onPress, onLongPress, onSwipeLeft }: Props) => {
         manager.fail();
       }
     })
-    // .onStart(() => {...})
     .onUpdate((event) => {
       if (event.state === State.ACTIVE) {
         if (event.translationX < 0) {
@@ -94,14 +99,40 @@ const NewsRow = ({ item, onPress, onLongPress, onSwipeLeft }: Props) => {
 
   const composedGesture = Gesture.Race(horizontalPanGesture, longPressGesture);
 
+  const itemStyle = useMemo(() => {
+    const baseStyle = {
+      marginVertical: 5,
+      marginHorizontal: 10,
+    };
+    if (isLongPressed.value) {
+      return {
+        ...baseStyle,
+        borderStyle: "dotted" as const,
+        borderWidth: 2,
+        borderColor: "black",
+      };
+    }
+    return baseStyle;
+  }, [isLongPressed.value]);
+
+  // FIXME: test to verify this works
+  useEffect(() => {
+    return () => {
+      isLongPressed.value = false;
+    };
+  }, []);
+
   return (
     <GestureDetector gesture={composedGesture}>
-      <Animated.View style={animatedStyles}>
+      <Animated.View
+        style={animatedStyles}
+        exiting={SlideOutLeft.duration(SLIDE_OUT_DURATION)}
+      >
         <ListItem
           bottomDivider
           hasTVPreferredFocus={undefined}
           tvParallaxProperties={undefined}
-          // style={animatedStyles}
+          style={itemStyle}
           onPress={onPress}
           key={`summary #${item.id}`}
         >

@@ -83,10 +83,14 @@ export default function HomeScreen(props: Props) {
         }}
         onLongPress={() => {
           setShowArchiveHint(true);
+          setTimeout(() => setShowArchiveHint(false), 5000);
         }}
         onSwipeLeft={(id: number) => {
           "worklet";
-          markAsRead(id).then(refreshNewsData);
+          markAsRead(id).then(() => {
+            setShowArchiveHint(false);
+            refreshNewsData();
+          });
         }}
       />
     ),
@@ -125,6 +129,19 @@ export default function HomeScreen(props: Props) {
     <View style={{ flex: 1 }}>
       <View style={{ flex: 1, padding: 10 }}>
         <Text style={commonStyle.logoText}>INSPECT</Text>
+
+        {showArchiveHint && (
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: "bold",
+              textAlign: "center",
+              marginBottom: 10,
+            }}
+          >
+            &lt;-- Swipe left to archive
+          </Text>
+        )}
 
         {authorsData && authorsData.length > 0 && (
           <View style={{ flex: 1 }}>

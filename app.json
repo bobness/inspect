@@ -14,9 +14,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "plugins": [
       [
         "expo-notifications",
@@ -28,7 +26,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "net.datagotchi.inspect"
+      "bundleIdentifier": "net.datagotchi.inspect",
+      "buildNumber": "15"
     },
     "android": {
       "adaptiveIcon": {
@@ -38,6 +37,11 @@
       "package": "net.datagotchi.inspect"
     },
     "description": "",
-    "githubUrl": "https://github.com/bobness/inspect-app"
+    "githubUrl": "https://github.com/bobness/inspect-app",
+    "extra": {
+      "eas": {
+        "projectId": "2c49e46b-bd81-4ca0-9ede-f9e14dc01d36"
+      }
+    }
   }
 }
