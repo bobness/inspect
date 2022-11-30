@@ -13,13 +13,14 @@ import {
   Text,
   TouchableWithoutFeedback,
   View,
-  FlatList,
   TouchableOpacity,
   SafeAreaView,
   ActivityIndicator,
   Platform,
   Alert,
   Linking,
+  ScrollView,
+  RefreshControl,
 } from "react-native";
 import { Avatar, Overlay, Icon, Button, Input } from "react-native-elements";
 
@@ -66,7 +67,7 @@ export default function NewsViewScreen(props: Props) {
   } = props;
   let richText: any = useRef(null);
   const [newsData, setNewsData] = useState<Summary | undefined>();
-  const [selectedCommentId, selectCommentId]: any = useState(null);
+  const [selectedCommentId, setSelectedCommentId]: any = useState(null);
   const [commentText, setCommentText] = useState("");
   const [visible, setVisible] = useState(false);
   const [visibleCommentModal, setVisibleCommentModal] = useState(false);
@@ -112,19 +113,14 @@ export default function NewsViewScreen(props: Props) {
 
   useEffect(() => {
     if (newsData) {
-      const snippetIds = newsData.snippets?.map((snippet) => snippet.id) ?? [];
       if (newsData.comments) {
         setGlobalComments(
-          newsData.comments.filter(
-            (comment) => !snippetIds.includes(comment.snippet_id)
-          )
+          newsData.comments.filter((comment) => !comment.snippet_id)
         );
       }
       if (newsData.reactions) {
         setGlobalReactions(
-          newsData.reactions.filter(
-            (reaction) => !snippetIds.includes(reaction.snippet_id)
-          )
+          newsData.reactions.filter((reaction) => !reaction.snippet_id)
         );
       }
     }
@@ -165,12 +161,19 @@ export default function NewsViewScreen(props: Props) {
     return responseArray;
   }, [topReactionsMap]);
 
-  const toggleCommentOverlay = () => {
-    if (visibleCommentModal) {
+  const toggleCommentOverlay = (openState?: boolean, commentId?: number) => {
+    if (openState === false || visibleCommentModal) {
       setCommentText("");
-      selectCommentId(null);
+      setSelectedCommentId(null);
     }
-    setVisibleCommentModal(!visibleCommentModal);
+    if (openState !== undefined) {
+      setVisibleCommentModal(openState);
+    } else {
+      setVisibleCommentModal(!visibleCommentModal);
+    }
+    if (commentId) {
+      setSelectedCommentId(commentId);
+    }
   };
 
   const getContent = () => {
@@ -181,14 +184,14 @@ export default function NewsViewScreen(props: Props) {
     return content;
   };
 
-  const handleSaveFeedback = () => {
+  const handleSaveComment = () => {
     const commentData = {
       snippet_id: selectedCommentId,
       comment: commentText,
       summary_id: data.id,
     };
     postComment(commentData).then(() => {
-      toggleCommentOverlay();
+      toggleCommentOverlay(false);
       getNewsDataById(data.id);
     });
   };
@@ -322,34 +325,41 @@ export default function NewsViewScreen(props: Props) {
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <View style={commonStyle.pageContainer}>
         {newsData && (
-          <View style={getViewStyle(newsData)}>
+          <ScrollView
+            style={getViewStyle(newsData)}
+            refreshControl={
+              <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
+            }
+            contentContainerStyle={{
+              flexDirection: "column",
+              justifyContent: "flex-start",
+            }}
+          >
             <View
               style={{
-                flex: 1,
+                flexShrink: 1,
+                flexDirection: "row",
                 justifyContent: "space-between",
-                flexDirection: "column",
-                paddingBottom: 10,
-                alignItems: "center",
+                width: "100%",
               }}
             >
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  width: "100%",
-                  marginBottom: 20,
+              <View>
+                <Icon
+                  name="file-alt"
+                  type="font-awesome-5"
+                  color="black"
+                  size={34}
+                  tvParallaxProperties={undefined}
+                />
+              </View>
+
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate("AuthorView", {
+                    data: { id: newsData.user_id },
+                  });
                 }}
               >
-                <View>
-                  <Icon
-                    name="file-alt"
-                    type="font-awesome-5"
-                    color="black"
-                    size={34}
-                    tvParallaxProperties={undefined}
-                  />
-                </View>
                 <View
                   style={{
                     flex: 1,
@@ -370,159 +380,161 @@ export default function NewsViewScreen(props: Props) {
                     //   borderWidth: 1,
                     //   padding: 3,
                     // }}
-                    onPress={() => {
-                      navigation.navigate("AuthorView", {
-                        data: { id: newsData.user_id },
-                      });
-                    }}
                   />
                   <Text style={{ paddingLeft: 10, fontSize: 18 }}>
                     {newsData.username ?? "(username)"}
                   </Text>
                 </View>
-                <View>
-                  {authorData &&
-                    authUser &&
-                    authorData.id !== authUser.id &&
-                    followerIds.includes(authUser.id) && (
-                      <Button
-                        title="Unfollow"
-                        buttonStyle={{ backgroundColor: "#6AA84F" }}
-                        onPress={() => handleUnfollow(authorData.id)}
-                      />
-                    )}
-                  {authorData &&
-                    authUser &&
-                    authorData.id !== authUser.id &&
-                    !followerIds.includes(authUser.id) && (
-                      <Button
-                        title="Follow"
-                        buttonStyle={{ backgroundColor: "#6AA84F" }}
-                        onPress={() => handleFollow(authorData.id)}
-                      />
-                    )}
-                </View>
-              </View>
+              </TouchableOpacity>
 
-              <View style={{ flex: 1, flexDirection: "row", marginBottom: 10 }}>
-                <Text style={{ paddingRight: 10, fontSize: 20, minWidth: 35 }}>
-                  {topReactions}
-                </Text>
+              <View>
+                {authorData &&
+                  authUser &&
+                  authorData.id !== authUser.id &&
+                  followerIds.includes(authUser.id) && (
+                    <Button
+                      title="Unfollow"
+                      buttonStyle={{ backgroundColor: "#6AA84F" }}
+                      onPress={() => handleUnfollow(authorData.id)}
+                    />
+                  )}
+                {authorData &&
+                  authUser &&
+                  authorData.id !== authUser.id &&
+                  !followerIds.includes(authUser.id) && (
+                    <Button
+                      title="Follow"
+                      buttonStyle={{ backgroundColor: "#6AA84F" }}
+                      onPress={() => handleFollow(authorData.id)}
+                    />
+                  )}
+              </View>
+            </View>
+
+            <View
+              style={{
+                flexShrink: 1,
+                flexDirection: "row",
+                justifyContent: "center",
+                width: "100%",
+              }}
+            >
+              <Text
+                style={{
+                  paddingRight: 10,
+                  fontSize: 20,
+                  minWidth: 35,
+                }}
+              >
+                {topReactions}
+              </Text>
+              {newsData.logo_uri && (
                 <Avatar
                   // title={newsData.title[0]}
                   // titleStyle={{ color: "black" }}
                   source={
                     (newsData.logo_uri as any) && { uri: newsData.logo_uri }
                   }
-                  containerStyle={{
-                    borderColor: "green",
-                    borderWidth: 1,
-                    padding: 3,
-                  }}
+                  // containerStyle={{
+                  //   borderColor: "green",
+                  //   borderWidth: 1,
+                  //   padding: 3,
+                  // }}
                 />
-              </View>
-
-              <View style={{ flex: 1, flexDirection: "row", flexWrap: "wrap" }}>
-                {!editTitleMode && (
-                  <Text
-                    style={{
-                      fontSize: 18,
-                      paddingHorizontal: 10,
-                      textAlign: "center",
-                      color: "blue",
-                    }}
-                    onPress={() => {
-                      setCurrentSummaryId(newsData.id);
-                      Linking.openURL(newsData.url);
-                    }}
-                  >
-                    {newsData.title}
-                  </Text>
-                )}
-                {editTitleMode && (
-                  <Input
-                    // ref={titleInputRef}
-                    label="Title"
-                    placeholder="New title that explains the contribution of the article"
-                    value={newsData.title}
-                    // editable={!loading}
-                    onChangeText={(text: string) => {
-                      // if (text !== defaultTitle) {
-                      //   setUseDefaultTitle(false);
-                      // }
-                      setNewsData({
-                        ...newsData,
-                        title: text,
-                      });
-                    }}
-                    blurOnSubmit={true}
-                    onBlur={() =>
-                      updateSummary(newsData.id, {
-                        title: newsData.title,
-                      }).then(() => setEditTitleMode(false))
-                    }
-                    autoCompleteType={undefined}
-                  />
-                )}
-                {authUser?.id == newsData.user_id && (
-                  <View style={{ flex: 1 }}>
-                    <Icon
-                      name="pen"
-                      type="font-awesome-5"
-                      style={{ paddingHorizontal: 10 }}
-                      tvParallaxProperties={undefined}
-                      onPress={() => setEditTitleMode(true)}
-                    />
-                  </View>
-                )}
-              </View>
-
-              {newsData.updated_at && (
-                <View
-                  style={{
-                    flex: 1,
-                    marginTop: 10,
-                  }}
-                >
-                  <Text>Updated {convertDate(newsData.updated_at)}</Text>
-                </View>
               )}
             </View>
 
-            <View style={{ flex: 1 }}>
-              <TouchableOpacity
-                onPress={() => {
-                  toggleCommentOverlay();
-                }}
-              >
-                <Text style={{ color: "grey" }}>Add comment</Text>
-              </TouchableOpacity>
+            <View
+              style={{
+                flexDirection: "row",
+                flexWrap: "wrap",
+                flexShrink: 1,
+              }}
+            >
+              {!editTitleMode && (
+                <Text
+                  style={{
+                    fontSize: 18,
+                    paddingHorizontal: 10,
+                    textAlign: "center",
+                  }}
+                >
+                  {newsData.title}
+                </Text>
+              )}
+              {editTitleMode && (
+                <Input
+                  // ref={titleInputRef}
+                  label="Title"
+                  placeholder="New title that explains the contribution of the article"
+                  value={newsData.title}
+                  // editable={!loading}
+                  onChangeText={(text: string) => {
+                    // if (text !== defaultTitle) {
+                    //   setUseDefaultTitle(false);
+                    // }
+                    setNewsData({
+                      ...newsData,
+                      title: text,
+                    });
+                  }}
+                  blurOnSubmit={true}
+                  onBlur={() =>
+                    updateSummary(newsData.id, {
+                      title: newsData.title,
+                    }).then(() => setEditTitleMode(false))
+                  }
+                  autoCompleteType={undefined}
+                />
+              )}
             </View>
 
+            {authUser?.id == newsData.user_id && (
+              <Button
+                onPress={() => setEditTitleMode(true)}
+                title="🖊️ Edit Title"
+                buttonStyle={{ backgroundColor: "blue" }}
+              />
+            )}
+
+            {newsData.updated_at && (
+              <View
+                style={{
+                  flex: 1,
+                }}
+              >
+                <Text>Updated {convertDate(newsData.updated_at)}</Text>
+              </View>
+            )}
+
+            {/* <View style={{ flex: 1 }}> */}
+            <TouchableOpacity
+              onPress={() => {
+                toggleCommentOverlay(true);
+              }}
+            >
+              <Text style={{ color: "grey", textAlign: "center", padding: 10 }}>
+                Add summary comment
+              </Text>
+            </TouchableOpacity>
+            {/* </View> */}
+
             {newsData.snippets && newsData.snippets.length > 0 && (
-              <View style={{ flex: 1, borderWidth: 1, borderColor: "red" }}>
-                <FlatList
-                  data={newsData.snippets}
-                  renderItem={({ item }) => (
-                    <Snippet
-                      snippet={item}
-                      comments={newsData.comments.filter(
-                        (comment) => comment.snippet_id == item.id
-                      )}
-                      reactions={newsData.reactions.filter(
-                        (reaction) => reaction.snippet_id == item.id
-                      )}
-                      navigation={navigation}
-                      toggleCommentOverlay={toggleCommentOverlay}
-                    />
-                  )}
-                  // style={{
-                  //   width: "100%",
-                  // }}
-                  // contentContainerStyle={{ paddingBottom: 10 }}
-                  refreshing={loading}
-                  onRefresh={handleRefresh}
-                />
+              <View style={{ flex: 1 }}>
+                {newsData.snippets.map((snippet) => (
+                  <Snippet
+                    snippet={snippet}
+                    comments={newsData.comments.filter(
+                      (comment) => comment.snippet_id == snippet.id
+                    )}
+                    reactions={newsData.reactions.filter(
+                      (reaction) => reaction.snippet_id == snippet.id
+                    )}
+                    navigation={navigation}
+                    toggleCommentOverlay={toggleCommentOverlay}
+                    handleRefresh={handleRefresh}
+                  />
+                ))}
               </View>
             )}
 
@@ -531,8 +543,6 @@ export default function NewsViewScreen(props: Props) {
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "center",
-                marginTop: 10,
-                marginBottom: 10,
               }}
             >
               <View style={{ flex: 1, height: 1, backgroundColor: "black" }} />
@@ -546,31 +556,22 @@ export default function NewsViewScreen(props: Props) {
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                justifyContent: "center",
+                justifyContent: "space-around",
               }}
             >
-              <View style={{ width: "30%" }}>
-                <Text
-                  style={{
-                    textAlign: "center",
-                    fontStyle: "italic",
-                    borderWidth: 1,
-                    borderColor: "black",
-                    padding: 10,
-                  }}
-                >
-                  Tap the link to add snippets as evidence
-                </Text>
-              </View>
+              <Button
+                title="➕ Snippet"
+                onPress={() => {
+                  setCurrentSummaryId(newsData.id);
+                  Linking.openURL(newsData.url);
+                }}
+                titleStyle={{ fontSize: 16 }}
+              />
               {authUser?.id == newsData.user_id && newsData.is_draft && (
                 <Button
                   onPress={publishDraft}
                   title="✔️ Publish"
                   buttonStyle={{ backgroundColor: "green" }}
-                  style={{
-                    width: 100,
-                    padding: 10,
-                  }}
                 />
               )}
               {!newsData.is_draft && !newsData.is_archived && (
@@ -578,7 +579,6 @@ export default function NewsViewScreen(props: Props) {
                   onPress={archiveItem}
                   title="🗂 Archive"
                   buttonStyle={{ backgroundColor: "orange" }}
-                  style={{ width: 100, padding: 10 }}
                 />
               )}
               {authUser?.id == newsData.user_id && (
@@ -586,22 +586,17 @@ export default function NewsViewScreen(props: Props) {
                   onPress={deleteItem}
                   title="🗑 Delete"
                   buttonStyle={{ backgroundColor: "red" }}
-                  style={{
-                    width: 100,
-                    padding: 10,
-                  }}
+                />
+              )}
+              {!newsData.is_draft && (
+                <ShareMenu
+                  title={newsData.title}
+                  content={getContent()}
+                  url={newsData.url}
                 />
               )}
             </View>
-
-            {!newsData.is_draft && (
-              <ShareMenu
-                title={newsData.title}
-                content={getContent()}
-                url={newsData.url}
-              />
-            )}
-          </View>
+          </ScrollView>
         )}
         {!newsData && (
           <View
@@ -619,7 +614,7 @@ export default function NewsViewScreen(props: Props) {
 
         <Overlay
           isVisible={visibleCommentModal}
-          onBackdropPress={toggleCommentOverlay}
+          onBackdropPress={() => toggleCommentOverlay(false)}
           overlayStyle={{ height: 200 }}
         >
           <SafeAreaView>
@@ -632,7 +627,7 @@ export default function NewsViewScreen(props: Props) {
             >
               <Text>New Comment</Text>
               <TouchableOpacity
-                onPress={handleSaveFeedback}
+                onPress={handleSaveComment}
                 style={{
                   flexDirection: "row",
                   alignItems: "center",

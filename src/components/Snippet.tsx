@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { ListItem, Overlay } from "react-native-elements";
+import { Overlay } from "react-native-elements";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
@@ -21,19 +21,21 @@ import CommentRow from "./CommentRow";
 import { postReaction } from "../store/news";
 
 interface Props {
+  navigation: any;
   snippet: SnippetType;
   comments?: Comment[];
   reactions?: Reaction[];
-  toggleCommentOverlay: () => void;
-  navigation: any;
+  toggleCommentOverlay: (openState?: boolean, commentId?: number) => void;
+  handleRefresh: () => void;
 }
 
 const Snippet = ({
+  navigation,
   snippet,
   comments,
   reactions,
   toggleCommentOverlay,
-  navigation,
+  handleRefresh,
 }: Props) => {
   const [emojiSelectorIsVisible, setEmojiSelectorIsVisible] = useState(false);
 
@@ -75,84 +77,74 @@ const Snippet = ({
   const handleEmojiSelect = useCallback(
     (emoji: string) => {
       // setEmoji(emoji);
-      setVisible(false);
+      setEmojiSelectorIsVisible(false);
       const reactionData = {
         snippet_id: snippet.id,
         reaction: emoji,
         summary_id: snippet.summary_id,
       };
       postReaction(reactionData).then(() => {
-        getNewsDataById(data.id);
+        handleRefresh();
       });
     },
     [snippet]
   );
 
   return (
-    <View style={{ flex: 1 }}>
-      <ListItem
-        bottomDivider
-        hasTVPreferredFocus={undefined}
-        tvParallaxProperties={undefined}
-        key={`snipet #${snippet.id}`}
-      >
-        <View style={{ flex: 1, flexDirection: "column" }}>
-          <View style={{ flex: 1, flexDirection: "row" }}>
-            <FontAwesome
-              name="quote-left"
-              size={30}
-              style={{ alignSelf: "flex-start" }}
-            />
+    <View style={{ flex: 1 }} key={`snipet #${snippet.id}`}>
+      <View style={{ flex: 1, flexDirection: "column" }}>
+        <View style={{ flex: 1, flexDirection: "row" }}>
+          <FontAwesome
+            name="quote-left"
+            size={30}
+            style={{ alignSelf: "flex-start" }}
+          />
 
-            <Text style={{ paddingRight: 10, fontSize: 20, minWidth: 35 }}>
-              {topReactions}
-            </Text>
+          <Text style={{ paddingRight: 10, fontSize: 20, minWidth: 35 }}>
+            {topReactions}
+          </Text>
 
-            <View style={{ flex: 1 }}>
-              <View
-                style={{ flex: 1, flexDirection: "row", paddingVertical: 5 }}
-              >
-                <Text style={{ flex: 1, flexWrap: "wrap" }}>
-                  {snippet.value}
-                </Text>
-              </View>
-            </View>
-
-            <View>
-              <FontAwesome
-                name="quote-right"
-                size={30}
-                style={{ alignSelf: "flex-end" }}
-              />
+          <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, flexDirection: "row", paddingVertical: 5 }}>
+              <Text style={{ flex: 1, flexWrap: "wrap" }}>{snippet.value}</Text>
             </View>
           </View>
 
-          <View
-            style={{
-              flex: 1,
-            }}
-          >
-            {comments && comments.length > 0 && (
-              <FlatList
-                data={comments}
-                renderItem={({ item }) => (
-                  <CommentRow item={item} navigation={navigation} />
-                )}
-                style={{ marginTop: 5, width: "100%" }}
-              />
-            )}
-            <View style={{ flex: 1 }}>
-              <TouchableOpacity
-                onPress={() => {
-                  toggleCommentOverlay();
-                }}
-              >
-                <Text style={{ color: "grey" }}>Add comment</Text>
-              </TouchableOpacity>
-            </View>
+          <View>
+            <FontAwesome
+              name="quote-right"
+              size={30}
+              style={{ alignSelf: "flex-end" }}
+            />
           </View>
         </View>
-      </ListItem>
+
+        <View
+          style={{
+            flex: 1,
+          }}
+        >
+          {comments &&
+            comments.map((comment) => (
+              <CommentRow
+                item={comment}
+                navigation={navigation}
+                key={`comment #${comment.id}`}
+              />
+            ))}
+          <View style={{ flex: 1 }}>
+            <TouchableOpacity
+              onPress={() => {
+                toggleCommentOverlay(true, snippet.id);
+              }}
+            >
+              <Text style={{ color: "grey", textAlign: "center", padding: 10 }}>
+                Add snippet comment
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
       <Overlay
         isVisible={emojiSelectorIsVisible}
         onBackdropPress={() => setEmojiSelectorIsVisible(false)}
