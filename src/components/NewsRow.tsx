@@ -51,7 +51,6 @@ const NewsRow = ({ item, onPress, onLongPress, onSwipeLeft }: Props) => {
       isLongPressed.value = true;
     })
     .onTouchesUp(() => {
-      console.log("*** onTouchesUp from long press");
       // if they release without swiping
       isLongPressed.value = false;
     })
@@ -115,7 +114,6 @@ const NewsRow = ({ item, onPress, onLongPress, onSwipeLeft }: Props) => {
     return baseStyle;
   }, [isLongPressed.value]);
 
-  // FIXME: test to verify this works
   useEffect(() => {
     return () => {
       isLongPressed.value = false;

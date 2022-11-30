@@ -86,9 +86,9 @@ export default function AuthorViewScreen(props: any) {
     </ListItem>
   );
 
-  const getProfileData = (auth_id: number) => {
+  const getProfileData = (user_id: number) => {
     setRefreshing(true);
-    return getProfileInformation(auth_id).then((res) => {
+    return getProfileInformation(user_id).then((res) => {
       setRefreshing(false);
       setUserData(res);
     });
