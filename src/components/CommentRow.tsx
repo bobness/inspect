@@ -23,57 +23,59 @@ const CommentRow = ({ item, navigation }: Props) => {
       tvParallaxProperties={undefined}
       key={`comment #${item.id}`}
     >
-      <View style={{ marginTop: 10, flexDirection: "row" }}>
-        <Avatar
-          // title={newsData?.title[0]}
-          // titleStyle={{ color: "black" }}
-          source={
-            (item.avatar_uri as any) && {
-              uri: item.avatar_uri,
+      <View style={{ flex: 1, flexDirection: "column", marginTop: 10 }}>
+        <View style={{ flex: 1, flexDirection: "row" }}>
+          <Avatar
+            // title={newsData?.title[0]}
+            // titleStyle={{ color: "black" }}
+            source={
+              (item.avatar_uri as any) && {
+                uri: item.avatar_uri,
+              }
             }
-          }
-          containerStyle={{
-            width: AVATAR_WIDTH,
-            height: AVATAR_WIDTH,
-            marginRight: 5,
-          }}
-          // containerStyle={{
-          //   borderColor: "green",
-          //   borderWidth: 1,
-          //   padding: 3,
-          // }}
-          onPress={() => {
-            navigation.navigate("AuthorView", {
-              data: { id: item.user_id },
-            });
-          }}
-        />
-        <AutoHeightWebView
-          style={{
-            width:
-              Dimensions.get("window").width -
-              TAB_SIZE -
-              AVATAR_WIDTH -
-              LIST_PADDING,
-            height: 50,
-          }}
-          // onSizeUpdated={(size) => console.log(size.height)}
-          files={[
-            {
-              href: "cssfileaddress",
-              type: "text/css",
-              rel: "stylesheet",
-            },
-          ]}
-          source={{ html: item.comment }}
-          scalesPageToFit={true}
-          viewportContent={"width=device-width, user-scalable=no"}
-        />
-      </View>
-      <View style={{ alignItems: "flex-end", marginTop: 5 }}>
-        <Text style={{ fontSize: 11, color: "grey" }}>
-          {convertDate(item.created_at)}
-        </Text>
+            containerStyle={{
+              width: AVATAR_WIDTH,
+              height: AVATAR_WIDTH,
+              marginRight: 5,
+            }}
+            // containerStyle={{
+            //   borderColor: "green",
+            //   borderWidth: 1,
+            //   padding: 3,
+            // }}
+            onPress={() => {
+              navigation.navigate("AuthorView", {
+                data: { id: item.user_id },
+              });
+            }}
+          />
+          <AutoHeightWebView
+            style={{
+              width:
+                Dimensions.get("window").width -
+                TAB_SIZE -
+                AVATAR_WIDTH -
+                LIST_PADDING,
+              height: 50,
+            }}
+            // onSizeUpdated={(size) => console.log(size.height)}
+            files={[
+              {
+                href: "cssfileaddress",
+                type: "text/css",
+                rel: "stylesheet",
+              },
+            ]}
+            source={{ html: item.comment }}
+            scalesPageToFit={true}
+            viewportContent={"width=device-width, user-scalable=no"}
+          />
+        </View>
+        <View style={{ alignItems: "flex-end", marginTop: 5 }}>
+          <Text style={{ fontSize: 11, color: "gray" }}>
+            {convertDate(item.created_at)}
+          </Text>
+        </View>
       </View>
     </ListItem>
   );

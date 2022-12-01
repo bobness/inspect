@@ -138,8 +138,8 @@ const Snippet = ({
                 toggleCommentOverlay(true, snippet.id);
               }}
             >
-              <Text style={{ color: "grey", textAlign: "center", padding: 10 }}>
-                Add snippet comment
+              <Text style={{ color: "gray", textAlign: "center", padding: 10 }}>
+                Add comment to snippet
               </Text>
             </TouchableOpacity>
           </View>

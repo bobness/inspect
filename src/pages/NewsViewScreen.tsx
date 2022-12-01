@@ -507,20 +507,43 @@ export default function NewsViewScreen(props: Props) {
               </View>
             )}
 
-            {/* <View style={{ flex: 1 }}> */}
-            <TouchableOpacity
-              onPress={() => {
-                toggleCommentOverlay(true);
-              }}
-            >
-              <Text style={{ color: "grey", textAlign: "center", padding: 10 }}>
-                Add summary comment
-              </Text>
-            </TouchableOpacity>
-            {/* </View> */}
+            <View style={{ flex: 1, flexDirection: "column" }}>
+              {/* FIXME: what's with the 'a' to the right? */}
+              {newsData.comments &&
+                newsData.comments
+                  .filter((comment) => !comment.snippet_id)
+                  .map((comment) => {
+                    return (
+                      <View style={{ flex: 1 }}>
+                        <CommentRow
+                          item={comment}
+                          navigation={navigation}
+                          key={`comment #${comment.id}`}
+                        />
+                      </View>
+                    );
+                  })}
+              {/* FIXME: does not show */}
+              <View style={{ flex: 1 }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    toggleCommentOverlay(true);
+                  }}
+                >
+                  <Text
+                    style={{ color: "gray", textAlign: "center", padding: 10 }}
+                  >
+                    Add comment to summary
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
 
             {newsData.snippets && newsData.snippets.length > 0 && (
               <View style={{ flex: 1 }}>
+                <Text style={{ fontWeight: "bold", width: "100%" }}>
+                  Snippets
+                </Text>
                 {newsData.snippets.map((snippet) => (
                   <Snippet
                     snippet={snippet}
@@ -635,7 +658,7 @@ export default function NewsViewScreen(props: Props) {
                   padding: 2,
                   borderRadius: 3,
                   paddingRight: 10,
-                  borderColor: "grey",
+                  borderColor: "gray",
                 }}
               >
                 <Icon
@@ -647,7 +670,7 @@ export default function NewsViewScreen(props: Props) {
                 />
                 <Text
                   style={{
-                    color: commentText?.length > 0 ? "black" : "grey",
+                    color: commentText?.length > 0 ? "black" : "gray",
                     fontWeight: "bold",
                   }}
                 >
