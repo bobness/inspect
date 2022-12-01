@@ -175,11 +175,6 @@ export default function HomeScreen(props: Props) {
           <FlatList
             data={newsData}
             renderItem={renderItem}
-            style={{
-              // width: "100%",
-              borderColor: "red",
-              borderWidth: 1,
-            }}
             refreshing={isRefreshingNewsData}
             onRefresh={refreshNewsData}
           />

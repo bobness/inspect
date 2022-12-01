@@ -175,23 +175,20 @@ export default function SummaryScreen(props: Props) {
     const updateBlock = {
       snippets: [newSnippet],
     };
+
     try {
       await updateSummary(currentSummaryId, updateBlock);
-    } catch (err) {
-      alert(`Error! ${err}`);
-    }
-    if (isDraft) {
-      cleanup();
-      navigation.navigate("NewsView", { data: { id: currentSummaryId } });
-    } else {
       await sendNotification({
         title: "A summary was updated!",
         text: title,
         summary_id: currentSummaryId,
       });
-      cleanup();
-      navigation.navigate("Home");
+    } catch (err) {
+      alert(`Error! ${err}`);
     }
+
+    cleanup();
+    navigation.navigate("Home");
   }, [currentSummaryId, newSnippet]);
 
   const handleCancel = () => {

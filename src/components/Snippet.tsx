@@ -1,15 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  FlatList,
-  SafeAreaView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Overlay } from "react-native-elements";
+import { Text, TouchableOpacity, View } from "react-native";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
-import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import EmojiSelector, { Categories } from "react-native-emoji-selector";
 
 import {
   Comment,
@@ -26,6 +17,7 @@ interface Props {
   comments?: Comment[];
   reactions?: Reaction[];
   toggleCommentOverlay: (openState?: boolean, commentId?: number) => void;
+  toggleEmojiOverlay: (openState?: boolean, snippetId?: number) => void;
   handleRefresh: () => void;
 }
 
@@ -35,10 +27,9 @@ const Snippet = ({
   comments,
   reactions,
   toggleCommentOverlay,
+  toggleEmojiOverlay,
   handleRefresh,
 }: Props) => {
-  const [emojiSelectorIsVisible, setEmojiSelectorIsVisible] = useState(false);
-
   const reduceByAmount = (result: ReactionMap, item: Reaction) => {
     if (Object.hasOwn(result, item.reaction)) {
       result[item.reaction] += 1;
@@ -74,22 +65,6 @@ const Snippet = ({
     return responseArray;
   }, [topReactionsMap]);
 
-  const handleEmojiSelect = useCallback(
-    (emoji: string) => {
-      // setEmoji(emoji);
-      setEmojiSelectorIsVisible(false);
-      const reactionData = {
-        snippet_id: snippet.id,
-        reaction: emoji,
-        summary_id: snippet.summary_id,
-      };
-      postReaction(reactionData).then(() => {
-        handleRefresh();
-      });
-    },
-    [snippet]
-  );
-
   return (
     <View style={{ flex: 1 }} key={`snipet #${snippet.id}`}>
       <View style={{ flex: 1, flexDirection: "column" }}>
@@ -106,7 +81,12 @@ const Snippet = ({
 
           <View style={{ flex: 1 }}>
             <View style={{ flex: 1, flexDirection: "row", paddingVertical: 5 }}>
-              <Text style={{ flex: 1, flexWrap: "wrap" }}>{snippet.value}</Text>
+              <Text
+                style={{ flex: 1, flexWrap: "wrap" }}
+                onPress={() => toggleEmojiOverlay(true, snippet.id)}
+              >
+                {snippet.value}
+              </Text>
             </View>
           </View>
 
@@ -145,33 +125,6 @@ const Snippet = ({
           </View>
         </View>
       </View>
-      <Overlay
-        isVisible={emojiSelectorIsVisible}
-        onBackdropPress={() => setEmojiSelectorIsVisible(false)}
-        fullScreen={true}
-      >
-        <SafeAreaView style={{ flex: 1 }}>
-          <TouchableOpacity
-            style={{ alignSelf: "flex-end" }}
-            onPress={() => setEmojiSelectorIsVisible(true)}
-          >
-            <MaterialIcon
-              name="close"
-              color={"black"}
-              size={30}
-              style={{ marginBottom: 10 }}
-            />
-          </TouchableOpacity>
-          <EmojiSelector
-            onEmojiSelected={(emoji) => handleEmojiSelect(emoji)}
-            showSearchBar={false}
-            showTabs={true}
-            showHistory={true}
-            showSectionTitles={true}
-            category={Categories.all}
-          />
-        </SafeAreaView>
-      </Overlay>
     </View>
   );
 };

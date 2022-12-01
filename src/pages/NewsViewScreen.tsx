@@ -24,6 +24,9 @@ import {
 } from "react-native";
 import { Avatar, Overlay, Icon, Button, Input } from "react-native-elements";
 
+import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import EmojiSelector, { Categories } from "react-native-emoji-selector";
+
 import BottomToolbar from "../components/BottomToolbar";
 import {
   RichEditor,
@@ -44,7 +47,14 @@ import {
 } from "../store/news";
 
 import { getAuthUser, getProfileInformation } from "../store/auth";
-import { Comment, Reaction, ReactionMap, Summary, User } from "../types";
+import {
+  Comment,
+  Reaction,
+  ReactionMap,
+  Snippet as SnippetType,
+  Summary,
+  User,
+} from "../types";
 import CommentRow from "../components/CommentRow";
 import { convertDate } from "../util";
 import Snippet from "../components/Snippet";
@@ -67,11 +77,16 @@ export default function NewsViewScreen(props: Props) {
   } = props;
   let richText: any = useRef(null);
   const [newsData, setNewsData] = useState<Summary | undefined>();
-  const [selectedCommentId, setSelectedCommentId]: any = useState(null);
+  const [selectedCommentId, setSelectedCommentId] = useState<
+    number | undefined
+  >();
+  const [selectedSnippetId, setSelectedSnippetId] = useState<
+    number | undefined
+  >();
   const [commentText, setCommentText] = useState("");
-  const [visible, setVisible] = useState(false);
   const [visibleCommentModal, setVisibleCommentModal] = useState(false);
-  const [emoji, setEmoji] = useState("🤔");
+  const [emojiSelectorIsVisible, setEmojiSelectorIsVisible] = useState(false);
+  // const [emoji, setEmoji] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
   const [authUser, setAuthUser] = useState<User | undefined>();
   const [authorData, setAuthorData] = useState<User | undefined>();
@@ -164,7 +179,7 @@ export default function NewsViewScreen(props: Props) {
   const toggleCommentOverlay = (openState?: boolean, commentId?: number) => {
     if (openState === false || visibleCommentModal) {
       setCommentText("");
-      setSelectedCommentId(null);
+      setSelectedCommentId(undefined);
     }
     if (openState !== undefined) {
       setVisibleCommentModal(openState);
@@ -173,6 +188,21 @@ export default function NewsViewScreen(props: Props) {
     }
     if (commentId) {
       setSelectedCommentId(commentId);
+    }
+  };
+
+  const toggleEmojiOverlay = (openState?: boolean, snippetId?: number) => {
+    console.log("*** toggleEmojiOverlay: ", openState, snippetId);
+    // if (openState === false || emojiSelectorIsVisible) {
+    //   setEmoji(undefined);
+    // }
+    if (openState !== undefined) {
+      setEmojiSelectorIsVisible(openState);
+    } else {
+      setEmojiSelectorIsVisible(!emojiSelectorIsVisible);
+    }
+    if (snippetId) {
+      setSelectedSnippetId(snippetId);
     }
   };
 
@@ -321,6 +351,25 @@ export default function NewsViewScreen(props: Props) {
     });
   }, []);
 
+  const handleEmojiSelect = async (emoji: string, snippetId?: number) => {
+    setEmojiSelectorIsVisible(false);
+    const reactionDataBase = {
+      reaction: emoji,
+      summary_id: newsData?.id,
+    };
+    if (snippetId) {
+      await postReaction({
+        ...reactionDataBase,
+        snippet_id: snippetId,
+      });
+    } else if (newsData) {
+      await postReaction({
+        ...reactionDataBase,
+      });
+    }
+    handleRefresh();
+  };
+
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <View style={commonStyle.pageContainer}>
@@ -459,6 +508,7 @@ export default function NewsViewScreen(props: Props) {
                     textAlign: "center",
                     fontWeight: "bold",
                   }}
+                  onPress={() => toggleEmojiOverlay(true)}
                 >
                   {newsData.title}
                 </Text>
@@ -574,7 +624,9 @@ export default function NewsViewScreen(props: Props) {
                     )}
                     navigation={navigation}
                     toggleCommentOverlay={toggleCommentOverlay}
+                    toggleEmojiOverlay={toggleEmojiOverlay}
                     handleRefresh={handleRefresh}
+                    key={`snippet component #${snippet.id}`}
                   />
                 ))}
               </View>
@@ -728,6 +780,35 @@ export default function NewsViewScreen(props: Props) {
                   <Text style={[{ color: tintColor }]}>H1</Text>
                 ),
               }}
+            />
+          </SafeAreaView>
+        </Overlay>
+        <Overlay
+          isVisible={emojiSelectorIsVisible}
+          // onBackdropPress={() => toggleEmojiOverlay(false)}
+          fullScreen={true}
+        >
+          <SafeAreaView style={{ flex: 1 }}>
+            <TouchableOpacity
+              style={{ alignSelf: "flex-end" }}
+              onPress={() => toggleEmojiOverlay(false)}
+            >
+              <MaterialIcon
+                name="close"
+                color={"black"}
+                size={30}
+                style={{ marginBottom: 10 }}
+              />
+            </TouchableOpacity>
+            <EmojiSelector
+              onEmojiSelected={(emoji) =>
+                handleEmojiSelect(emoji, selectedSnippetId)
+              }
+              showSearchBar={false}
+              showTabs={true}
+              showHistory={true}
+              showSectionTitles={true}
+              category={Categories.all}
             />
           </SafeAreaView>
         </Overlay>
