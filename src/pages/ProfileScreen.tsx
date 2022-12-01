@@ -130,26 +130,12 @@ export default function ProfileScreen(props: any) {
     setLoading(false);
   };
 
-  const getNewsItemStyle = useCallback((item: Summary) => {
-    const baseStyle = { flex: 1, width: "100%" };
-    if (item.is_draft) {
-      return {
-        ...baseStyle,
-        borderWidth: 1,
-        borderStyle: "dashed" as const,
-        backgroundColor: "#ccc", // FIXME: does not show
-        borderRadius: 5,
-      };
-    }
-    return baseStyle;
-  }, []);
-
   const renderNewsItem = ({ item }: any) => (
     <ListItem
       bottomDivider
       hasTVPreferredFocus={undefined}
       tvParallaxProperties={undefined}
-      style={getNewsItemStyle(item)}
+      style={{ flex: 1, width: "100%" }}
       onPress={() => {
         navigation.navigate("NewsView", { data: item });
       }}

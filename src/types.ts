@@ -45,7 +45,6 @@ export interface Summary {
   title: string;
   user_id: number;
   source_id: number;
-  is_draft: boolean;
   logo_uri?: string;
   avatar_uri?: string;
   username?: string;
