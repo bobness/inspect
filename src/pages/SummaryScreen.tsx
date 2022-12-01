@@ -50,7 +50,6 @@ export default function SummaryScreen(props: Props) {
   const [source, setSource] = useState<Source | undefined>();
   const titleInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
-  const [isDraft, setIsDraft] = useState(true);
   const [title, setTitle] = useState<string | undefined>();
   const [authUser, setAuthUser] = useState<User | undefined>();
   const [snippets, setSnippets] = useState<any[]>([]);
@@ -64,7 +63,6 @@ export default function SummaryScreen(props: Props) {
         setTitle(summary.title);
         setSnippets(summary.snippets);
         setCleanedUrl(summary.url);
-        setIsDraft(summary.is_draft);
       });
     }
   }, [currentSummaryId]);
@@ -150,22 +148,15 @@ export default function SummaryScreen(props: Props) {
         title,
         user_id: authUser.id,
         source_id: source?.id,
-        is_draft: isDraft,
       };
       const result = await postSummary(summary);
-      if (isDraft) {
-        cleanup();
-        // FIXME: not working!
-        navigation.navigate("NewsView", { data: result });
-      } else {
-        await sendNotification({
-          title: "A new summary was created!",
-          text: summary.title,
-          summary_id: result.id,
-        });
-        cleanup();
-        navigation.navigate("Home");
-      }
+      await sendNotification({
+        title: "A new summary was created!",
+        text: summary.title,
+        summary_id: result.id,
+      });
+      cleanup();
+      navigation.navigate("Home");
     } else {
       Alert.alert("Please specify a title for your summary");
     }
@@ -243,23 +234,11 @@ export default function SummaryScreen(props: Props) {
               autoCompleteType={undefined}
             />
             {!currentSummaryId && (
-              <>
-                <CheckBox
-                  title="Use existing title?"
-                  checked={useDefaultTitle}
-                  onPress={() => setUseDefaultTitle(!useDefaultTitle)}
-                />
-                <CheckBox
-                  title="Make it a draft"
-                  checked={isDraft}
-                  onPress={() => setIsDraft(!isDraft)}
-                />
-              </>
-            )}
-            {!currentSummaryId && !isDraft && (
-              <Text style={{ color: "red" }}>
-                This will get shared when created
-              </Text>
+              <CheckBox
+                title="Use existing title?"
+                checked={useDefaultTitle}
+                onPress={() => setUseDefaultTitle(!useDefaultTitle)}
+              />
             )}
             {currentSummaryId && (
               <>

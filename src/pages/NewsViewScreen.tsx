@@ -256,34 +256,6 @@ export default function NewsViewScreen(props: Props) {
     navigation.navigate("Home");
   }, [navigation, data]);
 
-  const publishDraft = useCallback(() => {
-    Alert.alert(
-      "Confirm Publish",
-      "Are you sure you want to Publish this draft?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Publish",
-          onPress: async () => {
-            await updateSummary(data.id, { is_draft: false });
-            await sendNotification({
-              title: "A summary was published!",
-              text: data.title,
-              summary_id: data.id,
-            });
-            getNewsDataById(data.id);
-          },
-        },
-      ],
-      {
-        cancelable: true,
-      }
-    );
-  }, []);
-
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
@@ -302,23 +274,6 @@ export default function NewsViewScreen(props: Props) {
       title: "INSPECT",
     });
   }, [navigation]);
-
-  const getViewStyle = (item: Summary) => {
-    const baseStyle = {
-      flex: 1,
-      padding: 10,
-      backgroundColor: "white",
-      borderWidth: 1,
-      borderRadius: 5,
-    };
-    if (item.is_draft) {
-      return Object.assign(baseStyle, {
-        backgroundColor: "#ccc",
-        borderStyle: "dashed" as const,
-      });
-    }
-    return baseStyle;
-  };
 
   const populateAuthorData = async (user_id: number) => {
     setLoading(true);
@@ -375,7 +330,13 @@ export default function NewsViewScreen(props: Props) {
       <View style={commonStyle.pageContainer}>
         {newsData && (
           <ScrollView
-            style={getViewStyle(newsData)}
+            style={{
+              flex: 1,
+              padding: 10,
+              backgroundColor: "white",
+              borderWidth: 1,
+              borderRadius: 5,
+            }}
             refreshControl={
               <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
             }
@@ -665,14 +626,7 @@ export default function NewsViewScreen(props: Props) {
                 }}
                 titleStyle={{ fontSize: 16 }}
               />
-              {authUser?.id == newsData.user_id && newsData.is_draft && (
-                <Button
-                  onPress={publishDraft}
-                  title="✔️ Publish"
-                  buttonStyle={{ backgroundColor: "green" }}
-                />
-              )}
-              {!newsData.is_draft && !newsData.is_archived && (
+              {!newsData.is_archived && (
                 <Button
                   onPress={archiveItem}
                   title="🗂 Archive"
@@ -686,13 +640,11 @@ export default function NewsViewScreen(props: Props) {
                   buttonStyle={{ backgroundColor: "red" }}
                 />
               )}
-              {!newsData.is_draft && (
-                <ShareMenu
-                  title={newsData.title}
-                  content={getContent()}
-                  url={newsData.url}
-                />
-              )}
+              <ShareMenu
+                title={newsData.title}
+                content={getContent()}
+                url={newsData.url}
+              />
             </View>
           </ScrollView>
         )}
