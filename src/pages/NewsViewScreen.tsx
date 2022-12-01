@@ -457,6 +457,7 @@ export default function NewsViewScreen(props: Props) {
                     fontSize: 18,
                     paddingHorizontal: 10,
                     textAlign: "center",
+                    fontWeight: "bold",
                   }}
                 >
                   {newsData.title}
@@ -508,22 +509,18 @@ export default function NewsViewScreen(props: Props) {
             )}
 
             <View style={{ flex: 1, flexDirection: "column" }}>
-              {/* FIXME: what's with the 'a' to the right? */}
               {newsData.comments &&
                 newsData.comments
                   .filter((comment) => !comment.snippet_id)
                   .map((comment) => {
                     return (
-                      <View style={{ flex: 1 }}>
-                        <CommentRow
-                          item={comment}
-                          navigation={navigation}
-                          key={`comment #${comment.id}`}
-                        />
-                      </View>
+                      <CommentRow
+                        item={comment}
+                        navigation={navigation}
+                        key={`comment #${comment.id}`}
+                      />
                     );
                   })}
-              {/* FIXME: does not show */}
               <View style={{ flex: 1 }}>
                 <TouchableOpacity
                   onPress={() => {
@@ -533,7 +530,7 @@ export default function NewsViewScreen(props: Props) {
                   <Text
                     style={{ color: "gray", textAlign: "center", padding: 10 }}
                   >
-                    Add comment to summary
+                    Add comment
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -541,9 +538,31 @@ export default function NewsViewScreen(props: Props) {
 
             {newsData.snippets && newsData.snippets.length > 0 && (
               <View style={{ flex: 1 }}>
-                <Text style={{ fontWeight: "bold", width: "100%" }}>
-                  Snippets
-                </Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <View
+                    style={{ flex: 1, height: 1, backgroundColor: "black" }}
+                  />
+                  <View>
+                    <Text
+                      style={{
+                        width: 70,
+                        textAlign: "center",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Snippets
+                    </Text>
+                  </View>
+                  <View
+                    style={{ flex: 1, height: 1, backgroundColor: "black" }}
+                  />
+                </View>
                 {newsData.snippets.map((snippet) => (
                   <Snippet
                     snippet={snippet}
@@ -570,7 +589,11 @@ export default function NewsViewScreen(props: Props) {
             >
               <View style={{ flex: 1, height: 1, backgroundColor: "black" }} />
               <View>
-                <Text style={{ width: 50, textAlign: "center" }}>Actions</Text>
+                <Text
+                  style={{ width: 60, textAlign: "center", fontWeight: "bold" }}
+                >
+                  Actions
+                </Text>
               </View>
               <View style={{ flex: 1, height: 1, backgroundColor: "black" }} />
             </View>

@@ -139,7 +139,7 @@ const Snippet = ({
               }}
             >
               <Text style={{ color: "gray", textAlign: "center", padding: 10 }}>
-                Add comment to snippet
+                Add comment
               </Text>
             </TouchableOpacity>
           </View>
