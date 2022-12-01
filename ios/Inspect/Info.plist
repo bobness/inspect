@@ -37,18 +37,18 @@
       </dict>
     </array>
     <key>FacebookAppID</key>
-      <string>461371912646826</string>
+    <string>461371912646826</string>
     <key>FacebookClientToken</key>
-      <string>52a174ede8c273009a1f3f0aea4bb24b</string>
+    <string>52a174ede8c273009a1f3f0aea4bb24b</string>
     <key>FacebookDisplayName</key>
-      <string>Datagotchi Inspect</string>
+    <string>Datagotchi Inspect</string>
     <key>LSApplicationQueriesSchemes</key>
-      <array>
-        <string>fbapi</string>
-        <string>fb-messenger-share-api</string>
-      </array>
+    <array>
+      <string>fbapi</string>
+      <string>fb-messenger-share-api</string>
+    </array>
     <key>CFBundleVersion</key>
-    <string>14</string>
+    <string>15</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>NSAppTransportSecurity</key>

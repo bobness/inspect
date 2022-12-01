@@ -18,9 +18,19 @@
         "buildType": "apk"
       }
     },
-    "production": {}
+    "production": {
+      "ios": {
+        "autoIncrement": "buildNumber"
+      }
+    }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "bobness@gmail.com",
+        "ascAppId": "1644978686",
+        "appleTeamId": "77L3RUTG3X"
+      }
+    }
   }
 }

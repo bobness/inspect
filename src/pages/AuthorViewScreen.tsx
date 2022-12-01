@@ -86,9 +86,9 @@ export default function AuthorViewScreen(props: any) {
     </ListItem>
   );
 
-  const getProfileData = (auth_id: number) => {
+  const getProfileData = (user_id: number) => {
     setRefreshing(true);
-    return getProfileInformation(auth_id).then((res) => {
+    return getProfileInformation(user_id).then((res) => {
       setRefreshing(false);
       setUserData(res);
     });
@@ -182,31 +182,34 @@ export default function AuthorViewScreen(props: any) {
             />
           )}
         </View>
-        <View
-          style={{ flexDirection: "row", alignItems: "center", padding: 10 }}
-        >
-          <Text style={{ fontSize: 16, fontWeight: "700" }}>
-            Trusted sources:{" "}
-          </Text>
-          <ScrollView contentContainerStyle={{ flexDirection: "row" }}>
-            {userData.trusted_sources.map((source: any) => (
-              <Image
-                source={
-                  source.logo_uri && {
-                    uri: source.logo_uri,
+        {userData.trusted_sources && userData.trusted_sources.length > 0 && (
+          <View
+            style={{ flexDirection: "row", alignItems: "center", padding: 10 }}
+          >
+            <Text style={{ fontSize: 16, fontWeight: "700" }}>
+              Trusted sources:{" "}
+            </Text>
+            <ScrollView contentContainerStyle={{ flexDirection: "row" }}>
+              {userData.trusted_sources.map((source: any) => (
+                <Image
+                  source={
+                    source.logo_uri && {
+                      uri: source.logo_uri,
+                    }
                   }
-                }
-                style={{
-                  width: 30,
-                  height: 30,
-                  // borderWidth: 2,
-                  // borderColor: "#6AA84F",
-                  marginHorizontal: 2,
-                }}
-              />
-            ))}
-          </ScrollView>
-        </View>
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderWidth: 2,
+                    // borderColor: "#6AA84F",
+                    marginHorizontal: 2,
+                  }}
+                  key={`trusted source #${source.id}`}
+                />
+              ))}
+            </ScrollView>
+          </View>
+        )}
         <FlatList
           data={userData.summaries}
           renderItem={renderSummaryItem}

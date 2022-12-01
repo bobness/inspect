@@ -7,6 +7,13 @@ export interface Source {
 export interface User {
   id: number;
   email: string;
+  followers: any[]; // TODO: type this
+}
+
+export interface Snippet {
+  id: number;
+  value: string;
+  summary_id: number;
 }
 
 export interface Comment {
@@ -28,6 +35,10 @@ export interface Reaction {
   summary_id: number;
 }
 
+export interface ReactionMap {
+  [reaction: string]: number;
+}
+
 export interface Summary {
   id?: number;
   url: string;
@@ -37,9 +48,10 @@ export interface Summary {
   is_draft: boolean;
   logo_uri?: string;
   avatar_uri?: string;
+  username?: string;
   is_archived?: boolean;
   updated_at: string;
-  comments?: Comment[];
-  reactions?: Reaction[];
-  snippets?: any[]; // TODO: type Snippets
+  comments: Comment[];
+  reactions: Reaction[];
+  snippets: Snippet[];
 }

@@ -13,17 +13,20 @@ import {
   Text,
   TouchableWithoutFeedback,
   View,
-  FlatList,
   TouchableOpacity,
   SafeAreaView,
   ActivityIndicator,
   Platform,
   Alert,
   Linking,
+  ScrollView,
+  RefreshControl,
 } from "react-native";
 import { Avatar, Overlay, Icon, Button, Input } from "react-native-elements";
+
 import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
+
 import BottomToolbar from "../components/BottomToolbar";
 import {
   RichEditor,
@@ -33,19 +36,28 @@ import {
 import ShareMenu from "../components/ShareMenu";
 import {
   deleteSummary,
+  followAuthor,
   getNewsById,
   markAsRead,
   postComment,
   postReaction,
   sendNotification,
+  unfollowAuthor,
   updateSummary,
 } from "../store/news";
-import FontAwesome from "react-native-vector-icons/FontAwesome";
 
-import { getAuthUser } from "../store/auth";
-import { Reaction, Summary, User } from "../types";
+import { getAuthUser, getProfileInformation } from "../store/auth";
+import {
+  Comment,
+  Reaction,
+  ReactionMap,
+  Snippet as SnippetType,
+  Summary,
+  User,
+} from "../types";
 import CommentRow from "../components/CommentRow";
 import { convertDate } from "../util";
+import Snippet from "../components/Snippet";
 
 interface Props {
   route: {
@@ -65,18 +77,42 @@ export default function NewsViewScreen(props: Props) {
   } = props;
   let richText: any = useRef(null);
   const [newsData, setNewsData] = useState<Summary | undefined>();
-  const [selectedCommentId, selectCommentId]: any = useState(null);
+  const [selectedCommentId, setSelectedCommentId] = useState<
+    number | undefined
+  >();
+  const [selectedSnippetId, setSelectedSnippetId] = useState<
+    number | undefined
+  >();
   const [commentText, setCommentText] = useState("");
-  const [visible, setVisible] = useState(false);
   const [visibleCommentModal, setVisibleCommentModal] = useState(false);
-  const [emoji, setEmoji] = useState("🤔");
+  const [emojiSelectorIsVisible, setEmojiSelectorIsVisible] = useState(false);
+  // const [emoji, setEmoji] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
   const [authUser, setAuthUser] = useState<User | undefined>();
+  const [authorData, setAuthorData] = useState<User | undefined>();
   const [editTitleMode, setEditTitleMode] = useState(false);
+  const [globalComments, setGlobalComments] = useState<Comment[] | undefined>();
+  const [globalReactions, setGlobalReactions] = useState<
+    Reaction[] | undefined
+  >();
+
+  const handleRefresh = async () => {
+    setLoading(true);
+    await getNewsDataById(data.id);
+    const authUser = await getAuthUser();
+    setAuthUser(authUser);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (newsData && !authorData) {
+      populateAuthorData(newsData.user_id);
+    }
+  }, [newsData]);
 
   const getNewsDataById = (id: number) => {
     setLoading(true);
-    getNewsById(id).then((result) => {
+    return getNewsById(id).then((result) => {
       setNewsData(result);
       setLoading(false);
     });
@@ -87,87 +123,23 @@ export default function NewsViewScreen(props: Props) {
   }, []);
 
   useEffect(() => {
-    getNewsDataById(data.id);
-    getAuthUser().then((user) => {
-      setAuthUser(user);
-    });
+    handleRefresh();
   }, [data]);
 
-  const toggleOverlay = () => {
-    if (visible) {
-      setCommentText("");
-      selectCommentId(null);
-    }
-    setVisible(!visible);
-  };
-
-  const toggleCommentOverlay = () => {
-    if (visibleCommentModal) {
-      setCommentText("");
-      selectCommentId(null);
-    }
-    setVisibleCommentModal(!visibleCommentModal);
-  };
-
-  const getContent = () => {
-    let content = "";
-    if (newsData && newsData?.snippets) {
-      content = newsData?.snippets.map((item: any) => item.value).join("\n\n");
-    }
-    return content;
-  };
-
-  const handleSaveFeedback = () => {
-    const commentData = {
-      snippet_id: selectedCommentId,
-      comment: commentText,
-      summary_id: data.id,
-    };
-    postComment(commentData).then(() => {
-      toggleCommentOverlay();
-      getNewsDataById(data.id);
-    });
-  };
-
-  const handleEmojiSelect = (emoji: string) => {
-    setEmoji(emoji);
-    setVisible(false);
-    const reactionData = {
-      snippet_id: selectedCommentId,
-      reaction: emoji,
-      summary_id: data.id,
-    };
-    postReaction(reactionData).then(() => {
-      getNewsDataById(data.id);
-    });
-  };
-
-  const getComments = useCallback(
-    (snippet_id: number) => {
-      if (newsData?.comments) {
-        return newsData.comments.filter(
-          (reaction: any) => reaction.snippet_id == snippet_id
+  useEffect(() => {
+    if (newsData) {
+      if (newsData.comments) {
+        setGlobalComments(
+          newsData.comments.filter((comment) => !comment.snippet_id)
         );
       }
-      return [];
-    },
-    [newsData]
-  );
-
-  const getReactions = useCallback(
-    (snippet_id: number) => {
-      if (newsData?.reactions) {
-        return newsData.reactions.filter(
-          (reaction: any) => reaction.snippet_id == snippet_id
+      if (newsData.reactions) {
+        setGlobalReactions(
+          newsData.reactions.filter((reaction) => !reaction.snippet_id)
         );
       }
-    },
-    [newsData]
-  );
-
-  interface ReactionMap {
-    [reaction: string]: number;
-  }
+    }
+  }, [newsData]);
 
   const reduceByAmount = (result: ReactionMap, item: Reaction) => {
     if (Object.hasOwn(result, item.reaction)) {
@@ -178,97 +150,80 @@ export default function NewsViewScreen(props: Props) {
     return result;
   };
 
-  const showTopEmoji = (reactions?: any[]) => {
-    if (reactions && reactions.length > 0) {
-      // TODO: figure out a better way to combine sorting by amount and date
-      const map = reactions /*.sort(sortByDate)*/
+  const topReactionsMap = useMemo(() => {
+    if (globalReactions && globalReactions.length > 0) {
+      return globalReactions /*.sort(sortByDate)*/
         .reduce(reduceByAmount, {});
-      const topEmoji = Object.keys(map).sort((a: string, b: string) => {
-        return map[b] - map[a];
-      })[0];
-      return topEmoji;
     }
-    return "";
-  };
+    return {};
+  }, [globalReactions]);
 
-  const renderSnippet = ({ item }: any) => {
-    const emojis = getReactions(item.id);
-    const comments = getComments(item.id);
-    if (newsData) {
-      return (
-        <View style={{ marginTop: 10 }}>
-          <FontAwesome
-            name="quote-left"
-            size={30}
-            style={{ alignSelf: "flex-start" }}
-          />
-          <TouchableOpacity
-            onPress={() => {
-              selectCommentId(item.id);
-              setVisible(!visible);
-            }}
-          >
-            <View style={{ flexDirection: "row", paddingVertical: 5 }}>
-              <Text style={{ paddingRight: 10, fontSize: 20, minWidth: 35 }}>
-                {showTopEmoji(emojis)}
-              </Text>
-              <Text style={{ flex: 1, flexWrap: "wrap" }}>{item.value}</Text>
-            </View>
-          </TouchableOpacity>
-          <FontAwesome
-            name="quote-right"
-            size={30}
-            style={{ alignSelf: "flex-end" }}
-          />
-          <View
-            style={{
-              flexDirection: "column",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <View style={{ flexDirection: "row" }}>
-              {comments.length > 0 && (
-                <FlatList
-                  data={comments}
-                  renderItem={({ item }) => (
-                    <CommentRow item={item} navigation={navigation} />
-                  )}
-                  style={{ flex: 1, marginTop: 5, width: "100%" }}
-                />
-              )}
-            </View>
-            <View>
-              <TouchableOpacity
-                onPress={() => {
-                  selectCommentId(item.id);
-                  toggleCommentOverlay();
-                }}
-              >
-                <Text style={{ color: "grey" }}>Add comment</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      );
+  const topReactions = useMemo(() => {
+    const reactionArray = Object.keys(topReactionsMap).sort(
+      (a, b) => topReactionsMap[a] - topReactionsMap[b]
+    );
+    const responseArray: string[] = [];
+    // TODO: improve the algorithm here?
+    if (reactionArray.length >= 1) {
+      responseArray.push(reactionArray[0]);
+      if (reactionArray.length >= 2) {
+        responseArray.push(reactionArray[1]);
+        if (reactionArray.length >= 3) {
+          responseArray.push(reactionArray[2]);
+        }
+      }
+    }
+    return responseArray;
+  }, [topReactionsMap]);
+
+  const toggleCommentOverlay = (openState?: boolean, commentId?: number) => {
+    if (openState === false || visibleCommentModal) {
+      setCommentText("");
+      setSelectedCommentId(undefined);
+    }
+    if (openState !== undefined) {
+      setVisibleCommentModal(openState);
     } else {
-      return (
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "row",
-            justifyContent: "space-around",
-            padding: 10,
-          }}
-        >
-          <ActivityIndicator />
-        </View>
-      );
+      setVisibleCommentModal(!visibleCommentModal);
+    }
+    if (commentId) {
+      setSelectedCommentId(commentId);
     }
   };
 
-  const handleRefresh = () => {
-    getNewsDataById(data.id);
+  const toggleEmojiOverlay = (openState?: boolean, snippetId?: number) => {
+    console.log("*** toggleEmojiOverlay: ", openState, snippetId);
+    // if (openState === false || emojiSelectorIsVisible) {
+    //   setEmoji(undefined);
+    // }
+    if (openState !== undefined) {
+      setEmojiSelectorIsVisible(openState);
+    } else {
+      setEmojiSelectorIsVisible(!emojiSelectorIsVisible);
+    }
+    if (snippetId) {
+      setSelectedSnippetId(snippetId);
+    }
+  };
+
+  const getContent = () => {
+    let content = "";
+    if (newsData && newsData?.snippets) {
+      content = newsData?.snippets.map((item: any) => item.value).join("\n\n");
+    }
+    return content;
+  };
+
+  const handleSaveComment = () => {
+    const commentData = {
+      snippet_id: selectedCommentId,
+      comment: commentText,
+      summary_id: data.id,
+    };
+    postComment(commentData).then(() => {
+      toggleCommentOverlay(false);
+      getNewsDataById(data.id);
+    });
   };
 
   const deleteItem = useCallback(() => {
@@ -348,7 +303,7 @@ export default function NewsViewScreen(props: Props) {
     });
   }, [navigation]);
 
-  const getViewStyle = useCallback((item: Summary) => {
+  const getViewStyle = (item: Summary) => {
     const baseStyle = {
       flex: 1,
       padding: 10,
@@ -363,86 +318,168 @@ export default function NewsViewScreen(props: Props) {
       });
     }
     return baseStyle;
+  };
+
+  const populateAuthorData = async (user_id: number) => {
+    setLoading(true);
+    const data = await getProfileInformation(user_id);
+    setAuthorData(data);
+    setLoading(false);
+  };
+
+  const followerIds = useMemo(() => {
+    if (authorData) {
+      return authorData.followers.map((follower: any) =>
+        Number(follower.follower_id)
+      );
+    }
+    return [];
+  }, [authorData]);
+
+  const handleFollow = useCallback((user_id: number) => {
+    const postData = {
+      follower_id: user_id,
+    };
+    followAuthor(postData).then(() => {
+      handleRefresh();
+    });
   }, []);
+
+  const handleUnfollow = useCallback((user_id: number) => {
+    unfollowAuthor(user_id).then(() => {
+      handleRefresh();
+    });
+  }, []);
+
+  const handleEmojiSelect = async (emoji: string, snippetId?: number) => {
+    setEmojiSelectorIsVisible(false);
+    const reactionDataBase = {
+      reaction: emoji,
+      summary_id: newsData?.id,
+    };
+    if (snippetId) {
+      await postReaction({
+        ...reactionDataBase,
+        snippet_id: snippetId,
+      });
+    } else if (newsData) {
+      await postReaction({
+        ...reactionDataBase,
+      });
+    }
+    handleRefresh();
+  };
 
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={commonStyle.pageContainer}>
-          {newsData && (
-            <View style={getViewStyle(newsData)}>
-              <View
-                style={{
-                  justifyContent: "space-between",
-                  flexDirection: "row",
-                  paddingBottom: 10,
-                  alignItems: "center",
+      <View style={commonStyle.pageContainer}>
+        {newsData && (
+          <ScrollView
+            style={getViewStyle(newsData)}
+            refreshControl={
+              <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
+            }
+            contentContainerStyle={{
+              flexDirection: "column",
+              justifyContent: "flex-start",
+            }}
+          >
+            <View
+              style={{
+                flexShrink: 1,
+                flexDirection: "row",
+                justifyContent: "space-between",
+                width: "100%",
+              }}
+            >
+              <View>
+                <Icon
+                  name="file-alt"
+                  type="font-awesome-5"
+                  color="black"
+                  size={34}
+                  tvParallaxProperties={undefined}
+                />
+              </View>
+
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate("AuthorView", {
+                    data: { id: newsData.user_id },
+                  });
                 }}
               >
-                <Avatar
-                  // title={newsData?.title[0]}
-                  // titleStyle={{ color: "black" }}
-                  source={
-                    (newsData?.avatar_uri as any) && {
-                      uri: newsData?.avatar_uri,
-                    }
-                  }
-                  // containerStyle={{
-                  //   borderColor: "green",
-                  //   borderWidth: 1,
-                  //   padding: 3,
-                  // }}
-                  onPress={() => {
-                    navigation.navigate("AuthorView", {
-                      data: { id: newsData.user_id },
-                    });
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    justifyContent: "center",
                   }}
-                />
-                {!editTitleMode && (
-                  <Text
-                    style={{
-                      fontSize: 18,
-                      flex: 1,
-                      paddingHorizontal: 10,
-                      textAlign: "center",
-                      color: "blue",
-                    }}
-                    onPress={() => {
-                      setCurrentSummaryId(newsData.id);
-                      // TODO: measure/reduce the number of stack items that iOS creates from going back and forth from Safari
-                      Linking.openURL(newsData.url);
-                    }}
-                  >
-                    {newsData.title}
-                  </Text>
-                )}
-                {editTitleMode && (
-                  <Input
-                    // ref={titleInputRef}
-                    label="Title"
-                    placeholder="New title that explains the contribution of the article"
-                    value={newsData.title}
-                    // editable={!loading}
-                    onChangeText={(text: string) => {
-                      // if (text !== defaultTitle) {
-                      //   setUseDefaultTitle(false);
-                      // }
-                      setNewsData({
-                        ...newsData,
-                        title: text,
-                      });
-                    }}
-                    blurOnSubmit={true}
-                    onBlur={() =>
-                      updateSummary(newsData.id, {
-                        title: newsData.title,
-                      }).then(() => setEditTitleMode(false))
+                >
+                  <Avatar
+                    // title={newsData?.title[0]}
+                    // titleStyle={{ color: "black" }}
+                    source={
+                      (newsData.avatar_uri as any) && {
+                        uri: newsData.avatar_uri,
+                      }
                     }
-                    autoCompleteType={undefined}
+                    // containerStyle={{
+                    //   borderColor: "green",
+                    //   borderWidth: 1,
+                    //   padding: 3,
+                    // }}
                   />
-                )}
+                  <Text style={{ paddingLeft: 10, fontSize: 18 }}>
+                    {newsData.username ?? "(username)"}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              <View>
+                {authorData &&
+                  authUser &&
+                  authorData.id !== authUser.id &&
+                  followerIds.includes(authUser.id) && (
+                    <Button
+                      title="Unfollow"
+                      buttonStyle={{ backgroundColor: "#6AA84F" }}
+                      onPress={() => handleUnfollow(authorData.id)}
+                    />
+                  )}
+                {authorData &&
+                  authUser &&
+                  authorData.id !== authUser.id &&
+                  !followerIds.includes(authUser.id) && (
+                    <Button
+                      title="Follow"
+                      buttonStyle={{ backgroundColor: "#6AA84F" }}
+                      onPress={() => handleFollow(authorData.id)}
+                    />
+                  )}
+              </View>
+            </View>
+
+            <View
+              style={{
+                flexShrink: 1,
+                flexDirection: "row",
+                justifyContent: "center",
+                width: "100%",
+              }}
+            >
+              <Text
+                style={{
+                  paddingRight: 10,
+                  fontSize: 20,
+                  minWidth: 35,
+                }}
+              >
+                {topReactions}
+              </Text>
+              {newsData.logo_uri && (
                 <Avatar
-                  // title={newsData?.title[0]}
+                  // title={newsData.title[0]}
                   // titleStyle={{ color: "black" }}
                   source={
                     (newsData.logo_uri as any) && { uri: newsData.logo_uri }
@@ -453,103 +490,202 @@ export default function NewsViewScreen(props: Props) {
                   //   padding: 3,
                   // }}
                 />
-              </View>
-              {newsData.updated_at && (
+              )}
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                flexWrap: "wrap",
+                flexShrink: 1,
+              }}
+            >
+              {!editTitleMode && (
+                <Text
+                  style={{
+                    fontSize: 18,
+                    paddingHorizontal: 10,
+                    textAlign: "center",
+                    fontWeight: "bold",
+                  }}
+                  onPress={() => toggleEmojiOverlay(true)}
+                >
+                  {newsData.title}
+                </Text>
+              )}
+              {editTitleMode && (
+                <Input
+                  // ref={titleInputRef}
+                  label="Title"
+                  placeholder="New title that explains the contribution of the article"
+                  value={newsData.title}
+                  // editable={!loading}
+                  onChangeText={(text: string) => {
+                    // if (text !== defaultTitle) {
+                    //   setUseDefaultTitle(false);
+                    // }
+                    setNewsData({
+                      ...newsData,
+                      title: text,
+                    });
+                  }}
+                  blurOnSubmit={true}
+                  onBlur={() =>
+                    updateSummary(newsData.id, {
+                      title: newsData.title,
+                    }).then(() => setEditTitleMode(false))
+                  }
+                  autoCompleteType={undefined}
+                />
+              )}
+            </View>
+
+            {authUser?.id == newsData.user_id && (
+              <Button
+                onPress={() => setEditTitleMode(true)}
+                title="🖊️ Edit Title"
+                buttonStyle={{ backgroundColor: "blue" }}
+              />
+            )}
+
+            {newsData.updated_at && (
+              <View
+                style={{
+                  flex: 1,
+                }}
+              >
                 <Text>Updated {convertDate(newsData.updated_at)}</Text>
+              </View>
+            )}
+
+            <View style={{ flex: 1, flexDirection: "column" }}>
+              {newsData.comments &&
+                newsData.comments
+                  .filter((comment) => !comment.snippet_id)
+                  .map((comment) => {
+                    return (
+                      <CommentRow
+                        item={comment}
+                        navigation={navigation}
+                        key={`comment #${comment.id}`}
+                      />
+                    );
+                  })}
+              <View style={{ flex: 1 }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    toggleCommentOverlay(true);
+                  }}
+                >
+                  <Text
+                    style={{ color: "gray", textAlign: "center", padding: 10 }}
+                  >
+                    Add comment
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {newsData.snippets && newsData.snippets.length > 0 && (
+              <View style={{ flex: 1 }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <View
+                    style={{ flex: 1, height: 1, backgroundColor: "black" }}
+                  />
+                  <View>
+                    <Text
+                      style={{
+                        width: 70,
+                        textAlign: "center",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Snippets
+                    </Text>
+                  </View>
+                  <View
+                    style={{ flex: 1, height: 1, backgroundColor: "black" }}
+                  />
+                </View>
+                {newsData.snippets.map((snippet) => (
+                  <Snippet
+                    snippet={snippet}
+                    comments={newsData.comments.filter(
+                      (comment) => comment.snippet_id == snippet.id
+                    )}
+                    reactions={newsData.reactions.filter(
+                      (reaction) => reaction.snippet_id == snippet.id
+                    )}
+                    navigation={navigation}
+                    toggleCommentOverlay={toggleCommentOverlay}
+                    toggleEmojiOverlay={toggleEmojiOverlay}
+                    handleRefresh={handleRefresh}
+                    key={`snippet component #${snippet.id}`}
+                  />
+                ))}
+              </View>
+            )}
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <View style={{ flex: 1, height: 1, backgroundColor: "black" }} />
+              <View>
+                <Text
+                  style={{ width: 60, textAlign: "center", fontWeight: "bold" }}
+                >
+                  Actions
+                </Text>
+              </View>
+              <View style={{ flex: 1, height: 1, backgroundColor: "black" }} />
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-around",
+              }}
+            >
+              <Button
+                title="➕ Snippet"
+                onPress={() => {
+                  setCurrentSummaryId(newsData.id);
+                  Linking.openURL(newsData.url);
+                }}
+                titleStyle={{ fontSize: 16 }}
+              />
+              {authUser?.id == newsData.user_id && newsData.is_draft && (
+                <Button
+                  onPress={publishDraft}
+                  title="✔️ Publish"
+                  buttonStyle={{ backgroundColor: "green" }}
+                />
+              )}
+              {!newsData.is_draft && !newsData.is_archived && (
+                <Button
+                  onPress={archiveItem}
+                  title="🗂 Archive"
+                  buttonStyle={{ backgroundColor: "orange" }}
+                />
               )}
               {authUser?.id == newsData.user_id && (
                 <Button
-                  title="Edit Title"
-                  onPress={() => setEditTitleMode(true)}
+                  onPress={deleteItem}
+                  title="🗑 Delete"
+                  buttonStyle={{ backgroundColor: "red" }}
                 />
               )}
-              {newsData?.snippets && newsData.snippets.length > 0 && (
-                <FlatList
-                  data={newsData.snippets}
-                  renderItem={renderSnippet}
-                  style={{
-                    width: "100%",
-                    flexGrow: 0,
-                  }}
-                  refreshing={loading}
-                  onRefresh={handleRefresh}
-                />
-              )}
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginTop: 10,
-                  marginBottom: 10,
-                }}
-              >
-                <View
-                  style={{ flex: 1, height: 1, backgroundColor: "black" }}
-                />
-                <View>
-                  <Text style={{ width: 50, textAlign: "center" }}>
-                    Actions
-                  </Text>
-                </View>
-                <View
-                  style={{ flex: 1, height: 1, backgroundColor: "black" }}
-                />
-              </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <View style={{ width: "30%" }}>
-                  <Text
-                    style={{
-                      textAlign: "center",
-                      fontStyle: "italic",
-                      borderWidth: 1,
-                      borderColor: "black",
-                      padding: 10,
-                    }}
-                  >
-                    Tap the link above to add{" "}
-                    {newsData?.snippets && newsData.snippets.length === 0
-                      ? "some "
-                      : "more "}
-                    snippets as evidence for this summary
-                  </Text>
-                </View>
-                {authUser?.id == newsData.user_id && newsData.is_draft && (
-                  <Button
-                    onPress={publishDraft}
-                    title="✔️ Publish"
-                    buttonStyle={{ backgroundColor: "green" }}
-                    style={{
-                      width: 100,
-                      padding: 10,
-                    }}
-                  />
-                )}
-                {!newsData.is_draft && !newsData.is_archived && (
-                  <Button
-                    onPress={archiveItem}
-                    title="🗂 Archive"
-                    buttonStyle={{ backgroundColor: "orange" }}
-                    style={{ width: 100, padding: 10 }}
-                  />
-                )}
-                {authUser?.id == newsData.user_id && (
-                  <Button
-                    onPress={deleteItem}
-                    title="🗑 Delete"
-                    buttonStyle={{ backgroundColor: "red" }}
-                    style={{
-                      width: 100,
-                      padding: 10,
-                    }}
-                  />
-                )}
-              </View>
               {!newsData.is_draft && (
                 <ShareMenu
                   title={newsData.title}
@@ -558,123 +694,125 @@ export default function NewsViewScreen(props: Props) {
                 />
               )}
             </View>
-          )}
-          {!newsData && (
+          </ScrollView>
+        )}
+        {!newsData && (
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              justifyContent: "space-around",
+              padding: 10,
+            }}
+          >
+            <ActivityIndicator />
+          </View>
+        )}
+        <BottomToolbar {...props} />
+
+        <Overlay
+          isVisible={visibleCommentModal}
+          onBackdropPress={() => toggleCommentOverlay(false)}
+          overlayStyle={{ height: 200 }}
+        >
+          <SafeAreaView>
             <View
               style={{
-                flex: 1,
                 flexDirection: "row",
-                justifyContent: "space-around",
-                padding: 10,
+                alignItems: "center",
+                justifyContent: "space-between",
               }}
             >
-              <ActivityIndicator />
-            </View>
-          )}
-          <BottomToolbar {...props} />
-          <Overlay
-            isVisible={visible}
-            onBackdropPress={toggleOverlay}
-            fullScreen={true}
-          >
-            <SafeAreaView style={{ flex: 1 }}>
+              <Text>New Comment</Text>
               <TouchableOpacity
-                style={{ alignSelf: "flex-end" }}
-                onPress={() => toggleOverlay()}
-              >
-                <MaterialIcon
-                  name="close"
-                  color={"black"}
-                  size={30}
-                  style={{ marginBottom: 10 }}
-                />
-              </TouchableOpacity>
-              <EmojiSelector
-                onEmojiSelected={(emoji) => handleEmojiSelect(emoji)}
-                showSearchBar={false}
-                showTabs={true}
-                showHistory={true}
-                showSectionTitles={true}
-                category={Categories.all}
-              />
-            </SafeAreaView>
-          </Overlay>
-
-          <Overlay
-            isVisible={visibleCommentModal}
-            onBackdropPress={toggleCommentOverlay}
-            overlayStyle={{ height: 200 }}
-          >
-            <SafeAreaView>
-              <View
+                onPress={handleSaveComment}
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  justifyContent: "space-between",
+                  borderWidth: 1,
+                  padding: 2,
+                  borderRadius: 3,
+                  paddingRight: 10,
+                  borderColor: "gray",
                 }}
               >
-                <Text>New Comment</Text>
-                <TouchableOpacity
-                  onPress={handleSaveFeedback}
+                <Icon
+                  name="save"
+                  type="font-awesome-5"
+                  color={commentText?.length > 0 ? "black" : "#ccc"}
+                  style={{ paddingHorizontal: 10 }}
+                  tvParallaxProperties={undefined}
+                />
+                <Text
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    borderWidth: 1,
-                    padding: 2,
-                    borderRadius: 3,
-                    paddingRight: 10,
-                    borderColor: "grey",
+                    color: commentText?.length > 0 ? "black" : "gray",
+                    fontWeight: "bold",
                   }}
                 >
-                  <Icon
-                    name="save"
-                    type="font-awesome-5"
-                    color={commentText?.length > 0 ? "black" : "#ccc"}
-                    style={{ paddingHorizontal: 10 }}
-                    tvParallaxProperties={undefined}
-                  />
-                  <Text
-                    style={{
-                      color: commentText?.length > 0 ? "black" : "grey",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Save
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={{ flex: 1 }}
-              >
-                <RichEditor
-                  ref={richText}
-                  onChange={(descriptionText) => {
-                    setCommentText(descriptionText);
-                  }}
-                />
-              </KeyboardAvoidingView>
-              <RichToolbar
-                editor={richText}
-                actions={[
-                  actions.setBold,
-                  actions.setItalic,
-                  actions.setUnderline,
-                  actions.insertBulletsList,
-                  actions.insertOrderedList,
-                  actions.insertLink,
-                  actions.heading1,
-                ]}
-                iconMap={{
-                  [actions.heading1]: ({ tintColor }) => (
-                    <Text style={[{ color: tintColor }]}>H1</Text>
-                  ),
+                  Save
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              style={{ flex: 1 }}
+            >
+              <RichEditor
+                ref={richText}
+                onChange={(descriptionText) => {
+                  setCommentText(descriptionText);
                 }}
               />
-            </SafeAreaView>
-          </Overlay>
-        </View>
-      </TouchableWithoutFeedback>
+            </KeyboardAvoidingView>
+            <RichToolbar
+              editor={richText}
+              actions={[
+                actions.setBold,
+                actions.setItalic,
+                actions.setUnderline,
+                actions.insertBulletsList,
+                actions.insertOrderedList,
+                actions.insertLink,
+                actions.heading1,
+              ]}
+              iconMap={{
+                [actions.heading1]: ({ tintColor }) => (
+                  <Text style={[{ color: tintColor }]}>H1</Text>
+                ),
+              }}
+            />
+          </SafeAreaView>
+        </Overlay>
+        <Overlay
+          isVisible={emojiSelectorIsVisible}
+          // onBackdropPress={() => toggleEmojiOverlay(false)}
+          fullScreen={true}
+        >
+          <SafeAreaView style={{ flex: 1 }}>
+            <TouchableOpacity
+              style={{ alignSelf: "flex-end" }}
+              onPress={() => toggleEmojiOverlay(false)}
+            >
+              <MaterialIcon
+                name="close"
+                color={"black"}
+                size={30}
+                style={{ marginBottom: 10 }}
+              />
+            </TouchableOpacity>
+            <EmojiSelector
+              onEmojiSelected={(emoji) =>
+                handleEmojiSelect(emoji, selectedSnippetId)
+              }
+              showSearchBar={false}
+              showTabs={true}
+              showHistory={true}
+              showSectionTitles={true}
+              category={Categories.all}
+            />
+          </SafeAreaView>
+        </Overlay>
+      </View>
     </KeyboardAvoidingView>
   );
 }
