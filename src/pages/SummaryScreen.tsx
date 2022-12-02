@@ -24,7 +24,7 @@ import {
   createSource,
   getNewsById,
   getSource,
-  postSummary,
+  createSummary,
   sendNotification,
   updateSummary,
 } from "../store/news";
@@ -155,7 +155,7 @@ export default function SummaryScreen(props: Props) {
         user_id: authUser.id,
         source_id: source?.id,
       };
-      const result = await postSummary(summary);
+      const result = await createSummary(summary);
       await sendNotification({
         title: "A new summary was created!",
         text: summary.title,

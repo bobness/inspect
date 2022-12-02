@@ -70,7 +70,7 @@ export {
   getAllNews,
   searchInformation,
   getNewsById,
-  createSummary as postSummary,
+  createSummary,
   postComment,
   postReaction,
   deleteSummary,
