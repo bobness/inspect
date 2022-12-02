@@ -66,7 +66,7 @@ export default function AuthorViewScreen(props: any) {
       tvParallaxProperties={undefined}
       style={{ flex: 1, width: "100%" }}
       onPress={() => {
-        navigation.navigate("AuthorNewsView", { data: item });
+        navigation.navigate("NewsView", { data: item });
       }}
       key={`summary #${item.id}`}
     >
@@ -198,8 +198,8 @@ export default function AuthorViewScreen(props: any) {
                     }
                   }
                   style={{
-                    width: 30,
-                    height: 30,
+                    // width: 30,
+                    // height: 30,
                     borderWidth: 2,
                     // borderColor: "#6AA84F",
                     marginHorizontal: 2,

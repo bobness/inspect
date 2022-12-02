@@ -20,7 +20,7 @@ const getNewsById = (newsId) => {
   return instance.get("/summaries/id/" + newsId).then((res) => res.data);
 };
 
-const postSummary = (summary) => {
+const createSummary = (summary) => {
   return instance.post("/summaries", summary).then((res) => res.data);
 };
 
@@ -56,13 +56,21 @@ const sendNotification = (data) => {
   return instance.post("/notification", data).then((res) => res.data);
 };
 
+const getSource = (baseUrl) => {
+  return instance.get(`/sources/${baseUrl}`).then((res) => res.data);
+};
+
+const createSource = (baseUrl) => {
+  return instance.post(`/sources/${baseUrl}`).then((res) => res.data);
+};
+
 export {
   getUnreadNews,
   markAsRead,
   getAllNews,
   searchInformation,
   getNewsById,
-  postSummary,
+  createSummary as postSummary,
   postComment,
   postReaction,
   deleteSummary,
@@ -71,4 +79,6 @@ export {
   unfollowAuthor,
   sendNotification,
   updateSummary,
+  getSource,
+  createSource,
 };

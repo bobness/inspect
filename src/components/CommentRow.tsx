@@ -6,7 +6,7 @@ import { Avatar, ListItem, Text } from "react-native-elements";
 import { Comment } from "../types";
 import { convertDate } from "../util";
 
-const AVATAR_WIDTH = 50;
+const AVATAR_WIDTH = 34;
 const TAB_SIZE = 20;
 const LIST_PADDING = 2 * 10;
 
@@ -21,7 +21,7 @@ const CommentRow = ({ item, navigation }: Props) => {
       style={{ flex: 1, flexDirection: "column", marginTop: 10 }}
       key={`comment #${item.id}`}
     >
-      <View style={{ flex: 1, flexDirection: "row" }}>
+      <View style={{ flex: 1, flexDirection: "row", marginLeft: TAB_SIZE }}>
         <Avatar
           // title={newsData?.title[0]}
           // titleStyle={{ color: "black" }}
@@ -31,8 +31,6 @@ const CommentRow = ({ item, navigation }: Props) => {
             }
           }
           containerStyle={{
-            width: AVATAR_WIDTH,
-            height: AVATAR_WIDTH,
             marginRight: 5,
           }}
           // containerStyle={{
@@ -53,9 +51,7 @@ const CommentRow = ({ item, navigation }: Props) => {
               TAB_SIZE -
               AVATAR_WIDTH -
               LIST_PADDING,
-            height: 50,
           }}
-          // onSizeUpdated={(size) => console.log(size.height)}
           files={[
             {
               href: "cssfileaddress",
@@ -64,7 +60,8 @@ const CommentRow = ({ item, navigation }: Props) => {
             },
           ]}
           source={{ html: item.comment }}
-          scalesPageToFit={true}
+          // scalesPageToFit={true}
+          scrollEnabled={false}
           viewportContent={"width=device-width, user-scalable=no"}
         />
       </View>

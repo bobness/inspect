@@ -192,7 +192,6 @@ export default function NewsViewScreen(props: Props) {
   };
 
   const toggleEmojiOverlay = (openState?: boolean, snippetId?: number) => {
-    console.log("*** toggleEmojiOverlay: ", openState, snippetId);
     // if (openState === false || emojiSelectorIsVisible) {
     //   setEmoji(undefined);
     // }
@@ -325,6 +324,22 @@ export default function NewsViewScreen(props: Props) {
     handleRefresh();
   };
 
+  const goToUrl = (newsData: Summary) => {
+    setCurrentSummaryId(newsData.id);
+    Linking.openURL(newsData.url);
+  };
+
+  const toggleEditTitle = async (openState: boolean, newsData: Summary) => {
+    if (openState) {
+      setEditTitleMode(true);
+    } else {
+      setEditTitleMode(false);
+      await updateSummary(newsData.id, {
+        title: newsData.title,
+      });
+    }
+  };
+
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <View style={commonStyle.pageContainer}>
@@ -353,12 +368,12 @@ export default function NewsViewScreen(props: Props) {
                 width: "100%",
               }}
             >
-              <View>
+              <View style={{ flex: 1 }}>
                 <Icon
                   name="file-alt"
                   type="font-awesome-5"
                   color="black"
-                  size={34}
+                  size={50}
                   tvParallaxProperties={undefined}
                 />
               </View>
@@ -375,6 +390,7 @@ export default function NewsViewScreen(props: Props) {
                     flex: 1,
                     flexDirection: "row",
                     justifyContent: "center",
+                    alignItems: "center",
                   }}
                 >
                   <Avatar
@@ -385,25 +401,27 @@ export default function NewsViewScreen(props: Props) {
                         uri: newsData.avatar_uri,
                       }
                     }
+                    size="medium"
                     // containerStyle={{
                     //   borderColor: "green",
                     //   borderWidth: 1,
                     //   padding: 3,
                     // }}
                   />
-                  <Text style={{ paddingLeft: 10, fontSize: 18 }}>
+                  <Text style={{ paddingHorizontal: 20, fontSize: 18 }}>
                     {newsData.username ?? "(username)"}
                   </Text>
                 </View>
               </TouchableOpacity>
 
-              <View>
+              <View style={{ flex: 1 }}>
                 {authorData &&
                   authUser &&
                   authorData.id !== authUser.id &&
                   followerIds.includes(authUser.id) && (
                     <Button
                       title="Unfollow"
+                      titleStyle={{ fontSize: 16 }}
                       buttonStyle={{ backgroundColor: "#6AA84F" }}
                       onPress={() => handleUnfollow(authorData.id)}
                     />
@@ -414,6 +432,7 @@ export default function NewsViewScreen(props: Props) {
                   !followerIds.includes(authUser.id) && (
                     <Button
                       title="Follow"
+                      titleStyle={{ fontSize: 16 }}
                       buttonStyle={{ backgroundColor: "#6AA84F" }}
                       onPress={() => handleFollow(authorData.id)}
                     />
@@ -423,17 +442,17 @@ export default function NewsViewScreen(props: Props) {
 
             <View
               style={{
-                flexShrink: 1,
+                flex: 1,
                 flexDirection: "row",
-                justifyContent: "center",
+                justifyContent: "space-around",
                 width: "100%",
+                paddingTop: 10,
+                alignItems: "center",
               }}
             >
               <Text
                 style={{
-                  paddingRight: 10,
-                  fontSize: 20,
-                  minWidth: 35,
+                  fontSize: 26,
                 }}
               >
                 {topReactions}
@@ -445,13 +464,26 @@ export default function NewsViewScreen(props: Props) {
                   source={
                     (newsData.logo_uri as any) && { uri: newsData.logo_uri }
                   }
+                  size="medium"
                   // containerStyle={{
                   //   borderColor: "green",
                   //   borderWidth: 1,
                   //   padding: 3,
                   // }}
+                  avatarStyle={{ resizeMode: "contain" }}
                 />
               )}
+              {!newsData.logo_uri && <Text>{newsData.source_baseurl}</Text>}
+              <Text onPress={() => goToUrl(newsData)}>
+                <Icon
+                  name="external-link-alt"
+                  type="font-awesome-5"
+                  color="blue"
+                  size={26}
+                  // style={{ paddingHorizontal: 10 }}
+                  tvParallaxProperties={undefined}
+                />
+              </Text>
             </View>
 
             <View
@@ -490,12 +522,6 @@ export default function NewsViewScreen(props: Props) {
                       title: text,
                     });
                   }}
-                  blurOnSubmit={true}
-                  onBlur={() =>
-                    updateSummary(newsData.id, {
-                      title: newsData.title,
-                    }).then(() => setEditTitleMode(false))
-                  }
                   autoCompleteType={undefined}
                 />
               )}
@@ -503,8 +529,8 @@ export default function NewsViewScreen(props: Props) {
 
             {authUser?.id == newsData.user_id && (
               <Button
-                onPress={() => setEditTitleMode(true)}
-                title="🖊️ Edit Title"
+                onPress={() => toggleEditTitle(!editTitleMode, newsData)}
+                title={editTitleMode ? "✔️ Set Title" : "🖊️ Edit Title"}
                 buttonStyle={{ backgroundColor: "blue" }}
               />
             )}
@@ -515,7 +541,9 @@ export default function NewsViewScreen(props: Props) {
                   flex: 1,
                 }}
               >
-                <Text>Updated {convertDate(newsData.updated_at)}</Text>
+                <Text style={{ color: "gray" }}>
+                  Updated {convertDate(newsData.updated_at)}
+                </Text>
               </View>
             )}
 
@@ -523,15 +551,13 @@ export default function NewsViewScreen(props: Props) {
               {newsData.comments &&
                 newsData.comments
                   .filter((comment) => !comment.snippet_id)
-                  .map((comment) => {
-                    return (
-                      <CommentRow
-                        item={comment}
-                        navigation={navigation}
-                        key={`comment #${comment.id}`}
-                      />
-                    );
-                  })}
+                  .map((comment) => (
+                    <CommentRow
+                      item={comment}
+                      navigation={navigation}
+                      key={`comment #${comment.id}`}
+                    />
+                  ))}
               <View style={{ flex: 1 }}>
                 <TouchableOpacity
                   onPress={() => {
@@ -539,7 +565,7 @@ export default function NewsViewScreen(props: Props) {
                   }}
                 >
                   <Text
-                    style={{ color: "gray", textAlign: "center", padding: 10 }}
+                    style={{ color: "blue", textAlign: "center", padding: 10 }}
                   >
                     Add comment
                   </Text>
@@ -567,7 +593,7 @@ export default function NewsViewScreen(props: Props) {
                         fontWeight: "bold",
                       }}
                     >
-                      Snippets
+                      Evidence
                     </Text>
                   </View>
                   <View
@@ -619,10 +645,9 @@ export default function NewsViewScreen(props: Props) {
               }}
             >
               <Button
-                title="➕ Snippet"
+                title="➕ Evidence"
                 onPress={() => {
-                  setCurrentSummaryId(newsData.id);
-                  Linking.openURL(newsData.url);
+                  goToUrl(newsData);
                 }}
                 titleStyle={{ fontSize: 16 }}
               />
