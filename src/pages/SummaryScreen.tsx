@@ -21,8 +21,10 @@ import { Input, CheckBox, Button } from "react-native-elements";
 import { useIsFocused } from "@react-navigation/native";
 import { getAuthUser } from "../store/auth";
 import {
+  createSource,
   getNewsById,
-  postSummary,
+  getSource,
+  createSummary,
   sendNotification,
   updateSummary,
 } from "../store/news";
@@ -109,9 +111,13 @@ export default function SummaryScreen(props: Props) {
           setDefaultTitle(docTitle);
         }
       }),
-      instance.get(`/sources/${baseUrl}`).then((res) => {
-        if (res.data) {
-          setSource(res.data);
+      getSource(baseUrl).then((data) => {
+        if (data) {
+          setSource(data);
+        } else {
+          return createSource(baseUrl).then((newSource) =>
+            setSource(newSource)
+          );
         }
       }),
     ]).then(() => setLoading(false));
@@ -149,7 +155,7 @@ export default function SummaryScreen(props: Props) {
         user_id: authUser.id,
         source_id: source?.id,
       };
-      const result = await postSummary(summary);
+      const result = await createSummary(summary);
       await sendNotification({
         title: "A new summary was created!",
         text: summary.title,

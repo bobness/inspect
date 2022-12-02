@@ -25,7 +25,6 @@ import RegisterScreen from "./src/pages/RegisterScreen";
 import HomeScreen from "./src/pages/HomeScreen";
 import NewsViewScreen from "./src/pages/NewsViewScreen";
 import AuthorViewScreen from "./src/pages/AuthorViewScreen";
-import AuthorNewsViewScreen from "./src/pages/AuthorNewsViewScreen";
 import ProfileScreen from "./src/pages/ProfileScreen";
 import { updateUserExpoToken } from "./src/store/auth";
 import SummaryScreen from "./src/pages/SummaryScreen";
@@ -197,11 +196,6 @@ export default function App() {
         <Stack.Screen
           name="AuthorView"
           component={AuthorViewScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="AuthorNewsView"
-          component={AuthorNewsViewScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen

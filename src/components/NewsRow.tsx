@@ -1,12 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View } from "react-native";
+import { Image, View } from "react-native";
 import { Avatar, ListItem, Text } from "react-native-elements";
 import { Gesture, GestureDetector, State } from "react-native-gesture-handler";
 import Animated, {
   SlideOutLeft,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
 } from "react-native-reanimated";
 import { Summary } from "../types";
 import { convertDate } from "../util";
@@ -100,15 +99,17 @@ const NewsRow = ({ item, onPress, onLongPress, onSwipeLeft }: Props) => {
 
   const itemStyle = useMemo(() => {
     const baseStyle = {
+      flex: 1,
+      justifyContent: "flex-start" as const,
       marginVertical: 5,
       marginHorizontal: 10,
+      borderWidth: 1,
+      borderColor: "gray",
     };
     if (isLongPressed.value) {
       return {
         ...baseStyle,
         borderStyle: "dotted" as const,
-        borderWidth: 2,
-        borderColor: "black",
       };
     }
     return baseStyle;
@@ -121,7 +122,7 @@ const NewsRow = ({ item, onPress, onLongPress, onSwipeLeft }: Props) => {
   }, []);
 
   return (
-    <GestureDetector gesture={composedGesture}>
+    <GestureDetector gesture={composedGesture} key={`summary #${item.id}`}>
       <Animated.View
         style={animatedStyles}
         exiting={SlideOutLeft.duration(SLIDE_OUT_DURATION)}
@@ -132,25 +133,42 @@ const NewsRow = ({ item, onPress, onLongPress, onSwipeLeft }: Props) => {
           tvParallaxProperties={undefined}
           style={itemStyle}
           onPress={onPress}
-          key={`summary #${item.id}`}
         >
           <Avatar
             // title={item.title[0]}
             // titleStyle={{ color: "black" }}
+            size="medium"
             source={(item.avatar_uri as any) && { uri: item.avatar_uri }}
             // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
           />
-          <ListItem.Content>
-            <ListItem.Title>{item.title}</ListItem.Title>
+          <ListItem.Content
+            style={{
+              flex: 1,
+            }}
+          >
+            <ListItem.Title style={{ fontSize: 14 }}>
+              {item.title}
+            </ListItem.Title>
           </ListItem.Content>
           <View>
-            <Avatar
-              // title={item.title[0]}
-              // titleStyle={{ color: "black" }}
-              source={(item.logo_uri as any) && { uri: item.logo_uri }}
-              // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
-            />
-            {item.updated_at && <Text>{convertDate(item.updated_at)}</Text>}
+            {item.logo_uri && (
+              <Image
+                // title={item.title[0]}
+                // titleStyle={{ color: "black" }}
+                source={(item.logo_uri as any) && { uri: item.logo_uri }}
+                style={{
+                  // borderColor: "green",
+                  // borderWidth: 1,
+                  // padding: 3,
+                  height: 34,
+                  resizeMode: "contain",
+                }}
+              />
+            )}
+            {!item.logo_uri && <Text>{item.source_baseurl}</Text>}
+            <Text style={{ fontSize: 12 }}>
+              {item.updated_at ? convertDate(item.updated_at) : ""}
+            </Text>
           </View>
         </ListItem>
       </Animated.View>
