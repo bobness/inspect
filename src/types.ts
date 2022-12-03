@@ -50,6 +50,7 @@ export interface Summary {
   avatar_uri?: string;
   username?: string;
   is_archived?: boolean;
+  created_at: string;
   updated_at: string;
   comments: Comment[];
   reactions: Reaction[];

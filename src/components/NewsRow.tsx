@@ -167,7 +167,12 @@ const NewsRow = ({ item, onPress, onLongPress, onSwipeLeft }: Props) => {
             )}
             {!item.logo_uri && <Text>{item.source_baseurl}</Text>}
             <Text style={{ fontSize: 12 }}>
-              {item.updated_at ? convertDate(item.updated_at) : ""}
+              {item.updated_at &&
+                item.updated_at === item.created_at &&
+                `Created ${convertDate(item.updated_at)}`}
+              {item.updated_at &&
+                item.updated_at !== item.created_at &&
+                `Updated ${convertDate(item.updated_at)}`}
             </Text>
           </View>
         </ListItem>

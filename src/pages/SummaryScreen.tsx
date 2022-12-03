@@ -15,10 +15,8 @@ import {
   View,
   Alert,
   ScrollView,
-  Platform,
 } from "react-native";
 import { Input, CheckBox, Button } from "react-native-elements";
-import { useIsFocused } from "@react-navigation/native";
 import { getAuthUser } from "../store/auth";
 import {
   createSource,
