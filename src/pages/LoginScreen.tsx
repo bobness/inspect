@@ -65,7 +65,7 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
     setLoading(true);
     userLogin(postData).then(async (res) => {
       setLoading(false);
-      if (!res.token) {
+      if (!res?.token) {
         Alert.alert(res.message);
         return;
       }

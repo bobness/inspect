@@ -55,4 +55,5 @@ export interface Summary {
   comments: Comment[];
   reactions: Reaction[];
   snippets: Snippet[];
+  author: User;
 }
