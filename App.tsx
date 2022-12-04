@@ -2,13 +2,7 @@ import "react-native-gesture-handler";
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  View,
-  ActivityIndicator,
-  Platform,
-  FlatList,
-  Text,
-} from "react-native";
+import { Platform } from "react-native";
 import {
   NavigationContainer,
   useNavigationContainerRef,
@@ -30,9 +24,6 @@ import { updateUserExpoToken } from "./src/store/auth";
 import SummaryScreen from "./src/pages/SummaryScreen";
 import { Subscription } from "expo-modules-core";
 import { instance } from "./src/store/api";
-import { ListItem } from "react-native-elements";
-import useUnreadArticles from "./src/hooks/useUnreadArticles";
-import NewsRow from "./src/components/NewsRow";
 
 const Stack: any = createNativeStackNavigator();
 
