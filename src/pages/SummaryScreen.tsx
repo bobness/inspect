@@ -70,14 +70,23 @@ export default function SummaryScreen(props: Props) {
   const urlRegex = useMemo(() => RegExp(/https?:\/\S+/), []);
 
   const baseUrlRegex = useMemo(
+    () => RegExp("https?://([a-zA-Z0-9]+\\.[a-z]+)\\/.*"),
+    []
+  );
+
+  const subdomainRegex = useMemo(
     () => RegExp("https?://.*\\.([a-zA-Z0-9]+\\.[a-z]+)\\/.*"),
     []
   );
 
   const parseBaseUrl = useCallback(
     (fullUrl: string) => {
-      const match = fullUrl.match(baseUrlRegex);
-      return match ? match[1] : undefined;
+      const match1 = fullUrl.match(baseUrlRegex);
+      const match2 = fullUrl.match(subdomainRegex);
+      if (match2) {
+        return match2[1];
+      }
+      return match1 ? match1[1] : undefined;
     },
     [baseUrlRegex]
   );
@@ -113,9 +122,9 @@ export default function SummaryScreen(props: Props) {
         if (data) {
           setSource(data);
         } else {
-          return createSource(baseUrl).then((newSource) =>
-            setSource(newSource)
-          );
+          return createSource(baseUrl).then((newSource) => {
+            setSource(newSource);
+          });
         }
       }),
     ]).then(() => setLoading(false));
