@@ -202,29 +202,7 @@ export default function HomeScreen(props: Props) {
     <View style={{ flex: 1 }}>
       <View style={{ flex: 1, flexDirection: "column", padding: 10 }}>
         <Text style={commonStyle.logoText}>INSPECT</Text>
-        <SearchBar
-          placeholder="Search for articles..."
-          onChangeText={updateSearch}
-          value={keyword}
-          showCancel={false}
-          lightTheme={false}
-          round={false}
-          onBlur={() => {}}
-          onFocus={() => {}}
-          platform={"ios"}
-          onClear={() => {}}
-          loadingProps={{}}
-          autoCompleteType={undefined}
-          clearIcon={{ name: "close" }}
-          searchIcon={{ name: "search" }}
-          showLoading={false}
-          onCancel={() => {}}
-          cancelButtonTitle={""}
-          cancelButtonProps={{}}
-          autoCapitalize="none"
-          autoComplete="off"
-          autoCorrect={false}
-        />
+        <Button title="Search" onPress={toggleOverlay} />
 
         {showArchiveHint && (
           <Text

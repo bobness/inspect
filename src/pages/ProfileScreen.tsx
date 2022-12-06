@@ -285,6 +285,81 @@ export default function ProfileScreen(props: any) {
           onPress={() => setProfileOverlayVisible(true)}
           style={{ margin: 10 }}
         />
+        <Overlay
+          isVisible={profileOverlayVisible}
+          onBackdropPress={() => setProfileOverlayVisible(false)}
+          overlayStyle={{ width: "100%" }}
+        >
+          <RichToolbar
+            editor={profileRef}
+            actions={[
+              actions.setBold,
+              actions.setItalic,
+              actions.setUnderline,
+              actions.insertLink,
+            ]}
+            onInsertLink={() => {
+              setInsertLinkModalVisible(true);
+            }}
+          />
+          <RichEditor
+            ref={profileRef}
+            placeholder="Your Profile"
+            initialContentHTML={profileData?.profile}
+            initialHeight={250}
+            disabled={profileEditorDisabled}
+            style={{
+              backgroundColor: profileEditorDisabled ? "#ccc" : "white",
+            }}
+            editorInitializedCallback={() => setProfileEditorDisabled(false)}
+            onChange={(text: string) => {
+              setProfileData({ ...profileData, profile: text });
+            }}
+          />
+          <Button title="Save" onPress={() => handleProfileSave()} />
+        </Overlay>
+        <Overlay
+          isVisible={insertLinkModalVisible}
+          onBackdropPress={() => {
+            hideInsertLinkModal();
+          }}
+          overlayStyle={{ width: "100%" }}
+        >
+          <SafeAreaView>
+            <View
+              style={{
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: 10,
+                width: "100%",
+              }}
+            >
+              <Text style={{ fontSize: 20 }}>Insert Link</Text>
+              <Input
+                label="URL"
+                value={insertLinkHref}
+                onChangeText={(text: string) => {
+                  setInsertLinkHref(text);
+                }}
+                autoCompleteType={undefined}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              <Input
+                label="Text"
+                value={insertLinkText}
+                onChangeText={(text: string) => {
+                  setInsertLinkText(text);
+                }}
+                autoCompleteType={undefined}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              <Button title="Insert" onPress={doInsertLink} />
+            </View>
+          </SafeAreaView>
+        </Overlay>
       </View>
 
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -296,6 +371,10 @@ export default function ProfileScreen(props: any) {
             disableIndicator={loading}
           >
             <Tab.Item
+              title="Settings"
+              titleStyle={{ color: "black", fontSize: 12 }}
+            />
+            <Tab.Item
               title="Articles"
               titleStyle={{ color: "black", fontSize: 12 }}
             />
@@ -303,13 +382,92 @@ export default function ProfileScreen(props: any) {
               title="Following"
               titleStyle={{ color: "black", fontSize: 12 }}
             />
-            <Tab.Item
-              title="Settings"
-              titleStyle={{ color: "black", fontSize: 12 }}
-            />
           </Tab>
           {/* @ts-expect-error TODO: TabView can't have children??? */}
           <TabView value={tabIndex} onChange={setTabIndex} style={{ flex: 1 }}>
+            <TabView.Item style={{ width: "100%" }}>
+              <ScrollView style={{ flex: 1, padding: 10 }}>
+                <Input
+                  ref={emailRef}
+                  label="Email Address"
+                  placeholder="Email Address"
+                  leftIcon={<Icon name="envelope" size={24} color="black" />}
+                  value={profileData?.email}
+                  editable={!loading}
+                  onChangeText={(text: string) => {
+                    setProfileData({ ...profileData, email: text });
+                  }}
+                  autoCompleteType={undefined}
+                  autoCapitalize="none"
+                />
+                <Input
+                  ref={usernameRef}
+                  label="User Name"
+                  placeholder="User Name"
+                  leftIcon={<Icon name="user" size={24} color="black" />}
+                  editable={!loading}
+                  value={profileData?.username}
+                  onChangeText={(text: string) => {
+                    setProfileData({ ...profileData, username: text });
+                  }}
+                  autoCompleteType={undefined}
+                  autoCapitalize="none"
+                />
+                <Input
+                  ref={passwordRef}
+                  label="New Password"
+                  placeholder="Password"
+                  leftIcon={<Icon name="lock" size={24} color="black" />}
+                  editable={!loading}
+                  value={profileData?.password || ""}
+                  onChangeText={(text: string) => {
+                    setProfileData({ ...profileData, password: text });
+                  }}
+                  secureTextEntry={true}
+                  autoCompleteType={undefined}
+                  autoCapitalize="none"
+                  autoComplete="off"
+                />
+                <Input
+                  ref={confirmPasswordRef}
+                  label="Confirm Password"
+                  placeholder="Confirm Password"
+                  leftIcon={<Icon name="lock" size={24} color="black" />}
+                  editable={!loading}
+                  value={profileData?.confirmPassword || ""}
+                  onChangeText={(text: string) => {
+                    setProfileData({ ...profileData, confirmPassword: text });
+                  }}
+                  secureTextEntry={true}
+                  autoCompleteType={undefined}
+                  autoCapitalize="none"
+                  autoComplete="off"
+                />
+                <CheckBox
+                  title="Enable push notifications"
+                  checked={profileData?.enable_push_notifications}
+                  onPress={() => {
+                    setProfileData({
+                      ...profileData,
+                      enable_push_notifications:
+                        !profileData.enable_push_notifications,
+                    });
+                  }}
+                />
+                {/* <CheckBox
+                  title="Enable email notifications"
+                  checked={profileData?.enable_email_notifications}
+                  onPress={() =>
+                    setProfileData({
+                      ...profileData,
+                      enable_email_notifications:
+                        !profileData.enable_email_notifications,
+                    })
+                  }
+                /> */}
+                <Button title="Save" onPress={() => handleSave()} />
+              </ScrollView>
+            </TabView.Item>
             <TabView.Item
               style={{ width: "100%" }}
               // @ts-expect-error typing this correctly/removing it breaks scrolling
@@ -399,166 +557,6 @@ export default function ProfileScreen(props: any) {
                   onRefresh={handleRefresh}
                 />
               </>
-            </TabView.Item>
-            <TabView.Item style={{ width: "100%" }}>
-              <ScrollView style={{ flex: 1, padding: 10 }}>
-                <Input
-                  ref={emailRef}
-                  label="Email Address"
-                  placeholder="Email Address"
-                  leftIcon={<Icon name="envelope" size={24} color="black" />}
-                  value={profileData?.email}
-                  editable={!loading}
-                  onChangeText={(text: string) => {
-                    setProfileData({ ...profileData, email: text });
-                  }}
-                  autoCompleteType={undefined}
-                  autoCapitalize="none"
-                />
-                <Input
-                  ref={usernameRef}
-                  label="User Name"
-                  placeholder="User Name"
-                  leftIcon={<Icon name="user" size={24} color="black" />}
-                  editable={!loading}
-                  value={profileData?.username}
-                  onChangeText={(text: string) => {
-                    setProfileData({ ...profileData, username: text });
-                  }}
-                  autoCompleteType={undefined}
-                  autoCapitalize="none"
-                />
-                <Input
-                  ref={passwordRef}
-                  label="New Password"
-                  placeholder="Password"
-                  leftIcon={<Icon name="lock" size={24} color="black" />}
-                  editable={!loading}
-                  value={profileData?.password || ""}
-                  onChangeText={(text: string) => {
-                    setProfileData({ ...profileData, password: text });
-                  }}
-                  secureTextEntry={true}
-                  autoCompleteType={undefined}
-                  autoCapitalize="none"
-                  autoComplete="off"
-                />
-                <Input
-                  ref={confirmPasswordRef}
-                  label="Confirm Password"
-                  placeholder="Confirm Password"
-                  leftIcon={<Icon name="lock" size={24} color="black" />}
-                  editable={!loading}
-                  value={profileData?.confirmPassword || ""}
-                  onChangeText={(text: string) => {
-                    setProfileData({ ...profileData, confirmPassword: text });
-                  }}
-                  secureTextEntry={true}
-                  autoCompleteType={undefined}
-                  autoCapitalize="none"
-                  autoComplete="off"
-                />
-                <CheckBox
-                  title="Enable push notifications"
-                  checked={profileData?.enable_push_notifications}
-                  onPress={() => {
-                    setProfileData({
-                      ...profileData,
-                      enable_push_notifications:
-                        !profileData.enable_push_notifications,
-                    });
-                  }}
-                />
-                {/* <CheckBox
-                  title="Enable email notifications"
-                  checked={profileData?.enable_email_notifications}
-                  onPress={() =>
-                    setProfileData({
-                      ...profileData,
-                      enable_email_notifications:
-                        !profileData.enable_email_notifications,
-                    })
-                  }
-                /> */}
-                <Button title="Save" onPress={() => handleSave()} />
-                <Overlay
-                  isVisible={profileOverlayVisible}
-                  onBackdropPress={() => setProfileOverlayVisible(false)}
-                  overlayStyle={{ width: "100%" }}
-                >
-                  <RichToolbar
-                    editor={profileRef}
-                    actions={[
-                      actions.setBold,
-                      actions.setItalic,
-                      actions.setUnderline,
-                      actions.insertLink,
-                    ]}
-                    onInsertLink={() => {
-                      setInsertLinkModalVisible(true);
-                    }}
-                  />
-                  <RichEditor
-                    ref={profileRef}
-                    placeholder="Your Profile"
-                    initialContentHTML={profileData?.profile}
-                    initialHeight={250}
-                    disabled={profileEditorDisabled}
-                    style={{
-                      backgroundColor: profileEditorDisabled ? "#ccc" : "white",
-                    }}
-                    editorInitializedCallback={() =>
-                      setProfileEditorDisabled(false)
-                    }
-                    onChange={(text: string) => {
-                      setProfileData({ ...profileData, profile: text });
-                    }}
-                  />
-                  <Button title="Save" onPress={() => handleProfileSave()} />
-                </Overlay>
-                <Overlay
-                  isVisible={insertLinkModalVisible}
-                  onBackdropPress={() => {
-                    hideInsertLinkModal();
-                  }}
-                  overlayStyle={{ width: "100%" }}
-                >
-                  <SafeAreaView>
-                    <View
-                      style={{
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        padding: 10,
-                        width: "100%",
-                      }}
-                    >
-                      <Text style={{ fontSize: 20 }}>Insert Link</Text>
-                      <Input
-                        label="URL"
-                        value={insertLinkHref}
-                        onChangeText={(text: string) => {
-                          setInsertLinkHref(text);
-                        }}
-                        autoCompleteType={undefined}
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                      />
-                      <Input
-                        label="Text"
-                        value={insertLinkText}
-                        onChangeText={(text: string) => {
-                          setInsertLinkText(text);
-                        }}
-                        autoCompleteType={undefined}
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                      />
-                      <Button title="Insert" onPress={doInsertLink} />
-                    </View>
-                  </SafeAreaView>
-                </Overlay>
-              </ScrollView>
             </TabView.Item>
           </TabView>
         </View>
