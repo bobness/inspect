@@ -7,7 +7,7 @@ export interface Source {
 export interface User {
   id: number;
   email: string;
-  followers: any[]; // TODO: type this
+  following: any[]; // TODO: type this
 }
 
 export interface Snippet {

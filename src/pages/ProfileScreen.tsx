@@ -24,6 +24,8 @@ import {
   ListItem,
   Avatar,
   Overlay,
+  SearchBar,
+  CheckBox,
 } from "react-native-elements";
 import { getAuthUser, updateProfile } from "../store/auth";
 import {
@@ -33,6 +35,7 @@ import {
   SelectionChangeListener,
 } from "react-native-pell-rich-editor";
 import { Summary } from "../types";
+import { unfollowAuthor } from "../store/news";
 
 export default function ProfileScreen(props: any) {
   const { navigation } = props;
@@ -49,21 +52,17 @@ export default function ProfileScreen(props: any) {
   const [insertLinkModalVisible, setInsertLinkModalVisible] = useState(false);
   const [insertLinkHref, setInsertLinkHref] = useState<string | undefined>();
   const [insertLinkText, setInsertLinkText] = useState<string | undefined>();
+  const [articleSearch, setArticleSearch] = useState<string>("");
+  const [currentSummaries, setCurrentSummaries] = useState<
+    Summary[] | undefined
+  >();
+  const [authorSearch, setAuthorSearch] = useState<string>("");
+  const [currentAuthors, setCurrentAuthors] = useState<any[] | undefined>();
+  const [profileOverlayVisible, setProfileOverlayVisible] = useState(false);
+  const [profileEditorDisabled, setProfileEditorDisabled] = useState(true);
 
   useEffect(() => {
-    setRefreshing(true);
-    getAuthUser()
-      .then((data) => {
-        setProfileData({
-          ...data,
-          password: "",
-          confirmPassword: "",
-        });
-      })
-      .catch((err) => {
-        Alert.alert(`Error! ${err}`);
-      })
-      .finally(() => setRefreshing(false));
+    handleRefresh();
   }, []);
 
   useEffect(() => {
@@ -79,6 +78,8 @@ export default function ProfileScreen(props: any) {
           password: "",
           confirmPassword: "",
         });
+        setCurrentSummaries(data.summaries);
+        setCurrentAuthors(data.following);
       })
       .finally(() => setRefreshing(false));
   };
@@ -110,7 +111,8 @@ export default function ProfileScreen(props: any) {
       email: profileData.email,
       username: profileData.username,
       avatar_uri: profileData.avatar_uri,
-      profile: profileData.profile,
+      enable_push_notifications: profileData.enable_push_notifications,
+      enable_email_notifications: profileData.enable_email_notifications,
     };
     if (profileData.password && profileData.confirmPassword) {
       if (profileData.password !== profileData.confirmPassword) {
@@ -127,6 +129,15 @@ export default function ProfileScreen(props: any) {
       await updateProfile(updateBlock);
     }
     setProfileData({ ...profileData, password: "", confirmPassword: "" });
+    setLoading(false);
+  };
+
+  const handleProfileSave = async () => {
+    setLoading(true);
+    const updateBlock = {
+      profile: profileData.profile,
+    };
+    await updateProfile(updateBlock);
     setLoading(false);
   };
 
@@ -158,25 +169,36 @@ export default function ProfileScreen(props: any) {
     </ListItem>
   );
 
-  const renderFollowerItem = ({ item }: any) => (
+  const handleUnfollow = (user_id: number) => {
+    unfollowAuthor(user_id).then(() => {
+      handleRefresh();
+    });
+  };
+
+  const renderFollowingUser = ({ item }: any) => (
     <ListItem
       bottomDivider
       hasTVPreferredFocus={undefined}
       tvParallaxProperties={undefined}
       style={{ flex: 1, width: "100%" }}
       onPress={() => {
-        // TODO: doesn't work
-        // navigation.navigate("NewsView", { data: item });
+        // FIXME: shouldn't this be user_id?
+        navigation.navigate("AuthorView", { data: { id: item.follower_id } });
       }}
     >
-      <ListItem.Content>
-        <ListItem.Title>{item?.username}</ListItem.Title>
-      </ListItem.Content>
       <Avatar
         // title={item && item.username ? item.username[0] : ""}
         source={item.avatar_uri && { uri: item.avatar_uri }}
         // titleStyle={{ color: "black" }}
         // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
+      />
+      <ListItem.Content>
+        <ListItem.Title>{item?.username}</ListItem.Title>
+      </ListItem.Content>
+      <Button
+        title="Unfollow"
+        buttonStyle={{ backgroundColor: "#6AA84F" }}
+        onPress={() => handleUnfollow(item.id)}
       />
     </ListItem>
   );
@@ -222,6 +244,29 @@ export default function ProfileScreen(props: any) {
     }
   }, [insertLinkHref, insertLinkText]);
 
+  useEffect(() => {
+    if (articleSearch) {
+      setCurrentSummaries(
+        profileData.summaries.filter((summary: Summary) =>
+          summary.title
+            .toLocaleLowerCase()
+            .includes(articleSearch.toLocaleLowerCase())
+        )
+      );
+    }
+  }, [articleSearch]);
+
+  useEffect(() => {
+    if (authorSearch) {
+      const newAuthors = profileData.following.filter((user: any) =>
+        user.username
+          .toLocaleLowerCase()
+          .includes(authorSearch.toLocaleLowerCase())
+      );
+      setCurrentAuthors(newAuthors);
+    }
+  }, [authorSearch]);
+
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <View style={{ alignItems: "center" }}>
@@ -235,6 +280,11 @@ export default function ProfileScreen(props: any) {
             }}
           />
         </TouchableOpacity>
+        <Button
+          title="Update Profile"
+          onPress={() => setProfileOverlayVisible(true)}
+          style={{ margin: 10 }}
+        />
       </View>
 
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -246,20 +296,110 @@ export default function ProfileScreen(props: any) {
             disableIndicator={loading}
           >
             <Tab.Item
-              title="Info"
-              titleStyle={{ color: "black", fontSize: 12 }}
-            />
-            <Tab.Item
               title="Articles"
               titleStyle={{ color: "black", fontSize: 12 }}
             />
             <Tab.Item
-              title="Followers"
+              title="Following"
+              titleStyle={{ color: "black", fontSize: 12 }}
+            />
+            <Tab.Item
+              title="Settings"
               titleStyle={{ color: "black", fontSize: 12 }}
             />
           </Tab>
           {/* @ts-expect-error TODO: TabView can't have children??? */}
-          <TabView value={tabIndex} onChange={setTabIndex}>
+          <TabView value={tabIndex} onChange={setTabIndex} style={{ flex: 1 }}>
+            <TabView.Item
+              style={{ width: "100%" }}
+              // @ts-expect-error typing this correctly/removing it breaks scrolling
+              onMoveShouldSetResponder={(e) => e.stopPropagation()}
+            >
+              <View style={{ flex: 1 }}>
+                {profileData?.summaries && profileData.summaries.length > 0 && (
+                  <>
+                    <SearchBar
+                      placeholder="Filter on your article summaries..."
+                      // @ts-expect-error wtf is this complaining? it's working
+                      onChangeText={(text: string) => setArticleSearch(text)}
+                      value={articleSearch}
+                      showCancel={false}
+                      lightTheme={false}
+                      round={false}
+                      onBlur={() => {}}
+                      onFocus={() => {}}
+                      platform={"ios"}
+                      onClear={() => {}}
+                      loadingProps={{}}
+                      autoCompleteType={undefined}
+                      clearIcon={{ name: "close" }}
+                      searchIcon={{ name: "search" }}
+                      showLoading={false}
+                      onCancel={() => {}}
+                      cancelButtonTitle={""}
+                      cancelButtonProps={{}}
+                      autoCapitalize="none"
+                      autoComplete="off"
+                      autoCorrect={false}
+                    />
+                    <FlatList
+                      data={currentSummaries}
+                      renderItem={renderNewsItem}
+                      style={{ flex: 1, width: "100%" }}
+                      refreshing={isRefreshing}
+                      onRefresh={handleRefresh}
+                    />
+                  </>
+                )}
+                {!profileData?.summaries ||
+                  (profileData.summaries.length === 0 && (
+                    <Text>
+                      You have no article summaries. To create one, view the
+                      article in another app like Safari, Apple News, or Google
+                      News, and share it into Inspect.
+                    </Text>
+                  ))}
+              </View>
+            </TabView.Item>
+            <TabView.Item
+              style={{ width: "100%" }}
+              // @ts-expect-error typing this correctly/removing it breaks scrolling
+              onMoveShouldSetResponder={(e) => e.stopPropagation()}
+            >
+              <>
+                <SearchBar
+                  placeholder="Filter on authors you follow..."
+                  // @ts-expect-error wtf is this complaining? it's working
+                  onChangeText={(text: string) => setAuthorSearch(text)}
+                  value={authorSearch}
+                  showCancel={false}
+                  lightTheme={false}
+                  round={false}
+                  onBlur={() => {}}
+                  onFocus={() => {}}
+                  platform={"ios"}
+                  onClear={() => {}}
+                  loadingProps={{}}
+                  autoCompleteType={undefined}
+                  clearIcon={{ name: "close" }}
+                  searchIcon={{ name: "search" }}
+                  showLoading={false}
+                  onCancel={() => {}}
+                  cancelButtonTitle={""}
+                  cancelButtonProps={{}}
+                  autoCapitalize="none"
+                  autoComplete="off"
+                  autoCorrect={false}
+                />
+                <FlatList
+                  data={currentAuthors ?? []}
+                  renderItem={renderFollowingUser}
+                  style={{ flex: 1, width: "100%" }}
+                  refreshing={isRefreshing}
+                  onRefresh={handleRefresh}
+                />
+              </>
+            </TabView.Item>
             <TabView.Item style={{ width: "100%" }}>
               <ScrollView style={{ flex: 1, padding: 10 }}>
                 <Input
@@ -318,38 +458,64 @@ export default function ProfileScreen(props: any) {
                   autoCapitalize="none"
                   autoComplete="off"
                 />
-                <Text
-                  style={{
-                    fontWeight: "bold",
-                    paddingLeft: 12,
-                    color: "#888",
-                    fontSize: 16,
-                  }}
-                >
-                  Your Profile
-                </Text>
-                <RichToolbar
-                  editor={profileRef}
-                  actions={[
-                    actions.setBold,
-                    actions.setItalic,
-                    actions.setUnderline,
-                    actions.insertLink,
-                  ]}
-                  onInsertLink={() => {
-                    setInsertLinkModalVisible(true);
+                <CheckBox
+                  title="Enable push notifications"
+                  checked={profileData?.enable_push_notifications}
+                  onPress={() => {
+                    setProfileData({
+                      ...profileData,
+                      enable_push_notifications:
+                        !profileData.enable_push_notifications,
+                    });
                   }}
                 />
-                <RichEditor
-                  ref={profileRef}
-                  placeholder="Your Profile"
-                  initialContentHTML={profileData?.profile}
-                  initialHeight={250}
-                  onChange={(text: string) => {
-                    setProfileData({ ...profileData, profile: text });
-                  }}
-                />
+                {/* <CheckBox
+                  title="Enable email notifications"
+                  checked={profileData?.enable_email_notifications}
+                  onPress={() =>
+                    setProfileData({
+                      ...profileData,
+                      enable_email_notifications:
+                        !profileData.enable_email_notifications,
+                    })
+                  }
+                /> */}
                 <Button title="Save" onPress={() => handleSave()} />
+                <Overlay
+                  isVisible={profileOverlayVisible}
+                  onBackdropPress={() => setProfileOverlayVisible(false)}
+                  overlayStyle={{ width: "100%" }}
+                >
+                  <RichToolbar
+                    editor={profileRef}
+                    actions={[
+                      actions.setBold,
+                      actions.setItalic,
+                      actions.setUnderline,
+                      actions.insertLink,
+                    ]}
+                    onInsertLink={() => {
+                      setInsertLinkModalVisible(true);
+                    }}
+                  />
+                  <RichEditor
+                    ref={profileRef}
+                    placeholder="Your Profile"
+                    initialContentHTML={profileData?.profile}
+                    initialHeight={250}
+                    disabled={profileEditorDisabled}
+                    style={{
+                      backgroundColor: profileEditorDisabled ? "#ccc" : "white",
+                    }}
+                    editorInitializedCallback={() =>
+                      setProfileEditorDisabled(false)
+                    }
+                    onChange={(text: string) => {
+                      setProfileData({ ...profileData, profile: text });
+                    }}
+                  />
+                  <Button title="Save" onPress={() => handleProfileSave()} />
+                </Overlay>
                 <Overlay
                   isVisible={insertLinkModalVisible}
                   onBackdropPress={() => {
@@ -393,36 +559,6 @@ export default function ProfileScreen(props: any) {
                   </SafeAreaView>
                 </Overlay>
               </ScrollView>
-            </TabView.Item>
-            <TabView.Item style={{ width: "100%" }}>
-              <>
-                {profileData?.summaries && profileData.summaries.length > 0 && (
-                  <FlatList
-                    data={profileData.summaries}
-                    renderItem={renderNewsItem}
-                    style={{ flex: 1, width: "100%" }}
-                    refreshing={isRefreshing}
-                    onRefresh={handleRefresh}
-                  />
-                )}
-                {profileData?.summaries &&
-                  profileData.summaries.length === 0 && (
-                    <Text>
-                      You have no article summaries. To create one, view the
-                      article in another app like Safari, Apple News, or Google
-                      News, and share it into Inspect.
-                    </Text>
-                  )}
-              </>
-            </TabView.Item>
-            <TabView.Item style={{ width: "100%" }}>
-              <FlatList
-                data={profileData?.followers ?? {}}
-                renderItem={renderFollowerItem}
-                style={{ flex: 1, width: "100%" }}
-                refreshing={isRefreshing}
-                onRefresh={handleRefresh}
-              />
             </TabView.Item>
           </TabView>
         </View>
