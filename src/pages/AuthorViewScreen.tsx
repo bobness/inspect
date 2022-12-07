@@ -38,20 +38,20 @@ export default function AuthorViewScreen(props: any) {
     }
   }, [authUser]);
 
-  const handleFollow = useCallback((user_id: number) => {
+  const handleFollow = (user_id: number) => {
     const postData = {
       follower_id: user_id,
     };
     followAuthor(postData).then(() => {
       handleRefresh();
     });
-  }, []);
+  };
 
-  const handleUnfollow = useCallback((user_id: number) => {
+  const handleUnfollow = (user_id: number) => {
     unfollowAuthor(user_id).then(() => {
       handleRefresh();
     });
-  }, []);
+  };
 
   const followerIds = useMemo(() => {
     if (userData) {

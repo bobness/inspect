@@ -63,19 +63,23 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
       password,
     };
     setLoading(true);
-    userLogin(postData).then(async (res) => {
-      setLoading(false);
-      if (!res?.token) {
-        Alert.alert(res.message);
-        return;
-      }
-      await AsyncStorage.setItem("@access_token", res.token);
-      await AsyncStorage.setItem("@user", JSON.stringify(res));
-      await AsyncStorage.setItem("@password", password);
-      setToken(res.token);
-      onLoginCallback(res);
-      navigation.navigate("Home");
-    });
+    userLogin(postData)
+      .then(async (res) => {
+        setLoading(false);
+        if (!res?.token) {
+          Alert.alert(res?.message);
+          return;
+        }
+        await AsyncStorage.setItem("@access_token", res.token);
+        await AsyncStorage.setItem("@user", JSON.stringify(res));
+        await AsyncStorage.setItem("@password", password);
+        setToken(res.token);
+        onLoginCallback(res);
+        navigation.navigate("Home");
+      })
+      .catch((err) => {
+        Alert.alert(err);
+      });
   };
 
   const onFbLoginPress = async () => {

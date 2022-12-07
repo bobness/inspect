@@ -9,7 +9,6 @@ import {
   Snippet as SnippetType,
 } from "../types";
 import CommentRow from "./CommentRow";
-import { postReaction } from "../store/news";
 
 interface Props {
   navigation: any;
@@ -68,21 +67,26 @@ const Snippet = ({
   return (
     <View style={{ flex: 1 }} key={`snipet #${snippet.id}`}>
       <View style={{ flex: 1, flexDirection: "column" }}>
-        <View style={{ flex: 1, flexDirection: "row" }}>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "flex-start",
+          }}
+        >
           <FontAwesome
             name="quote-left"
             size={30}
             style={{ alignSelf: "flex-start" }}
           />
 
-          <Text style={{ paddingRight: 10, fontSize: 20, minWidth: 35 }}>
-            {topReactions}
-          </Text>
+          <Text style={{ fontSize: 20 }}>{topReactions}</Text>
 
           <View style={{ flex: 1 }}>
             <View style={{ flex: 1, flexDirection: "row", paddingVertical: 5 }}>
               <Text
-                style={{ flex: 1, flexWrap: "wrap" }}
+                style={{ flex: 1, flexWrap: "wrap", textAlign: "justify" }}
                 onPress={() => toggleEmojiOverlay(true, snippet.id)}
               >
                 {snippet.value}
@@ -90,13 +94,13 @@ const Snippet = ({
             </View>
           </View>
 
-          <View>
-            <FontAwesome
-              name="quote-right"
-              size={30}
-              style={{ alignSelf: "flex-end" }}
-            />
-          </View>
+          {/* <View> */}
+          <FontAwesome
+            name="quote-right"
+            size={30}
+            style={{ alignSelf: "flex-end" }}
+          />
+          {/* </View> */}
         </View>
 
         <View

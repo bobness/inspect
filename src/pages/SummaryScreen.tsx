@@ -164,8 +164,8 @@ export default function SummaryScreen(props: Props) {
       };
       const result = await createSummary(summary);
       await sendNotification({
-        title: "A new summary was created!",
-        text: summary.title,
+        notification_title: "A new summary was created!",
+        summary_title: summary.title,
         summary_id: result.id,
       });
       cleanup();
@@ -183,8 +183,8 @@ export default function SummaryScreen(props: Props) {
     try {
       await updateSummary(currentSummaryId, updateBlock);
       await sendNotification({
-        title: "A summary was updated!",
-        text: title,
+        notification_title: "A summary was updated!",
+        summary_title: title,
         summary_id: currentSummaryId,
       });
     } catch (err) {
