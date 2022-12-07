@@ -454,7 +454,7 @@ export default function ProfileScreen(props: any) {
                     });
                   }}
                 />
-                {/* <CheckBox
+                <CheckBox
                   title="Enable email notifications"
                   checked={profileData?.enable_email_notifications}
                   onPress={() =>
@@ -464,7 +464,7 @@ export default function ProfileScreen(props: any) {
                         !profileData.enable_email_notifications,
                     })
                   }
-                /> */}
+                />
                 <Button title="Save" onPress={() => handleSave()} />
               </ScrollView>
             </TabView.Item>
