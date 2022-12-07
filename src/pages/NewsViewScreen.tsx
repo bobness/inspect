@@ -22,7 +22,14 @@ import {
   ScrollView,
   RefreshControl,
 } from "react-native";
-import { Avatar, Overlay, Icon, Button, Input } from "react-native-elements";
+import {
+  Avatar,
+  CheckBox,
+  Overlay,
+  Icon,
+  Button,
+  Input,
+} from "react-native-elements";
 
 import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
@@ -95,10 +102,12 @@ export default function NewsViewScreen(props: Props) {
   const [globalReactions, setGlobalReactions] = useState<
     Reaction[] | undefined
   >();
+  const [watchIsEnabled, setWatchIsEnabled] = useState(false);
 
   const handleRefresh = async () => {
     setLoading(true);
     await getNewsDataById(data.id);
+    // TODO: cache auth user in useCurrentUser.ts hook
     const authUser = await getAuthUser();
     setAuthUser(authUser);
     setLoading(false);
@@ -107,6 +116,12 @@ export default function NewsViewScreen(props: Props) {
   useEffect(() => {
     if (newsData && !authorData) {
       populateAuthorData(newsData.user_id);
+    }
+  }, [newsData]);
+
+  useEffect(() => {
+    if (newsData) {
+      setWatchIsEnabled(newsData.is_watched ?? false);
     }
   }, [newsData]);
 
@@ -282,7 +297,7 @@ export default function NewsViewScreen(props: Props) {
   };
 
   const followerIds = useMemo(() => {
-    if (authorData) {
+    if (authorData?.followers) {
       return authorData.followers.map((follower: any) =>
         Number(follower.follower_id)
       );
@@ -535,17 +550,30 @@ export default function NewsViewScreen(props: Props) {
               />
             )}
 
-            {newsData.updated_at && (
-              <View
-                style={{
-                  flex: 1,
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ color: "gray" }}>
+                {newsData.updated_at &&
+                  newsData.updated_at === newsData.created_at &&
+                  `Created ${convertDate(newsData.updated_at)}`}
+                {newsData.updated_at &&
+                  newsData.updated_at !== newsData.created_at &&
+                  `Updated ${convertDate(newsData.updated_at)}`}
+              </Text>
+              <CheckBox
+                title="Watch"
+                checked={watchIsEnabled}
+                onPress={() => {
+                  setWatchIsEnabled(!watchIsEnabled);
                 }}
-              >
-                <Text style={{ color: "gray" }}>
-                  Updated {convertDate(newsData.updated_at)}
-                </Text>
-              </View>
-            )}
+              />
+            </View>
 
             <View style={{ flex: 1, flexDirection: "column" }}>
               {newsData.comments &&
