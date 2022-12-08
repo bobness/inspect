@@ -159,7 +159,7 @@ export default function SummaryScreen(props: Props) {
       };
       const result = await createSummary(summary);
       await sendNotification({
-        notification_title: "A new summary was created!",
+        notification_title: `A new summary was created by ${currentUser.username}!`,
         summary_title: summary.title,
         summary_id: result.id,
       });
@@ -178,7 +178,9 @@ export default function SummaryScreen(props: Props) {
     try {
       await updateSummary(currentSummaryId, updateBlock);
       await sendNotification({
-        notification_title: "A summary was updated!",
+        notification_title: `A summary was updated${
+          currentUser?.username ? `by ${currentUser.username}` : ""
+        }!`,
         summary_title: title,
         summary_id: currentSummaryId,
       });

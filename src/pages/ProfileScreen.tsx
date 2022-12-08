@@ -389,7 +389,7 @@ export default function ProfileScreen(props: any) {
           </Tab>
           {/* @ts-expect-error TODO: TabView can't have children??? */}
           <TabView value={tabIndex} onChange={setTabIndex} style={{ flex: 1 }}>
-            <TabView.Item style={{ width: "100%" }}>
+            <TabView.Item style={{ flex: 1, width: "100%" }}>
               <ScrollView style={{ flex: 1, padding: 10 }}>
                 <Input
                   ref={emailRef}

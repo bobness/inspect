@@ -10,14 +10,10 @@ const useCurrentUser = ({ loadOnInit = true }: Props) => {
   const [currentUser, setCurrentUser] = useState<User | undefined>();
 
   const refreshCurrentUser = () =>
-    getAuthUser()
-      .then((authUser) => {
-        setCurrentUser(authUser);
-        return authUser;
-      })
-      .catch((err) => {
-        console.error("*** error! ", err);
-      });
+    getAuthUser().then((authUser) => {
+      setCurrentUser(authUser);
+      return authUser;
+    });
 
   useEffect(() => {
     if (loadOnInit) {
