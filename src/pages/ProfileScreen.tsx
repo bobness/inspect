@@ -58,7 +58,7 @@ export default function ProfileScreen(props: any) {
     Summary[] | undefined
   >();
   const [authorSearch, setAuthorSearch] = useState<string>("");
-  const [currentAuthors, setCurrentAuthors] = useState<any[] | undefined>();
+  const [followingAuthors, setFollowingAuthors] = useState<any[] | undefined>();
   const [profileOverlayVisible, setProfileOverlayVisible] = useState(false);
   const [profileEditorDisabled, setProfileEditorDisabled] = useState(true);
 
@@ -84,7 +84,7 @@ export default function ProfileScreen(props: any) {
           confirmPassword: "",
         });
         setCurrentSummaries(user.summaries);
-        setCurrentAuthors(user.following);
+        setFollowingAuthors(user.following);
       })
       .finally(() => setRefreshing(false));
   };
@@ -187,8 +187,7 @@ export default function ProfileScreen(props: any) {
       tvParallaxProperties={undefined}
       style={{ flex: 1, width: "100%" }}
       onPress={() => {
-        // FIXME: shouldn't this be user_id?
-        navigation.navigate("AuthorView", { data: { id: item.follower_id } });
+        navigation.navigate("AuthorView", { data: { id: item.user_id } });
       }}
     >
       <Avatar
@@ -268,7 +267,7 @@ export default function ProfileScreen(props: any) {
           .toLocaleLowerCase()
           .includes(authorSearch.toLocaleLowerCase())
       );
-      setCurrentAuthors(newAuthors);
+      setFollowingAuthors(newAuthors);
     }
   }, [authorSearch]);
 
@@ -555,7 +554,7 @@ export default function ProfileScreen(props: any) {
                   autoCorrect={false}
                 />
                 <FlatList
-                  data={currentAuthors ?? []}
+                  data={followingAuthors ?? []}
                   renderItem={renderFollowingUser}
                   style={{ flex: 1, width: "100%" }}
                   refreshing={isRefreshing}
