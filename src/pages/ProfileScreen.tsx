@@ -273,7 +273,7 @@ export default function ProfileScreen(props: any) {
 
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
-      <View style={{ alignItems: "center" }}>
+      <View style={{ alignItems: "center", padding: 10 }}>
         <TouchableOpacity onPress={handlePickPicture}>
           <Avatar
             size={180}

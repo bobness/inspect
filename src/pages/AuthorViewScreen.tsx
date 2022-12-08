@@ -12,12 +12,18 @@ import {
   Image,
   useWindowDimensions,
 } from "react-native";
-import { ListItem, Avatar, Button, Icon } from "react-native-elements";
+import {
+  ListItem,
+  Avatar,
+  Button,
+  Icon,
+  SearchBar,
+} from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
 import { getProfileInformation } from "../store/auth";
 import { followAuthor, unfollowAuthor } from "../store/news";
 import NewsRow from "../components/NewsRow";
-import { Source } from "../types";
+import { Source, Summary } from "../types";
 import useCurrentUser from "../hooks/useCurrentUser";
 
 export default function AuthorViewScreen(props: any) {
@@ -29,9 +35,25 @@ export default function AuthorViewScreen(props: any) {
   } = props;
   const [userData, setUserData] = useState<any | undefined>();
   const [isRefreshing, setRefreshing] = useState(false);
+  const [articleSearch, setArticleSearch] = useState<string>("");
+  const [currentSummaries, setCurrentSummaries] = useState<
+    Summary[] | undefined
+  >();
 
   const { width } = useWindowDimensions();
   const { currentUser } = useCurrentUser({});
+
+  useEffect(() => {
+    if (articleSearch) {
+      setCurrentSummaries(
+        userData.summaries.filter((summary: Summary) =>
+          summary.title
+            .toLocaleLowerCase()
+            .includes(articleSearch.toLocaleLowerCase())
+        )
+      );
+    }
+  }, [articleSearch]);
 
   const handleFollow = (user_id: number) => {
     const postData = {
@@ -57,30 +79,6 @@ export default function AuthorViewScreen(props: any) {
   }, [userData]);
 
   const renderSummaryItem = ({ item }: any) => (
-    // <ListItem
-    //   bottomDivider
-    //   hasTVPreferredFocus={undefined}
-    //   tvParallaxProperties={undefined}
-    //   style={{ flex: 1, width: "100%" }}
-    //   onPress={() => {
-    //     navigation.navigate("NewsView", { data: item });
-    //   }}
-    //   key={`summary #${item.id}`}
-    // >
-    //   <Icon type="font-awesome" name="file" tvParallaxProperties={undefined} />
-    //   <ListItem.Content>
-    //     <ListItem.Title>{item.title}</ListItem.Title>
-    //   </ListItem.Content>
-    //   <Avatar
-    //     // title={item.title[0]}
-    //     // titleStyle={{ color: "black" }}
-    //     source={item.logo_uri && { uri: item.logo_uri }}
-    //     containerStyle={{
-    //       /*borderColor: "green",*/ borderWidth: 1,
-    //       padding: 3,
-    //     }}
-    //   />
-    // </ListItem>
     <NewsRow
       item={item}
       onPress={() => {
@@ -96,6 +94,7 @@ export default function AuthorViewScreen(props: any) {
     return getProfileInformation(user_id).then((res) => {
       setRefreshing(false);
       setUserData(res);
+      setCurrentSummaries(res.summaries);
     });
   };
 
@@ -214,8 +213,32 @@ export default function AuthorViewScreen(props: any) {
               ))}
           </View>
         )}
+        <SearchBar
+          placeholder="Filter on article summaries..."
+          // @ts-expect-error wtf is this complaining? it's working
+          onChangeText={(text: string) => setArticleSearch(text)}
+          value={articleSearch}
+          showCancel={false}
+          lightTheme={false}
+          round={false}
+          onBlur={() => {}}
+          onFocus={() => {}}
+          platform={"ios"}
+          onClear={() => {}}
+          loadingProps={{}}
+          autoCompleteType={undefined}
+          clearIcon={{ name: "close" }}
+          searchIcon={{ name: "search" }}
+          showLoading={false}
+          onCancel={() => {}}
+          cancelButtonTitle={""}
+          cancelButtonProps={{}}
+          autoCapitalize="none"
+          autoComplete="off"
+          autoCorrect={false}
+        />
         <FlatList
-          data={userData.summaries}
+          data={currentSummaries}
           renderItem={renderSummaryItem}
           style={{ flex: 1, width: "100%" }}
           refreshing={isRefreshing}

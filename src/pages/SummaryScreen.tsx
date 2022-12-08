@@ -30,7 +30,11 @@ import { instance } from "../store/api";
 import useCurrentUser from "../hooks/useCurrentUser";
 
 interface Props {
-  route: any;
+  route: {
+    params: {
+      data: any;
+    };
+  };
   navigation: any;
   currentSummaryId?: number;
 }
@@ -133,6 +137,7 @@ export default function SummaryScreen(props: Props) {
         setNewSnippet({ value: data.text });
       } else {
         // Google News returns the url in the text object, not weblink
+        // TODO: extract this into a Google News plugin
         const match = data.text.match(urlRegex);
         if (match) {
           processSharedUrl(match[0]);
@@ -158,11 +163,16 @@ export default function SummaryScreen(props: Props) {
         source_id: source?.id,
       };
       const result = await createSummary(summary);
-      await sendNotification({
-        notification_title: `A new summary was created by ${currentUser.username}!`,
-        summary_title: summary.title,
-        summary_id: result.id,
-      });
+      if (
+        instance.defaults.baseURL &&
+        !instance.defaults.baseURL.includes("localhost")
+      ) {
+        await sendNotification({
+          notification_title: `A new summary was created by ${currentUser.username}!`,
+          summary_title: summary.title,
+          summary_id: result.id,
+        });
+      }
       cleanup();
       navigation.navigate("Home");
     } else {
@@ -177,13 +187,18 @@ export default function SummaryScreen(props: Props) {
 
     try {
       await updateSummary(currentSummaryId, updateBlock);
-      await sendNotification({
-        notification_title: `A summary was updated${
-          currentUser?.username ? `by ${currentUser.username}` : ""
-        }!`,
-        summary_title: title,
-        summary_id: currentSummaryId,
-      });
+      if (
+        instance.defaults.baseURL &&
+        !instance.defaults.baseURL.includes("localhost")
+      ) {
+        await sendNotification({
+          notification_title: `A summary was updated${
+            currentUser?.username ? `by ${currentUser.username}` : ""
+          }!`,
+          summary_title: title,
+          summary_id: currentSummaryId,
+        });
+      }
     } catch (err) {
       alert(`Error! ${err}`);
     }
