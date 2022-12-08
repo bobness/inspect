@@ -27,7 +27,7 @@ import {
   SearchBar,
   CheckBox,
 } from "react-native-elements";
-import { getAuthUser, updateProfile } from "../store/auth";
+import { updateProfile } from "../store/auth";
 import {
   actions,
   RichEditor,
@@ -36,6 +36,7 @@ import {
 } from "react-native-pell-rich-editor";
 import { Summary } from "../types";
 import { unfollowAuthor } from "../store/news";
+import useCurrentUser from "../hooks/useCurrentUser";
 
 export default function ProfileScreen(props: any) {
   const { navigation } = props;
@@ -57,9 +58,13 @@ export default function ProfileScreen(props: any) {
     Summary[] | undefined
   >();
   const [authorSearch, setAuthorSearch] = useState<string>("");
-  const [currentAuthors, setCurrentAuthors] = useState<any[] | undefined>();
+  const [followingAuthors, setFollowingAuthors] = useState<any[] | undefined>();
   const [profileOverlayVisible, setProfileOverlayVisible] = useState(false);
   const [profileEditorDisabled, setProfileEditorDisabled] = useState(true);
+
+  const { currentUser, refreshCurrentUser } = useCurrentUser({
+    loadOnInit: false,
+  });
 
   useEffect(() => {
     handleRefresh();
@@ -71,15 +76,15 @@ export default function ProfileScreen(props: any) {
 
   const handleRefresh = () => {
     setRefreshing(true);
-    getAuthUser()
-      .then((data) => {
+    refreshCurrentUser()
+      .then((user) => {
         setProfileData({
-          ...data,
+          ...user,
           password: "",
           confirmPassword: "",
         });
-        setCurrentSummaries(data.summaries);
-        setCurrentAuthors(data.following);
+        setCurrentSummaries(user.summaries);
+        setFollowingAuthors(user.following);
       })
       .finally(() => setRefreshing(false));
   };
@@ -182,8 +187,7 @@ export default function ProfileScreen(props: any) {
       tvParallaxProperties={undefined}
       style={{ flex: 1, width: "100%" }}
       onPress={() => {
-        // FIXME: shouldn't this be user_id?
-        navigation.navigate("AuthorView", { data: { id: item.follower_id } });
+        navigation.navigate("AuthorView", { data: { id: item.user_id } });
       }}
     >
       <Avatar
@@ -263,7 +267,7 @@ export default function ProfileScreen(props: any) {
           .toLocaleLowerCase()
           .includes(authorSearch.toLocaleLowerCase())
       );
-      setCurrentAuthors(newAuthors);
+      setFollowingAuthors(newAuthors);
     }
   }, [authorSearch]);
 
@@ -385,7 +389,7 @@ export default function ProfileScreen(props: any) {
           </Tab>
           {/* @ts-expect-error TODO: TabView can't have children??? */}
           <TabView value={tabIndex} onChange={setTabIndex} style={{ flex: 1 }}>
-            <TabView.Item style={{ width: "100%" }}>
+            <TabView.Item style={{ flex: 1, width: "100%" }}>
               <ScrollView style={{ flex: 1, padding: 10 }}>
                 <Input
                   ref={emailRef}
@@ -550,7 +554,7 @@ export default function ProfileScreen(props: any) {
                   autoCorrect={false}
                 />
                 <FlatList
-                  data={currentAuthors ?? []}
+                  data={followingAuthors ?? []}
                   renderItem={renderFollowingUser}
                   style={{ flex: 1, width: "100%" }}
                   refreshing={isRefreshing}

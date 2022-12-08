@@ -14,10 +14,11 @@ import {
 } from "react-native";
 import { ListItem, Avatar, Button, Icon } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
-import { getAuthUser, getProfileInformation } from "../store/auth";
+import { getProfileInformation } from "../store/auth";
 import { followAuthor, unfollowAuthor } from "../store/news";
 import NewsRow from "../components/NewsRow";
 import { Source } from "../types";
+import useCurrentUser from "../hooks/useCurrentUser";
 
 export default function AuthorViewScreen(props: any) {
   const {
@@ -27,16 +28,10 @@ export default function AuthorViewScreen(props: any) {
     navigation,
   } = props;
   const [userData, setUserData] = useState<any | undefined>();
-  const [authUser, setAuthUser] = useState<any | undefined>();
   const [isRefreshing, setRefreshing] = useState(false);
 
   const { width } = useWindowDimensions();
-
-  useEffect(() => {
-    if (!authUser) {
-      getAuthUser().then((u) => setAuthUser(u));
-    }
-  }, [authUser]);
+  const { currentUser } = useCurrentUser({});
 
   const handleFollow = (user_id: number) => {
     const postData = {
@@ -169,14 +164,14 @@ export default function AuthorViewScreen(props: any) {
               {userData.username}
             </Text>
           </View>
-          {authUser && followerIds.includes(authUser.id) && (
+          {currentUser && followerIds.includes(currentUser.id) && (
             <Button
               title="Unfollow"
               buttonStyle={{ backgroundColor: "#6AA84F" }}
               onPress={() => handleUnfollow(userData.id)}
             />
           )}
-          {authUser && !followerIds.includes(authUser.id) && (
+          {currentUser && !followerIds.includes(currentUser.id) && (
             <Button
               title="Follow"
               buttonStyle={{ backgroundColor: "#6AA84F" }}

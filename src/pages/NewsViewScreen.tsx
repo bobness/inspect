@@ -53,7 +53,7 @@ import {
   updateSummary,
 } from "../store/news";
 
-import { getAuthUser, getProfileInformation } from "../store/auth";
+import { getProfileInformation } from "../store/auth";
 import {
   Comment,
   Reaction,
@@ -65,6 +65,7 @@ import {
 import CommentRow from "../components/CommentRow";
 import { convertDate } from "../util";
 import Snippet from "../components/Snippet";
+import useCurrentUser from "../hooks/useCurrentUser";
 
 interface Props {
   route: {
@@ -95,7 +96,6 @@ export default function NewsViewScreen(props: Props) {
   const [emojiSelectorIsVisible, setEmojiSelectorIsVisible] = useState(false);
   // const [emoji, setEmoji] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
-  const [authUser, setAuthUser] = useState<User | undefined>();
   const [authorData, setAuthorData] = useState<User | undefined>();
   const [editTitleMode, setEditTitleMode] = useState(false);
   const [globalComments, setGlobalComments] = useState<Comment[] | undefined>();
@@ -104,12 +104,12 @@ export default function NewsViewScreen(props: Props) {
   >();
   const [watchIsEnabled, setWatchIsEnabled] = useState(false);
 
+  const { currentUser, refreshCurrentUser } = useCurrentUser({});
+
   const handleRefresh = async () => {
     setLoading(true);
     await getNewsDataById(data.id);
-    // TODO: cache auth user in useCurrentUser.ts hook
-    const authUser = await getAuthUser();
-    setAuthUser(authUser);
+    await refreshCurrentUser();
     setLoading(false);
   };
 
@@ -431,9 +431,9 @@ export default function NewsViewScreen(props: Props) {
 
               <View style={{ flex: 1 }}>
                 {authorData &&
-                  authUser &&
-                  authorData.id !== authUser.id &&
-                  followerIds.includes(authUser.id) && (
+                  currentUser &&
+                  authorData.id !== currentUser.id &&
+                  followerIds.includes(currentUser.id) && (
                     <Button
                       title="Unfollow"
                       titleStyle={{ fontSize: 16 }}
@@ -442,9 +442,9 @@ export default function NewsViewScreen(props: Props) {
                     />
                   )}
                 {authorData &&
-                  authUser &&
-                  authorData.id !== authUser.id &&
-                  !followerIds.includes(authUser.id) && (
+                  currentUser &&
+                  authorData.id !== currentUser.id &&
+                  !followerIds.includes(currentUser.id) && (
                     <Button
                       title="Follow"
                       titleStyle={{ fontSize: 16 }}
@@ -542,7 +542,7 @@ export default function NewsViewScreen(props: Props) {
               )}
             </View>
 
-            {authUser?.id == newsData.user_id && (
+            {currentUser?.id == newsData.user_id && (
               <Button
                 onPress={() => toggleEditTitle(!editTitleMode, newsData)}
                 title={editTitleMode ? "✔️ Set Title" : "🖊️ Edit Title"}
@@ -686,7 +686,7 @@ export default function NewsViewScreen(props: Props) {
                   buttonStyle={{ backgroundColor: "orange" }}
                 />
               )}
-              {authUser?.id == newsData.user_id && (
+              {currentUser?.id == newsData.user_id && (
                 <Button
                   onPress={deleteItem}
                   title="🗑 Delete"
