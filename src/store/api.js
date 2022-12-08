@@ -1,8 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-const baseUrl = "http://inspect.datagotchi.net:5000";
-// const baseUrl = "http://localhost:5000";
+// const baseUrl = "http://inspect.datagotchi.net:5000";
+const baseUrl = "http://localhost:5000";
 
 const instance = axios.create({
   baseURL: baseUrl,
