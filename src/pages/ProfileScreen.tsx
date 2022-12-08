@@ -27,7 +27,7 @@ import {
   SearchBar,
   CheckBox,
 } from "react-native-elements";
-import { getAuthUser, updateProfile } from "../store/auth";
+import { updateProfile } from "../store/auth";
 import {
   actions,
   RichEditor,
@@ -36,6 +36,7 @@ import {
 } from "react-native-pell-rich-editor";
 import { Summary } from "../types";
 import { unfollowAuthor } from "../store/news";
+import useCurrentUser from "../hooks/useCurrentUser";
 
 export default function ProfileScreen(props: any) {
   const { navigation } = props;
@@ -61,6 +62,10 @@ export default function ProfileScreen(props: any) {
   const [profileOverlayVisible, setProfileOverlayVisible] = useState(false);
   const [profileEditorDisabled, setProfileEditorDisabled] = useState(true);
 
+  const { currentUser, refreshCurrentUser } = useCurrentUser({
+    loadOnInit: false,
+  });
+
   useEffect(() => {
     handleRefresh();
   }, []);
@@ -71,15 +76,15 @@ export default function ProfileScreen(props: any) {
 
   const handleRefresh = () => {
     setRefreshing(true);
-    getAuthUser()
-      .then((data) => {
+    refreshCurrentUser()
+      .then((user) => {
         setProfileData({
-          ...data,
+          ...user,
           password: "",
           confirmPassword: "",
         });
-        setCurrentSummaries(data.summaries);
-        setCurrentAuthors(data.following);
+        setCurrentSummaries(user.summaries);
+        setCurrentAuthors(user.following);
       })
       .finally(() => setRefreshing(false));
   };

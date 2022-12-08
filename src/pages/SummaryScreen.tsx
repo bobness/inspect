@@ -17,7 +17,6 @@ import {
   ScrollView,
 } from "react-native";
 import { Input, CheckBox, Button } from "react-native-elements";
-import { getAuthUser } from "../store/auth";
 import {
   createSource,
   getNewsById,
@@ -28,6 +27,7 @@ import {
 } from "../store/news";
 import { User, Source } from "../types";
 import { instance } from "../store/api";
+import useCurrentUser from "../hooks/useCurrentUser";
 
 interface Props {
   route: any;
@@ -51,11 +51,12 @@ export default function SummaryScreen(props: Props) {
   const titleInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState<string | undefined>();
-  const [authUser, setAuthUser] = useState<User | undefined>();
   const [snippets, setSnippets] = useState<any[]>([]);
   const [newSnippet, setNewSnippet] = useState<any | undefined>();
   const [defaultTitle, setDefaultTitle] = useState<string | undefined>();
   const [useDefaultTitle, setUseDefaultTitle] = useState(false);
+
+  const { currentUser } = useCurrentUser({});
 
   useEffect(() => {
     if (currentSummaryId) {
@@ -97,12 +98,6 @@ export default function SummaryScreen(props: Props) {
         justUrl = url.substring(0, qPosition > -1 ? qPosition : url.length);
       return justUrl;
     }
-  }, []);
-
-  useEffect(() => {
-    getAuthUser().then((user) => {
-      setAuthUser(user);
-    });
   }, []);
 
   const processSharedUrl = (url: string) => {
@@ -155,11 +150,11 @@ export default function SummaryScreen(props: Props) {
   }, []);
 
   const submitShare = useCallback(async () => {
-    if (authUser && title) {
+    if (currentUser && title) {
       const summary = {
         url: cleanedUrl,
         title,
-        user_id: authUser.id,
+        user_id: currentUser.id,
         source_id: source?.id,
       };
       const result = await createSummary(summary);
@@ -173,7 +168,7 @@ export default function SummaryScreen(props: Props) {
     } else {
       Alert.alert("Please specify a title for your summary");
     }
-  }, [authUser, cleanup, title]);
+  }, [currentUser, cleanup, title]);
 
   const submitUpdate = useCallback(async () => {
     const updateBlock = {

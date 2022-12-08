@@ -53,7 +53,7 @@ import {
   updateSummary,
 } from "../store/news";
 
-import { getAuthUser, getProfileInformation } from "../store/auth";
+import { getProfileInformation } from "../store/auth";
 import {
   Comment,
   Reaction,
@@ -65,6 +65,7 @@ import {
 import CommentRow from "../components/CommentRow";
 import { convertDate } from "../util";
 import Snippet from "../components/Snippet";
+import useCurrentUser from "../hooks/useCurrentUser";
 
 interface Props {
   route: {
@@ -107,9 +108,8 @@ export default function NewsViewScreen(props: Props) {
   const handleRefresh = async () => {
     setLoading(true);
     await getNewsDataById(data.id);
-    // TODO: cache auth user in useCurrentUser.ts hook
-    const authUser = await getAuthUser();
-    setAuthUser(authUser);
+    const { currentUser } = useCurrentUser({});
+    setAuthUser(currentUser);
     setLoading(false);
   };
 
