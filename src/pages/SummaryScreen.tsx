@@ -199,6 +199,7 @@ export default function SummaryScreen(props: Props) {
           summary_id: currentSummaryId,
         });
       }
+      cleanup();
     } catch (err) {
       alert(`Error! ${err}`);
     }
@@ -246,10 +247,10 @@ export default function SummaryScreen(props: Props) {
             </Text>
             <Input
               ref={titleInputRef}
-              label="Title"
-              placeholder="New title that explains the contribution of the article"
+              label="Factual Title"
+              placeholder="New title that explains the factual contribution"
               value={title}
-              editable={!loading && !currentSummaryId}
+              editable={!currentSummaryId}
               onChangeText={(text: string) => {
                 if (text !== defaultTitle) {
                   setUseDefaultTitle(false);
@@ -258,7 +259,7 @@ export default function SummaryScreen(props: Props) {
               }}
               autoCompleteType={undefined}
             />
-            {!currentSummaryId && (
+            {!currentSummaryId && defaultTitle && (
               <CheckBox
                 title="Use existing title?"
                 checked={useDefaultTitle}

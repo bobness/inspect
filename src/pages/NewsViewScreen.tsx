@@ -363,16 +363,12 @@ export default function NewsViewScreen(props: Props) {
             style={{
               flex: 1,
               padding: 10,
-              backgroundColor: "white",
-              borderWidth: 1,
-              borderRadius: 5,
             }}
             refreshControl={
               <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
             }
             contentContainerStyle={{
               flexDirection: "column",
-              justifyContent: "flex-start",
             }}
           >
             <View

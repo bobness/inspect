@@ -7,7 +7,9 @@ export interface Source {
 export interface User {
   id: number;
   email: string;
-  following: any[]; // TODO: type this
+  username: string;
+  following?: User[]; // TODO: type this
+  followers?: User[];
 }
 
 export interface Snippet {
@@ -56,4 +58,6 @@ export interface Summary {
   reactions: Reaction[];
   snippets: Snippet[];
   author: User;
+  is_watched?: boolean;
+  uid: string;
 }
