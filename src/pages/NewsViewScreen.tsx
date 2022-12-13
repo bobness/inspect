@@ -524,8 +524,8 @@ export default function NewsViewScreen(props: Props) {
               {editTitleMode && (
                 <Input
                   // ref={titleInputRef}
-                  label="Title"
-                  placeholder="New title that explains the contribution of the article"
+                  label="Factual Title"
+                  placeholder="New title that explains the factual contribution"
                   value={newsData.title}
                   // editable={!loading}
                   onChangeText={(text: string) => {
@@ -696,7 +696,7 @@ export default function NewsViewScreen(props: Props) {
               <ShareMenu
                 title={newsData.title}
                 content={getContent()}
-                url={newsData.url}
+                url={`http://inspect.datagotchi.net/s/#${newsData.uid}`}
               />
             </View>
           </ScrollView>
