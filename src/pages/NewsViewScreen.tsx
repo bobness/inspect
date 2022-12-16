@@ -363,16 +363,12 @@ export default function NewsViewScreen(props: Props) {
             style={{
               flex: 1,
               padding: 10,
-              backgroundColor: "white",
-              borderWidth: 1,
-              borderRadius: 5,
             }}
             refreshControl={
               <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
             }
             contentContainerStyle={{
               flexDirection: "column",
-              justifyContent: "flex-start",
             }}
           >
             <View
@@ -524,8 +520,8 @@ export default function NewsViewScreen(props: Props) {
               {editTitleMode && (
                 <Input
                   // ref={titleInputRef}
-                  label="Title"
-                  placeholder="New title that explains the contribution of the article"
+                  label="Factual Title"
+                  placeholder="New title that explains the factual contribution"
                   value={newsData.title}
                   // editable={!loading}
                   onChangeText={(text: string) => {
@@ -693,11 +689,13 @@ export default function NewsViewScreen(props: Props) {
                   buttonStyle={{ backgroundColor: "red" }}
                 />
               )}
-              <ShareMenu
-                title={newsData.title}
-                content={getContent()}
-                url={newsData.url}
-              />
+              {newsData.uid && (
+                <ShareMenu
+                  title={newsData.title}
+                  content={getContent()}
+                  url={`http://inspect.datagotchi.net/facts/${newsData.uid}`}
+                />
+              )}
             </View>
           </ScrollView>
         )}
