@@ -689,11 +689,13 @@ export default function NewsViewScreen(props: Props) {
                   buttonStyle={{ backgroundColor: "red" }}
                 />
               )}
-              <ShareMenu
-                title={newsData.title}
-                content={getContent()}
-                url={`http://inspect.datagotchi.net/s/#${newsData.uid}`}
-              />
+              {newsData.uid && (
+                <ShareMenu
+                  title={newsData.title}
+                  content={getContent()}
+                  url={`http://inspect.datagotchi.net/facts/${newsData.uid}`}
+                />
+              )}
             </View>
           </ScrollView>
         )}

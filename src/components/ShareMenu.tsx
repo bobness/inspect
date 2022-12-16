@@ -1,8 +1,9 @@
 import React, { useCallback, useMemo } from "react";
-import { Linking, Share } from "react-native";
 import { FloatingAction } from "react-native-floating-action";
 import RNShare, { Social } from "react-native-share";
 import Icon from "react-native-vector-icons/Ionicons";
+import { useClipboard } from "@react-native-community/clipboard";
+
 import commonStyle from "../styles/CommonStyle";
 
 interface ActionType {
@@ -14,6 +15,7 @@ interface ActionType {
 const TWITTER_MAX_LENGTH = 280;
 
 export default function ShareMenu({ title, content, url }: ActionType) {
+  const [data, setString] = useClipboard();
   const actions = useMemo(
     () => [
       {
@@ -25,6 +27,10 @@ export default function ShareMenu({ title, content, url }: ActionType) {
       {
         icon: <Icon name="logo-twitter" style={commonStyle.actionButtonIcon} />,
         name: "share_twitter",
+      },
+      {
+        icon: <Icon name="copy" style={commonStyle.actionButtonIcon} />,
+        name: "share_copy",
       },
     ],
     [Icon, commonStyle]
@@ -64,6 +70,8 @@ export default function ShareMenu({ title, content, url }: ActionType) {
           message: cutTwitterContent(content, url),
           social: Social.Twitter,
         });
+      default:
+        return setString(url);
     }
   };
 
