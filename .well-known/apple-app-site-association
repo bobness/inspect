@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "net.datagotchi.inspect",
+        "paths": [
+          "/facts/*"
+        ]
+      }
+    ]
+  }
+}
