@@ -14,9 +14,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "plugins": [
       [
         "expo-notifications",
@@ -30,13 +28,11 @@
       "supportsTablet": true,
       "bundleIdentifier": "net.datagotchi.inspect",
       "buildNumber": "23",
-      "associatedDomains": [
-        "applinks:inspect.datagotchi.net"
-      ]
+      "associatedDomains": ["applinks:inspect.datagotchi.net"]
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#FFFFFF"
       },
       "package": "net.datagotchi.inspect"

@@ -693,7 +693,7 @@ export default function NewsViewScreen(props: Props) {
                 <ShareMenu
                   title={newsData.title}
                   content={getContent()}
-                  url={`http://inspect.datagotchi.net/facts/${newsData.uid}`}
+                  url={`https://inspect.datagotchi.net/facts/${newsData.uid}`}
                 />
               )}
             </View>
