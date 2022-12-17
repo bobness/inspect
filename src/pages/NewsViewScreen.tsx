@@ -191,7 +191,7 @@ export default function NewsViewScreen(props: Props) {
     return responseArray;
   }, [topReactionsMap]);
 
-  const toggleCommentOverlay = (openState?: boolean, commentId?: number) => {
+  const toggleCommentOverlay = (openState?: boolean, snippetId?: number) => {
     if (openState === false || visibleCommentModal) {
       setCommentText("");
       setSelectedCommentId(undefined);
@@ -201,8 +201,8 @@ export default function NewsViewScreen(props: Props) {
     } else {
       setVisibleCommentModal(!visibleCommentModal);
     }
-    if (commentId) {
-      setSelectedCommentId(commentId);
+    if (snippetId) {
+      setSelectedSnippetId(snippetId);
     }
   };
 
@@ -230,7 +230,7 @@ export default function NewsViewScreen(props: Props) {
 
   const handleSaveComment = () => {
     const commentData = {
-      snippet_id: selectedCommentId,
+      snippet_id: selectedSnippetId,
       comment: commentText,
       summary_id: data.id,
     };
@@ -331,7 +331,7 @@ export default function NewsViewScreen(props: Props) {
         ...reactionDataBase,
         snippet_id: snippetId,
       });
-    } else if (newsData) {
+    } else {
       await postReaction({
         ...reactionDataBase,
       });
