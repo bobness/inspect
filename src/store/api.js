@@ -1,12 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-const baseUrl = "http://inspect.datagotchi.net";
-// const baseUrl = "http://localhost";
+import { httpsAgent } from "../globals";
+
+// const baseUrl = "https://inspect.datagotchi.net";
+const baseUrl = "https://localhost";
 
 const instance = axios.create({
   baseURL: baseUrl,
   headers: { "Content-Type": "application/json" },
+  httpsAgent,
 });
 
 const setToken = async (token = "") => {
