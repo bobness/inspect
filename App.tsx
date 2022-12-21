@@ -1,8 +1,14 @@
 import "react-native-gesture-handler";
-import React, { useCallback, useState, useRef, useEffect } from "react";
+import React, {
+  useCallback,
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+} from "react";
 import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Platform } from "react-native";
+import { ActivityIndicator, Platform, View } from "react-native";
 import {
   NavigationContainer,
   useNavigationContainerRef,
@@ -12,6 +18,7 @@ import ReceiveSharingIntent from "react-native-receive-sharing-intent";
 import * as TaskManager from "expo-task-manager";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
+import * as Linking from "expo-linking";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "./src/pages/LoginScreen";
@@ -52,13 +59,7 @@ interface ShareObject {
   weblink: string | null;
 }
 
-interface NavigationPath {
-  pathString: string;
-  args: any;
-}
-
 export default function App() {
-  // TODO: not sure how to type this for its .navigate() arguments
   const navigationRef = useNavigationContainerRef();
   const [user, setUser] = useState<any | undefined>();
   const [notification, setNotification] = useState<Notification | undefined>();
@@ -68,30 +69,39 @@ export default function App() {
   const [currentSummaryId, setCurrentSummaryId] = useState<
     number | undefined
   >();
-
+  const [userLoading, setUserLoading] = useState(true);
+  const [deepLinkLoading, setDeepLinkLoading] = useState(false);
   const [navigationIsReady, setNavigationIsReady] = useState(false);
+  const [routeName, setRouteName] = useState<string>("Login");
+  const [routeParams, setRouteParams] = useState<any>({});
+  const deepLinkUrlRegex = useMemo(
+    () => RegExp("https?://inspect.datagotchi.net/facts/([a-z0-9]+).*"),
+    []
+  );
+  const deepLinkUrl = Linking.useURL();
 
-  const [queuedPath, setQueuedPath] = useState<NavigationPath | undefined>();
   useEffect(() => {
-    if (navigationIsReady && queuedPath) {
-      const { pathString, args } = queuedPath;
-      setQueuedPath(undefined);
-      navigationRef.navigate(pathString, args);
+    if (navigationIsReady) {
+      if (navigationRef.getCurrentRoute()?.name !== routeName) {
+        navigationRef.navigate(routeName, routeParams);
+      }
     }
-  }, [navigationIsReady]);
+  }, [navigationIsReady, routeName, deepLinkUrl]);
 
   instance.interceptors.response.use(
     (response) => response,
     (error) => {
       if (error?.response?.status === 401) {
-        navigationRef.navigate("Login");
+        setRouteName("Login");
       }
       return error;
     }
   );
 
+  // FIXME: verify that sharing into Inspect still works
   const handleShare = useCallback(([shareObject]: ShareObject[]) => {
-    navigationRef.navigate("CreateSummary", {
+    setRouteName("CreateSummary");
+    setRouteParams({
       data: shareObject,
     });
   }, []);
@@ -105,12 +115,15 @@ export default function App() {
 
   useEffect(() => {
     if (!user) {
-      AsyncStorage.getItem("@user").then((userInfo) => {
-        if (userInfo) {
-          const storedUserInfo = JSON.parse(userInfo);
-          setUser(storedUserInfo);
-        }
-      });
+      setUserLoading(true);
+      AsyncStorage.getItem("@user")
+        .then((userInfo) => {
+          if (userInfo) {
+            const storedUserInfo = JSON.parse(userInfo);
+            setUser(storedUserInfo);
+          }
+        })
+        .finally(() => setUserLoading(false));
     }
   }, [user]);
 
@@ -126,7 +139,8 @@ export default function App() {
       Notifications.addNotificationResponseReceivedListener((response) => {
         const data = response.notification.request.content.data;
         if (data && data.id) {
-          navigationRef.navigate("NewsView", { data });
+          setRouteName("NewsView");
+          setRouteParams({ data });
         }
       });
 
@@ -151,58 +165,90 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    if (deepLinkUrl && deepLinkUrl.match(deepLinkUrlRegex)) {
+      setDeepLinkLoading(true);
+      const match = deepLinkUrl.match(deepLinkUrlRegex);
+      const uid = match![1];
+      setRouteParams({ data: { uid } });
+      setRouteName("NewsView");
+    } else if (user) {
+      setRouteParams({});
+      setRouteName("Home");
+    }
+    // and it's already "Login" otherwise
+  }, [deepLinkUrl, deepLinkUrlRegex, user]);
+
   // ReceiveSharingIntent.clearReceivedFiles();
-  return (
-    <NavigationContainer
-      ref={navigationRef}
-      onReady={() => setNavigationIsReady(true)}
-    >
-      <Stack.Navigator initialRouteName={user ? "Home" : "Login"}>
-        <Stack.Screen name="Login" options={{ headerShown: false }}>
-          {(props: any) => (
-            <LoginScreen {...props} onLoginCallback={handleOnLogin} />
-          )}
-        </Stack.Screen>
-        <Stack.Screen
-          name="Register"
-          component={RegisterScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name="Home" options={{ headerShown: false }}>
-          {(props: any) => (
-            <HomeScreen
-              {...props}
-              clearCurrentSummaryId={() => setCurrentSummaryId(undefined)}
-            />
-          )}
-        </Stack.Screen>
-        <Stack.Screen name="NewsView" options={{ headerShown: true }}>
-          {(props: any) => (
-            <NewsViewScreen
-              {...props}
-              setCurrentSummaryId={setCurrentSummaryId}
-            />
-          )}
-        </Stack.Screen>
-        <Stack.Screen
-          name="AuthorView"
-          component={AuthorViewScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="My Profile"
-          component={ProfileScreen}
-          options={{ headerShown: true }}
-        />
-        <Stack.Screen name="CreateSummary" options={{ headerShown: false }}>
-          {(props: any) => (
-            <SummaryScreen {...props} currentSummaryId={currentSummaryId} />
-          )}
-        </Stack.Screen>
-      </Stack.Navigator>
-      <StatusBar style="auto" />
-    </NavigationContainer>
-  );
+  if (userLoading || !user) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          flexDirection: "row",
+          justifyContent: "space-around",
+          padding: 10,
+        }}
+      >
+        <ActivityIndicator />
+      </View>
+    );
+  } else {
+    return (
+      <NavigationContainer
+        ref={navigationRef}
+        onReady={() => setNavigationIsReady(true)}
+      >
+        <Stack.Navigator
+          initialRouteName={routeName}
+          initialRouteParams={routeParams}
+        >
+          <Stack.Screen name="Login" options={{ headerShown: false }}>
+            {(props: any) => (
+              <LoginScreen {...props} onLoginCallback={handleOnLogin} />
+            )}
+          </Stack.Screen>
+          <Stack.Screen
+            name="Register"
+            component={RegisterScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="Home" options={{ headerShown: false }}>
+            {(props: any) => (
+              <HomeScreen
+                {...props}
+                clearCurrentSummaryId={() => setCurrentSummaryId(undefined)}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="NewsView" options={{ headerShown: true }}>
+            {(props: any) => (
+              <NewsViewScreen
+                {...props}
+                setCurrentSummaryId={setCurrentSummaryId}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen
+            name="AuthorView"
+            component={AuthorViewScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="My Profile"
+            component={ProfileScreen}
+            options={{ headerShown: true }}
+          />
+          <Stack.Screen name="CreateSummary" options={{ headerShown: false }}>
+            {(props: any) => (
+              <SummaryScreen {...props} currentSummaryId={currentSummaryId} />
+            )}
+          </Stack.Screen>
+        </Stack.Navigator>
+        <StatusBar style="auto" />
+      </NavigationContainer>
+    );
+  }
 }
 
 async function registerForPushNotificationsAsync() {

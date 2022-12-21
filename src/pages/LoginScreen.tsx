@@ -67,7 +67,7 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
       .then(async (res) => {
         setLoading(false);
         if (!res?.token) {
-          Alert.alert(res?.message);
+          Alert.alert("Unable to get a push notification token ", res);
           return;
         }
         await AsyncStorage.setItem("@access_token", res.token);
@@ -78,7 +78,7 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
         navigation.navigate("Home");
       })
       .catch((err) => {
-        Alert.alert(err);
+        Alert.alert("Error: ", err);
       });
   };
 

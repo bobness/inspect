@@ -45,6 +45,7 @@ import {
   deleteSummary,
   followAuthor,
   getNewsById,
+  getNewsByUid,
   markAsRead,
   postComment,
   postReaction,
@@ -108,7 +109,11 @@ export default function NewsViewScreen(props: Props) {
 
   const handleRefresh = async () => {
     setLoading(true);
-    await getNewsDataById(data.id);
+    if (data.id) {
+      await getNewsDataById(data.id);
+    } else if (data.uid) {
+      await getNewsDataByUid(data.uid);
+    }
     await refreshCurrentUser();
     setLoading(false);
   };
@@ -128,6 +133,14 @@ export default function NewsViewScreen(props: Props) {
   const getNewsDataById = (id: number) => {
     setLoading(true);
     return getNewsById(id).then((result) => {
+      setNewsData(result);
+      setLoading(false);
+    });
+  };
+
+  const getNewsDataByUid = (uid: string) => {
+    setLoading(true);
+    return getNewsByUid(uid).then((result) => {
       setNewsData(result);
       setLoading(false);
     });

@@ -20,6 +20,10 @@ const getNewsById = (newsId) => {
   return instance.get("/summaries/id/" + newsId).then((res) => res.data);
 };
 
+const getNewsByUid = (newsUid) => {
+  return instance.get("/summaries/uid/" + newsUid).then((res) => res.data);
+};
+
 const createSummary = (summary) => {
   return instance.post("/summaries", summary).then((res) => res.data);
 };
@@ -81,4 +85,5 @@ export {
   updateSummary,
   getSource,
   createSource,
+  getNewsByUid,
 };
