@@ -39,7 +39,8 @@ interface Props {
   currentSummaryId?: number;
 }
 
-const titleRegex = RegExp("<head.*>[^]*<title>([^]+)</title>[^]*</head>");
+// note: [^] is the same as ., but also includes newlines
+const titleRegex = RegExp("<head.*>[^]*<title.*>([^]+)</title>[^]*</head>");
 
 export default function SummaryScreen(props: Props) {
   const {
