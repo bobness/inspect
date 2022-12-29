@@ -198,6 +198,8 @@ export default function App() {
   }, [user, deepLinkUrl, deepLinkUrlRegex]);
 
   // ReceiveSharingIntent.clearReceivedFiles();
+
+  // TODO: add || deepLinkLoading
   if (userLoading) {
     return (
       <View
