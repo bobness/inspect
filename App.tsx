@@ -78,7 +78,6 @@ export default function App() {
   const [deepLinkLoading, setDeepLinkLoading] = useState(false);
   const [navigationIsReady, setNavigationIsReady] = useState(false);
   const [desiredRoute, setDesiredRoute] = useState<RouteObejct | undefined>();
-  const [routeParams, setRouteParams] = useState<any>({});
   const deepLinkUrlRegex = useMemo(
     () => RegExp("https?://inspect.datagotchi.net/facts/([a-z0-9]+).*"),
     []
@@ -194,8 +193,7 @@ export default function App() {
       setDeepLinkLoading(true);
       const match = deepLinkUrl.match(deepLinkUrlRegex);
       const uid = match![1];
-      setRouteParams({ data: { uid } });
-      setDesiredRoute({ path: "NewsView" });
+      setDesiredRoute({ path: "NewsView", args: { data: { uid } } });
     }
   }, [user, deepLinkUrl, deepLinkUrlRegex]);
 
