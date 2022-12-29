@@ -194,10 +194,11 @@ export default function App() {
     };
   }, []);
 
+  // FIXME: exits on initial login on my ipad
   const handleOnLogin = useCallback(
     (userObject: any) => {
       // console.log("*** in handleOnLogin, w/ expoToken: ", expoToken);
-      if (expoToken && !user.expo_token) {
+      if (expoToken && !userObject.expo_token) {
         updateUserExpoToken(expoToken);
         userObject.expo_token = expoToken;
       }
