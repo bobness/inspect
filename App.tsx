@@ -90,29 +90,15 @@ export default function App() {
     [navigationIsReady, navigationRef]
   );
 
-  // console.log("*** re-render, navigationIsReady: ", navigationIsReady);
-  // console.log("*** re-render, currentRoute: ", currentRoute);
-  // console.log("*** re-render, desiredRoute: ", desiredRoute);
-
   useEffect(() => {
     return () => {
       setDesiredRoute(undefined);
     };
   }, []);
 
-  // FIXME: this shows a persistent loading screen on my iPad
   useEffect(() => {
-    // DEBUG here #1
-    // console.log("*** 1: in useEffect");
-    // console.log("*** 1: navigationIsReady: ", navigationIsReady);
-    // console.log("*** 1: currentRoute: ", currentRoute);
-    // console.log("*** 1: desiredRoute: ", desiredRoute);
     if (navigationIsReady) {
-      // DEBUG here #2
-      // console.log("*** 2: navigationIsReady");
       if (desiredRoute && currentRoute !== desiredRoute.path) {
-        // DEBUG here #3
-        // console.log(`*** 3: ${currentRoute} !== ${desiredRoute.path}"`);
         navigationRef.navigate(desiredRoute.path, desiredRoute.args);
       }
     }
@@ -128,7 +114,6 @@ export default function App() {
     }
   );
 
-  // FIXME: verify that sharing into Inspect still works
   const handleShare = useCallback(([shareObject]: ShareObject[]) => {
     setDesiredRoute({
       path: "CreateSummary",
@@ -146,19 +131,12 @@ export default function App() {
   );
 
   useEffect(() => {
-    // console.log("*** #1b: in user loading useEffect: ", !!user);
     if (!user) {
-      // console.log("*** #2b: setting user loading to true and getting @user");
       setUserLoading(true);
       AsyncStorage.getItem("@user")
         .then((userInfo) => {
-          // console.log("*** #3b: got @user: ", userInfo);
           if (userInfo) {
             const storedUserInfo = JSON.parse(userInfo);
-            // console.log(
-            //   "*** #4b: setting user: ",
-            //   JSON.stringify(storedUserInfo)
-            // );
             setUser(storedUserInfo);
           }
         })
@@ -194,20 +172,13 @@ export default function App() {
     };
   }, []);
 
-  // FIXME: exits on initial login on my ipad
   const handleOnLogin = useCallback(
     (userObject: any) => {
-      // console.log("*** in handleOnLogin, w/ expoToken: ", expoToken);
       if (expoToken && !userObject.expo_token) {
         updateUserExpoToken(expoToken);
         userObject.expo_token = expoToken;
       }
       if (userObject.expo_token) {
-        // console.log(
-        //   "*** setting @user object and route name to Home (was: ",
-        //   desiredRoute,
-        //   ")"
-        // );
         AsyncStorage.setItem("@user", JSON.stringify(userObject));
         setUser(userObject);
         setDesiredRoute({ path: "Home" });

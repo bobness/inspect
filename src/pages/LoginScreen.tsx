@@ -62,11 +62,9 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
       email,
       password,
     };
-    // console.log("*** logging in...");
     setLoading(true);
     userLogin(postData)
       .then(async (res) => {
-        // console.log("*** logged in successfully: ", res);
         setLoading(false);
         if (!res?.token) {
           Alert.alert("Error: unable to get a push notification token ", res);
