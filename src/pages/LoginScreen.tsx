@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 import { Button, SocialIcon } from "react-native-elements";
-import * as Facebook from "expo-facebook";
+// import * as Facebook from "expo-facebook";
 import { userLogin } from "../store/auth";
 import { setToken } from "../store/api";
 import { User } from "../types";
@@ -67,7 +67,7 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
       .then(async (res) => {
         setLoading(false);
         if (!res?.token) {
-          Alert.alert(res?.message);
+          Alert.alert("Error: unable to get a push notification token ", res);
           return;
         }
         await AsyncStorage.setItem("@access_token", res.token);
@@ -75,32 +75,31 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
         await AsyncStorage.setItem("@password", password);
         setToken(res.token);
         onLoginCallback(res);
-        navigation.navigate("Home");
       })
       .catch((err) => {
-        Alert.alert(err);
+        Alert.alert("Error: ", err);
       });
   };
 
-  const onFbLoginPress = async () => {
-    try {
-      await Facebook.initializeAsync({
-        appId,
-      });
-      const loginResponse = await Facebook.logInWithReadPermissionsAsync({
-        permissions: ["public_profile", "email"],
-      });
-      if (loginResponse.type === "success") {
-        const response = await fetch(
-          `https://graph.facebook.com/me?access_token=${loginResponse.token}`
-        );
-        // Alert.alert("Logged in!", `Hi ${(await response.json()).name}!`);
-        // TODO: register in db, etc.
-      }
-    } catch ({ message }) {
-      Alert.alert(`Facebook Login Error: ${message}`);
-    }
-  };
+  // const onFbLoginPress = async () => {
+  //   try {
+  //     await Facebook.initializeAsync({
+  //       appId,
+  //     });
+  //     const loginResponse = await Facebook.logInWithReadPermissionsAsync({
+  //       permissions: ["public_profile", "email"],
+  //     });
+  //     if (loginResponse.type === "success") {
+  //       const response = await fetch(
+  //         `https://graph.facebook.com/me?access_token=${loginResponse.token}`
+  //       );
+  //       // Alert.alert("Logged in!", `Hi ${(await response.json()).name}!`);
+  //       // TODO: register in db, etc.
+  //     }
+  //   } catch ({ message }) {
+  //     Alert.alert(`Facebook Login Error: ${message}`);
+  //   }
+  // };
 
   return (
     <KeyboardAvoidingView style={styles.containerView} behavior="padding">

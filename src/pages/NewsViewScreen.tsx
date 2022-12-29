@@ -45,6 +45,7 @@ import {
   deleteSummary,
   followAuthor,
   getNewsById,
+  getNewsByUid,
   markAsRead,
   postComment,
   postReaction,
@@ -108,7 +109,11 @@ export default function NewsViewScreen(props: Props) {
 
   const handleRefresh = async () => {
     setLoading(true);
-    await getNewsDataById(data.id);
+    if (data.id) {
+      await getNewsDataById(data.id);
+    } else if (data.uid) {
+      await getNewsDataByUid(data.uid);
+    }
     await refreshCurrentUser();
     setLoading(false);
   };
@@ -128,6 +133,14 @@ export default function NewsViewScreen(props: Props) {
   const getNewsDataById = (id: number) => {
     setLoading(true);
     return getNewsById(id).then((result) => {
+      setNewsData(result);
+      setLoading(false);
+    });
+  };
+
+  const getNewsDataByUid = (uid: string) => {
+    setLoading(true);
+    return getNewsByUid(uid).then((result) => {
       setNewsData(result);
       setLoading(false);
     });
@@ -191,7 +204,7 @@ export default function NewsViewScreen(props: Props) {
     return responseArray;
   }, [topReactionsMap]);
 
-  const toggleCommentOverlay = (openState?: boolean, commentId?: number) => {
+  const toggleCommentOverlay = (openState?: boolean, snippetId?: number) => {
     if (openState === false || visibleCommentModal) {
       setCommentText("");
       setSelectedCommentId(undefined);
@@ -201,8 +214,8 @@ export default function NewsViewScreen(props: Props) {
     } else {
       setVisibleCommentModal(!visibleCommentModal);
     }
-    if (commentId) {
-      setSelectedCommentId(commentId);
+    if (snippetId) {
+      setSelectedSnippetId(snippetId);
     }
   };
 
@@ -230,7 +243,7 @@ export default function NewsViewScreen(props: Props) {
 
   const handleSaveComment = () => {
     const commentData = {
-      snippet_id: selectedCommentId,
+      snippet_id: selectedSnippetId,
       comment: commentText,
       summary_id: data.id,
     };
@@ -331,7 +344,7 @@ export default function NewsViewScreen(props: Props) {
         ...reactionDataBase,
         snippet_id: snippetId,
       });
-    } else if (newsData) {
+    } else {
       await postReaction({
         ...reactionDataBase,
       });
@@ -693,7 +706,7 @@ export default function NewsViewScreen(props: Props) {
                 <ShareMenu
                   title={newsData.title}
                   content={getContent()}
-                  url={`http://inspect.datagotchi.net/facts/${newsData.uid}`}
+                  url={`https://inspect.datagotchi.net/facts/${newsData.uid}`}
                 />
               )}
             </View>
