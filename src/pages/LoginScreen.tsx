@@ -62,12 +62,14 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
       email,
       password,
     };
+    // console.log("*** logging in...");
     setLoading(true);
     userLogin(postData)
       .then(async (res) => {
+        // console.log("*** logged in successfully: ", res);
         setLoading(false);
         if (!res?.token) {
-          Alert.alert("Unable to get a push notification token ", res);
+          Alert.alert("Error: unable to get a push notification token ", res);
           return;
         }
         await AsyncStorage.setItem("@access_token", res.token);
@@ -75,7 +77,6 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
         await AsyncStorage.setItem("@password", password);
         setToken(res.token);
         onLoginCallback(res);
-        navigation.navigate("Home");
       })
       .catch((err) => {
         Alert.alert("Error: ", err);

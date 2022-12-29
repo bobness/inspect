@@ -59,6 +59,11 @@ interface ShareObject {
   weblink: string | null;
 }
 
+interface RouteObejct {
+  path: string;
+  args?: any;
+}
+
 export default function App() {
   const navigationRef = useNavigationContainerRef();
   const [user, setUser] = useState<any | undefined>();
@@ -72,27 +77,52 @@ export default function App() {
   const [userLoading, setUserLoading] = useState(true);
   const [deepLinkLoading, setDeepLinkLoading] = useState(false);
   const [navigationIsReady, setNavigationIsReady] = useState(false);
-  const [routeName, setRouteName] = useState<string>("Login");
+  const [desiredRoute, setDesiredRoute] = useState<RouteObejct | undefined>();
   const [routeParams, setRouteParams] = useState<any>({});
   const deepLinkUrlRegex = useMemo(
     () => RegExp("https?://inspect.datagotchi.net/facts/([a-z0-9]+).*"),
     []
   );
   const deepLinkUrl = Linking.useURL();
+  const currentRoute = useMemo(
+    () =>
+      navigationIsReady ? navigationRef.getCurrentRoute()?.name : undefined,
+    [navigationIsReady, navigationRef]
+  );
+
+  // console.log("*** re-render, navigationIsReady: ", navigationIsReady);
+  // console.log("*** re-render, currentRoute: ", currentRoute);
+  // console.log("*** re-render, desiredRoute: ", desiredRoute);
 
   useEffect(() => {
+    return () => {
+      setDesiredRoute(undefined);
+    };
+  }, []);
+
+  // FIXME: this shows a persistent loading screen on my iPad
+  useEffect(() => {
+    // DEBUG here #1
+    // console.log("*** 1: in useEffect");
+    // console.log("*** 1: navigationIsReady: ", navigationIsReady);
+    // console.log("*** 1: currentRoute: ", currentRoute);
+    // console.log("*** 1: desiredRoute: ", desiredRoute);
     if (navigationIsReady) {
-      if (navigationRef.getCurrentRoute()?.name !== routeName) {
-        navigationRef.navigate(routeName, routeParams);
+      // DEBUG here #2
+      // console.log("*** 2: navigationIsReady");
+      if (desiredRoute && currentRoute !== desiredRoute.path) {
+        // DEBUG here #3
+        // console.log(`*** 3: ${currentRoute} !== ${desiredRoute.path}"`);
+        navigationRef.navigate(desiredRoute.path, desiredRoute.args);
       }
     }
-  }, [navigationIsReady, routeName, deepLinkUrl]);
+  }, [navigationIsReady, currentRoute, desiredRoute]);
 
   instance.interceptors.response.use(
     (response) => response,
     (error) => {
       if (error?.response?.status === 401) {
-        setRouteName("Login");
+        setDesiredRoute({ path: "Login" });
       }
       return error;
     }
@@ -100,9 +130,11 @@ export default function App() {
 
   // FIXME: verify that sharing into Inspect still works
   const handleShare = useCallback(([shareObject]: ShareObject[]) => {
-    setRouteName("CreateSummary");
-    setRouteParams({
-      data: shareObject,
+    setDesiredRoute({
+      path: "CreateSummary",
+      args: {
+        data: shareObject,
+      },
     });
   }, []);
   ReceiveSharingIntent.getReceivedFiles(
@@ -114,12 +146,19 @@ export default function App() {
   );
 
   useEffect(() => {
+    // console.log("*** #1b: in user loading useEffect: ", !!user);
     if (!user) {
+      // console.log("*** #2b: setting user loading to true and getting @user");
       setUserLoading(true);
       AsyncStorage.getItem("@user")
         .then((userInfo) => {
+          // console.log("*** #3b: got @user: ", userInfo);
           if (userInfo) {
             const storedUserInfo = JSON.parse(userInfo);
+            // console.log(
+            //   "*** #4b: setting user: ",
+            //   JSON.stringify(storedUserInfo)
+            // );
             setUser(storedUserInfo);
           }
         })
@@ -139,8 +178,7 @@ export default function App() {
       Notifications.addNotificationResponseReceivedListener((response) => {
         const data = response.notification.request.content.data;
         if (data && data.id) {
-          setRouteName("NewsView");
-          setRouteParams({ data });
+          setDesiredRoute({ path: "NewsView", args: { data } });
         }
       });
 
@@ -156,31 +194,41 @@ export default function App() {
     };
   }, []);
 
-  const handleOnLogin = (userObject: any) => {
-    if (expoToken) {
-      updateUserExpoToken(expoToken);
-      userObject.expo_token = expoToken;
-      AsyncStorage.setItem("@user", JSON.stringify(userObject));
-      setUser(userObject);
-    }
-  };
+  const handleOnLogin = useCallback(
+    (userObject: any) => {
+      // console.log("*** in handleOnLogin, w/ expoToken: ", expoToken);
+      if (expoToken && !user.expo_token) {
+        updateUserExpoToken(expoToken);
+        userObject.expo_token = expoToken;
+      }
+      if (userObject.expo_token) {
+        // console.log(
+        //   "*** setting @user object and route name to Home (was: ",
+        //   desiredRoute,
+        //   ")"
+        // );
+        AsyncStorage.setItem("@user", JSON.stringify(userObject));
+        setUser(userObject);
+        setDesiredRoute({ path: "Home" });
+      } else {
+        alert("Error: no push notification token available");
+      }
+    },
+    [expoToken]
+  );
 
   useEffect(() => {
-    if (deepLinkUrl && deepLinkUrl.match(deepLinkUrlRegex)) {
+    if (user && deepLinkUrl && deepLinkUrl.match(deepLinkUrlRegex)) {
       setDeepLinkLoading(true);
       const match = deepLinkUrl.match(deepLinkUrlRegex);
       const uid = match![1];
       setRouteParams({ data: { uid } });
-      setRouteName("NewsView");
-    } else if (user) {
-      setRouteParams({});
-      setRouteName("Home");
+      setDesiredRoute({ path: "NewsView" });
     }
-    // and it's already "Login" otherwise
-  }, [deepLinkUrl, deepLinkUrlRegex, user]);
+  }, [user, deepLinkUrl, deepLinkUrlRegex]);
 
   // ReceiveSharingIntent.clearReceivedFiles();
-  if (userLoading || !user) {
+  if (userLoading) {
     return (
       <View
         style={{
@@ -200,8 +248,8 @@ export default function App() {
         onReady={() => setNavigationIsReady(true)}
       >
         <Stack.Navigator
-          initialRouteName={routeName}
-          initialRouteParams={routeParams}
+          initialRouteName={desiredRoute?.path ?? "Login"}
+          initialRouteParams={desiredRoute?.args ?? {}}
         >
           <Stack.Screen name="Login" options={{ headerShown: false }}>
             {(props: any) => (
