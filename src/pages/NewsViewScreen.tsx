@@ -335,20 +335,11 @@ export default function NewsViewScreen(props: Props) {
 
   const handleEmojiSelect = async (emoji: string, snippetId?: number) => {
     setEmojiSelectorIsVisible(false);
-    const reactionDataBase = {
+    await postReaction({
       reaction: emoji,
       summary_id: newsData?.id,
-    };
-    if (snippetId) {
-      await postReaction({
-        ...reactionDataBase,
-        snippet_id: snippetId,
-      });
-    } else {
-      await postReaction({
-        ...reactionDataBase,
-      });
-    }
+      snippet_id: snippetId,
+    });
     handleRefresh();
   };
 

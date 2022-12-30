@@ -12,8 +12,16 @@ const getAllNews = () => {
   return instance.get("/summaries").then((res) => res.data);
 };
 
-const searchInformation = (keyword) => {
-  return instance.get("/search?keyword=" + keyword).then((res) => res.data);
+const searchSummaries = (keyword) => {
+  return instance
+    .get("/search/summaries?keyword=" + keyword)
+    .then((res) => res.data);
+};
+
+const searchUsers = (keyword) => {
+  return instance
+    .get("/search/users?keyword=" + keyword)
+    .then((res) => res.data);
 };
 
 const getNewsById = (newsId) => {
@@ -72,7 +80,8 @@ export {
   getUnreadNews,
   markAsRead,
   getAllNews,
-  searchInformation,
+  searchSummaries,
+  searchUsers,
   getNewsById,
   createSummary,
   postComment,
