@@ -35,8 +35,10 @@ import {
   SelectionChangeListener,
 } from "react-native-pell-rich-editor";
 import { Summary } from "../types";
-import { unfollowAuthor } from "../store/news";
+import { searchUsers, unfollowAuthor } from "../store/news";
 import useCurrentUser from "../hooks/useCurrentUser";
+import SearchOverlay from "../components/SearchOverlay";
+import UserListItem from "../components/UserListItem";
 
 export default function ProfileScreen(props: any) {
   const { navigation } = props;
@@ -58,9 +60,12 @@ export default function ProfileScreen(props: any) {
     Summary[] | undefined
   >();
   const [authorSearch, setAuthorSearch] = useState<string>("");
-  const [followingAuthors, setFollowingAuthors] = useState<any[] | undefined>();
+  const [currentFollowingAuthors, setCurrentFollowingAuthors] = useState<
+    any[] | undefined
+  >();
   const [profileOverlayVisible, setProfileOverlayVisible] = useState(false);
   const [profileEditorDisabled, setProfileEditorDisabled] = useState(true);
+  const [searchOverlayVisible, setSearchOverlayVisible] = useState(false);
 
   const { currentUser, refreshCurrentUser } = useCurrentUser({
     loadOnInit: false,
@@ -84,7 +89,7 @@ export default function ProfileScreen(props: any) {
           confirmPassword: "",
         });
         setCurrentSummaries(user.summaries);
-        setFollowingAuthors(user.following);
+        setCurrentFollowingAuthors(user.following);
       })
       .finally(() => setRefreshing(false));
   };
@@ -267,9 +272,13 @@ export default function ProfileScreen(props: any) {
           .toLocaleLowerCase()
           .includes(authorSearch.toLocaleLowerCase())
       );
-      setFollowingAuthors(newAuthors);
+      setCurrentFollowingAuthors(newAuthors);
     }
   }, [authorSearch]);
+
+  const toggleSearchOverlay = () => {
+    setSearchOverlayVisible(!searchOverlayVisible);
+  };
 
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
@@ -554,17 +563,32 @@ export default function ProfileScreen(props: any) {
                   autoCorrect={false}
                 />
                 <FlatList
-                  data={followingAuthors ?? []}
+                  data={currentFollowingAuthors ?? []}
                   renderItem={renderFollowingUser}
                   style={{ flex: 1, width: "100%" }}
                   refreshing={isRefreshing}
                   onRefresh={handleRefresh}
                 />
+                <Button onPress={toggleSearchOverlay} title="Search Authors" />
               </>
             </TabView.Item>
           </TabView>
         </View>
       </TouchableWithoutFeedback>
+      <SearchOverlay
+        toggleOverlay={toggleSearchOverlay}
+        visible={searchOverlayVisible}
+        searchFunction={(keyword: string) => searchUsers(keyword)}
+        renderItem={(item) => (
+          <UserListItem
+            item={item}
+            onPress={(item) => {
+              setSearchOverlayVisible(false);
+              navigation.navigate("AuthorView", { data: item });
+            }}
+          />
+        )}
+      />
     </KeyboardAvoidingView>
   );
 }
