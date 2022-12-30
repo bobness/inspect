@@ -1,9 +1,10 @@
 import React from "react";
 import { ListItem, Avatar } from "react-native-elements";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { User } from "../types";
 
 interface Props {
-  item: any;
+  item: User;
   onPress: (item: any) => void;
 }
 
@@ -20,11 +21,11 @@ const UserListItem = ({ item, onPress }: Props) => {
       <Avatar
         // title={item.title[0]}
         // titleStyle={{ color: "black" }}
-        source={item.avatar_uri && { uri: item.avatar_uri }}
+        source={(item.avatar_uri as any) && { uri: item.avatar_uri }}
         // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
       />
       <ListItem.Content>
-        <ListItem.Title>{item.title}</ListItem.Title>
+        <ListItem.Title>{item.username}</ListItem.Title>
       </ListItem.Content>
     </ListItem>
   );

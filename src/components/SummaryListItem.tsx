@@ -1,9 +1,10 @@
 import React from "react";
 import { ListItem, Avatar, Text } from "react-native-elements";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { Summary } from "../types";
 
 interface Props {
-  item: any;
+  item: Summary;
   onPress: (item: any) => void;
 }
 
@@ -20,7 +21,7 @@ const SummaryListItem = ({ item, onPress }: Props) => {
       <Avatar
         // title={item.title[0]}
         // titleStyle={{ color: "black" }}
-        source={item.avatar_uri && { uri: item.avatar_uri }}
+        source={(item.avatar_uri as any) && { uri: item.avatar_uri }}
         // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
       />
       <ListItem.Content>
@@ -30,7 +31,7 @@ const SummaryListItem = ({ item, onPress }: Props) => {
         <Avatar
           // title={item.title[0]}
           // titleStyle={{ color: "black" }}
-          source={item.logo_uri && { uri: item.logo_uri }}
+          source={(item.logo_uri as any) && { uri: item.logo_uri }}
           // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
         />
       )}

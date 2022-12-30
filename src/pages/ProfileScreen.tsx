@@ -538,6 +538,7 @@ export default function ProfileScreen(props: any) {
               onMoveShouldSetResponder={(e) => e.stopPropagation()}
             >
               <>
+                <Button onPress={toggleSearchOverlay} title="Search Authors" />
                 <SearchBar
                   placeholder="Filter on authors you follow..."
                   // @ts-expect-error wtf is this complaining? it's working
@@ -569,7 +570,6 @@ export default function ProfileScreen(props: any) {
                   refreshing={isRefreshing}
                   onRefresh={handleRefresh}
                 />
-                <Button onPress={toggleSearchOverlay} title="Search Authors" />
               </>
             </TabView.Item>
           </TabView>
@@ -579,7 +579,7 @@ export default function ProfileScreen(props: any) {
         toggleOverlay={toggleSearchOverlay}
         visible={searchOverlayVisible}
         searchFunction={(keyword: string) => searchUsers(keyword)}
-        renderItem={(item) => (
+        renderItem={({ item }: any) => (
           <UserListItem
             item={item}
             onPress={(item) => {

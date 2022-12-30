@@ -8,6 +8,7 @@ export interface User {
   id: number;
   email: string;
   username: string;
+  avatar_uri?: string;
   following?: User[]; // TODO: type this
   followers?: User[];
 }

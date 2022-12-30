@@ -185,7 +185,7 @@ export default function HomeScreen(props: Props) {
         toggleOverlay={toggleSearchOverlay}
         visible={searchOverlayVisible}
         searchFunction={(keyword) => searchSummaries(keyword)}
-        renderItem={(item: any) => (
+        renderItem={({ item }: any) => (
           <SummaryListItem
             item={item}
             onPress={() => {
