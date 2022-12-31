@@ -508,7 +508,6 @@ export default function NewsViewScreen(props: Props) {
                     const result = await Share.share({
                       message: `https://inspect.datagotchi.net/facts/${newsData.uid}`,
                     });
-                    alert(`*** result: ${JSON.stringify(result)}`);
                     if (result.action === Share.sharedAction) {
                       await postShare(newsData.id, result.activityType);
                     }
