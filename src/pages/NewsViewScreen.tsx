@@ -19,6 +19,7 @@ import {
   Linking,
   ScrollView,
   RefreshControl,
+  Share,
 } from "react-native";
 import {
   Avatar,
@@ -30,16 +31,15 @@ import {
 } from "react-native-elements";
 import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
-import FontAwesome from "react-native-vector-icons/FontAwesome";
-
-import commonStyle from "../styles/CommonStyle";
-import BottomToolbar from "../components/BottomToolbar";
+import IonIcon from "react-native-vector-icons/Ionicons";
 import {
   RichEditor,
   RichToolbar,
   actions,
 } from "react-native-pell-rich-editor";
-import ShareMenu from "../components/ShareMenu";
+
+import commonStyle from "../styles/CommonStyle";
+import BottomToolbar from "../components/BottomToolbar";
 import {
   deleteSummary,
   followAuthor,
@@ -48,6 +48,7 @@ import {
   markAsRead,
   postComment,
   postReaction,
+  postShare,
   sendNotification,
   unfollowAuthor,
   updateSummary,
@@ -498,14 +499,20 @@ export default function NewsViewScreen(props: Props) {
                   tvParallaxProperties={undefined}
                 />
               </Text>
-              <Text>
+              <Text style={{ fontSize: 26 }}>
                 {newsData.shares.length}
-                <Icon
-                  name="share-alt"
-                  type="font-awesome-5"
-                  color="black"
-                  size={16}
-                  tvParallaxProperties={undefined}
+                <IonIcon
+                  name="share-social"
+                  style={commonStyle.actionButtonIcon}
+                  onPress={async () => {
+                    const result = await Share.share({
+                      message: `https://inspect.datagotchi.net/facts/${newsData.uid}`,
+                    });
+                    alert(`*** result: ${JSON.stringify(result)}`);
+                    if (result.action === Share.sharedAction) {
+                      await postShare(newsData.id, result.activityType);
+                    }
+                  }}
                 />
               </Text>
             </View>
@@ -702,12 +709,6 @@ export default function NewsViewScreen(props: Props) {
                   buttonStyle={{ backgroundColor: "red" }}
                 />
               )}
-              <ShareMenu
-                summaryId={newsData.id!}
-                title={newsData.title}
-                content={getContent()}
-                url={`https://inspect.datagotchi.net/facts/${newsData.uid}`}
-              />
             </View>
           </ScrollView>
         )}
