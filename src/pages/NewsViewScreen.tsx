@@ -5,8 +5,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-
-import commonStyle from "../styles/CommonStyle";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -21,6 +19,7 @@ import {
   Linking,
   ScrollView,
   RefreshControl,
+  Share,
 } from "react-native";
 import {
   Avatar,
@@ -30,17 +29,17 @@ import {
   Button,
   Input,
 } from "react-native-elements";
-
 import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
-
-import BottomToolbar from "../components/BottomToolbar";
+import IonIcon from "react-native-vector-icons/Ionicons";
 import {
   RichEditor,
   RichToolbar,
   actions,
 } from "react-native-pell-rich-editor";
-import ShareMenu from "../components/ShareMenu";
+
+import commonStyle from "../styles/CommonStyle";
+import BottomToolbar from "../components/BottomToolbar";
 import {
   deleteSummary,
   followAuthor,
@@ -49,6 +48,7 @@ import {
   markAsRead,
   postComment,
   postReaction,
+  postShare,
   sendNotification,
   unfollowAuthor,
   updateSummary,
@@ -499,6 +499,21 @@ export default function NewsViewScreen(props: Props) {
                   tvParallaxProperties={undefined}
                 />
               </Text>
+              <Text style={{ fontSize: 26 }}>
+                {newsData.shares.length}
+                <IonIcon
+                  name="share-social"
+                  style={commonStyle.actionButtonIcon}
+                  onPress={async () => {
+                    const result = await Share.share({
+                      message: `https://inspect.datagotchi.net/facts/${newsData.uid}`,
+                    });
+                    if (result.action === Share.sharedAction) {
+                      await postShare(newsData.id, result.activityType);
+                    }
+                  }}
+                />
+              </Text>
             </View>
 
             <View
@@ -691,13 +706,6 @@ export default function NewsViewScreen(props: Props) {
                   onPress={deleteItem}
                   title="🗑 Delete"
                   buttonStyle={{ backgroundColor: "red" }}
-                />
-              )}
-              {newsData.uid && (
-                <ShareMenu
-                  title={newsData.title}
-                  content={getContent()}
-                  url={`https://inspect.datagotchi.net/facts/${newsData.uid}`}
                 />
               )}
             </View>

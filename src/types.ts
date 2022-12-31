@@ -42,6 +42,13 @@ export interface ReactionMap {
   [reaction: string]: number;
 }
 
+export interface Share {
+  id: number;
+  summary_id: number;
+  service: string;
+  message: string;
+}
+
 export interface Summary {
   id?: number;
   url: string;
@@ -58,6 +65,7 @@ export interface Summary {
   comments: Comment[];
   reactions: Reaction[];
   snippets: Snippet[];
+  shares: Share[];
   author: User;
   is_watched?: boolean;
   uid: string;

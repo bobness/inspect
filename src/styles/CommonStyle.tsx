@@ -32,9 +32,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   actionButtonIcon: {
-    fontSize: 20,
-    height: 22,
+    fontSize: 26,
     color: "white",
+    backgroundColor: "red",
   },
 });
 export default styles;
