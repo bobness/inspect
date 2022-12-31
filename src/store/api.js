@@ -1,8 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-// const baseUrl = "https://inspect.datagotchi.net";
-const baseUrl = "http://localhost";
+const baseUrl = "https://inspect.datagotchi.net";
+// const baseUrl = "http://localhost";
 // note: ssl doesn't work on localhost with axios + react native
 
 const instance = axios.create({
