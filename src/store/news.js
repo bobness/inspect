@@ -76,6 +76,12 @@ const createSource = (baseUrl) => {
   return instance.post(`/sources/${baseUrl}`).then((res) => res.data);
 };
 
+const postShare = (summaryId, service, message) => {
+  return instance
+    .post("/shares", { summaryId, service, message })
+    .then((res) => res.data);
+};
+
 export {
   getUnreadNews,
   markAsRead,
@@ -95,4 +101,5 @@ export {
   getSource,
   createSource,
   getNewsByUid,
+  postShare,
 };

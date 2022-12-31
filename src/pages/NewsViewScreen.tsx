@@ -5,8 +5,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-
-import commonStyle from "../styles/CommonStyle";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -30,10 +28,11 @@ import {
   Button,
   Input,
 } from "react-native-elements";
-
 import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
 
+import commonStyle from "../styles/CommonStyle";
 import BottomToolbar from "../components/BottomToolbar";
 import {
   RichEditor,
@@ -499,6 +498,16 @@ export default function NewsViewScreen(props: Props) {
                   tvParallaxProperties={undefined}
                 />
               </Text>
+              <Text>
+                {newsData.shares.length}
+                <Icon
+                  name="share-alt"
+                  type="font-awesome-5"
+                  color="black"
+                  size={16}
+                  tvParallaxProperties={undefined}
+                />
+              </Text>
             </View>
 
             <View
@@ -693,13 +702,12 @@ export default function NewsViewScreen(props: Props) {
                   buttonStyle={{ backgroundColor: "red" }}
                 />
               )}
-              {newsData.uid && (
-                <ShareMenu
-                  title={newsData.title}
-                  content={getContent()}
-                  url={`https://inspect.datagotchi.net/facts/${newsData.uid}`}
-                />
-              )}
+              <ShareMenu
+                summaryId={newsData.id!}
+                title={newsData.title}
+                content={getContent()}
+                url={`https://inspect.datagotchi.net/facts/${newsData.uid}`}
+              />
             </View>
           </ScrollView>
         )}

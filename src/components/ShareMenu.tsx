@@ -5,8 +5,10 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { useClipboard } from "@react-native-community/clipboard";
 
 import commonStyle from "../styles/CommonStyle";
+import { postShare } from "../store/news";
 
 interface ActionType {
+  summaryId: number;
   title: string;
   content: string;
   url: string;
@@ -14,7 +16,12 @@ interface ActionType {
 
 const TWITTER_MAX_LENGTH = 280;
 
-export default function ShareMenu({ title, content, url }: ActionType) {
+export default function ShareMenu({
+  summaryId,
+  title,
+  content,
+  url,
+}: ActionType) {
   const [data, setString] = useClipboard();
   const actions = useMemo(
     () => [
@@ -62,14 +69,14 @@ export default function ShareMenu({ title, content, url }: ActionType) {
         return RNShare.shareSingle({
           ...shareOptions,
           social: Social.Facebook,
-        });
+        }).then((result) => postShare(summaryId, "Facebook", result.message));
       case "share_twitter":
         // FIXME: does not open app
         return RNShare.shareSingle({
           ...shareOptions,
           message: cutTwitterContent(content, url),
           social: Social.Twitter,
-        });
+        }).then((result) => postShare(summaryId, "Twitter", result.message));
       default:
         return setString(url);
     }

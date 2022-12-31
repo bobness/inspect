@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Image, View } from "react-native";
-import { Avatar, ListItem, Text } from "react-native-elements";
+import { Avatar, Icon, ListItem, Text } from "react-native-elements";
 import { Gesture, GestureDetector, State } from "react-native-gesture-handler";
 import Animated, {
   SlideOutLeft,
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
+
 import { Summary } from "../types";
 import { convertDate } from "../util";
 
@@ -165,8 +166,10 @@ const NewsRow = ({ item, onPress, onLongPress, onSwipeLeft }: Props) => {
                 }}
               />
             )}
-            {!item.logo_uri && <Text>{item.source_baseurl}</Text>}
-            <Text style={{ fontSize: 12 }}>
+            {!item.logo_uri && (
+              <Text style={{ textAlign: "center" }}>{item.source_baseurl}</Text>
+            )}
+            <Text style={{ fontSize: 12, textAlign: "center" }}>
               {item.updated_at &&
                 item.updated_at === item.created_at &&
                 `Created ${convertDate(item.updated_at)}`}
@@ -174,6 +177,70 @@ const NewsRow = ({ item, onPress, onLongPress, onSwipeLeft }: Props) => {
                 item.updated_at !== item.created_at &&
                 `Updated ${convertDate(item.updated_at)}`}
             </Text>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 16,
+                }}
+              >
+                {item.snippets.length}
+                <Icon
+                  name="sticky-note"
+                  type="font-awesome-5"
+                  color="black"
+                  size={16}
+                  tvParallaxProperties={undefined}
+                />
+              </Text>
+              <Text
+                style={{
+                  fontSize: 16,
+                }}
+              >
+                {item.reactions.length}
+                <Icon
+                  name="smile"
+                  type="font-awesome-5"
+                  color="black"
+                  size={16}
+                  tvParallaxProperties={undefined}
+                />
+              </Text>
+              <Text
+                style={{
+                  fontSize: 16,
+                }}
+              >
+                {item.comments.length}
+                <Icon
+                  name="comments"
+                  type="font-awesome-5"
+                  color="black"
+                  size={16}
+                  tvParallaxProperties={undefined}
+                />
+              </Text>
+              <Text
+                style={{
+                  fontSize: 16,
+                }}
+              >
+                {item.shares.length}
+                <Icon
+                  name="share-alt"
+                  type="font-awesome-5"
+                  color="black"
+                  size={16}
+                  tvParallaxProperties={undefined}
+                />
+              </Text>
+            </View>
           </View>
         </ListItem>
       </Animated.View>

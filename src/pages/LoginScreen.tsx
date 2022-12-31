@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-import styles from "../styles/LoginStyle";
 import {
   Alert,
   Keyboard,
@@ -14,6 +12,8 @@ import {
 } from "react-native";
 import { Button, SocialIcon } from "react-native-elements";
 // import * as Facebook from "expo-facebook";
+
+import styles from "../styles/LoginStyle";
 import { userLogin } from "../store/auth";
 import { setToken } from "../store/api";
 import { User } from "../types";
@@ -67,7 +67,7 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
       .then(async (res) => {
         setLoading(false);
         if (!res?.token) {
-          Alert.alert("Error: unable to get a push notification token ", res);
+          Alert.alert("Error: unable to get a login token ", res);
           return;
         }
         await AsyncStorage.setItem("@access_token", res.token);
