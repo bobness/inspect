@@ -63,19 +63,16 @@ export default function HomeScreen(props: Props) {
     });
   };
 
-  const renderItem = useCallback(
+  const renderNewsItem = useCallback(
     ({ item }: any) => (
       <NewsRow
         item={item}
         onPress={() => {
           navigation.navigate("NewsView", { data: item });
         }}
-        onLongPress={() => {
-          setShowArchiveHint(true);
-          setTimeout(() => setShowArchiveHint(false), 5000);
-        }}
         onSwipeLeft={(id: number) => {
           "worklet";
+          // TODO: is called twice or more
           markAsRead(id).then(() => {
             setShowArchiveHint(false);
             refreshNewsData();
@@ -168,7 +165,7 @@ export default function HomeScreen(props: Props) {
           >
             <FlatList
               data={newsData}
-              renderItem={renderItem}
+              renderItem={renderNewsItem}
               refreshing={isRefreshingNewsData}
               onRefresh={refreshNewsData}
             />
