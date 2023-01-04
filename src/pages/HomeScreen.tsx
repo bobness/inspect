@@ -70,10 +70,6 @@ export default function HomeScreen(props: Props) {
         onPress={() => {
           navigation.navigate("NewsView", { data: item });
         }}
-        // onLongPress={() => {
-        //   setShowArchiveHint(true);
-        //   setTimeout(() => setShowArchiveHint(false), 5000);
-        // }}
         onSwipeLeft={(id: number) => {
           "worklet";
           // TODO: is called twice or more
