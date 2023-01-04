@@ -3,7 +3,6 @@ import { Image, View } from "react-native";
 import { Avatar, Icon, ListItem, Text } from "react-native-elements";
 import { Gesture, GestureDetector, State } from "react-native-gesture-handler";
 import Animated, {
-  SlideOutLeft,
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
@@ -14,23 +13,20 @@ import { convertDate } from "../util";
 interface Props {
   item: Summary;
   onPress: (e: any) => void;
-  onLongPress: () => void;
   onSwipeLeft: (id: number) => void;
 }
 
-const MIN_HORIZONTAL_THRESHOLD = 50; // px
+const HORIZONTAL_SLOPE = 45; // degrees
 const FULL_HORIZONTAL_THRESHOLD = 100; // px
-const SLIDE_OUT_DURATION = 500; // ms
 
-const NewsRow = ({ item, onPress, onLongPress, onSwipeLeft }: Props) => {
+const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
   const offset = useSharedValue({ x: 0, y: 0 });
   const start = useSharedValue({ x: 0, y: 0 });
   const animatedStyles = useAnimatedStyle(() => ({
-    transform: [{ translateX: offset.value.x }, { translateY: offset.value.y }],
+    transform: [{ translateX: offset.value.x }],
   }));
 
-  const isLongPressed = useSharedValue(false);
-  const startPosition = useSharedValue(0);
+  const startPosition = useSharedValue({ x: 0, y: 0 });
 
   // HACK: can't change React state because that's on the JS thread
   // so: create a variable on the UI thread
@@ -41,98 +37,71 @@ const NewsRow = ({ item, onPress, onLongPress, onSwipeLeft }: Props) => {
       onSwipeLeft(articleIdToArchive.value);
       articleIdToArchive.value = 0;
     }
-    if (isLongPressed.value) {
-      onLongPress();
-    }
-  }, 100);
-
-  const longPressGesture = Gesture.LongPress()
-    .onStart(() => {
-      isLongPressed.value = true;
-    })
-    .onTouchesUp(() => {
-      // if they release without swiping
-      isLongPressed.value = false;
-    })
-    .minDuration(250);
+  }, 50);
 
   const horizontalPanGesture = Gesture.Pan()
     .manualActivation(true)
     .onTouchesDown((event, manager) => {
-      startPosition.value = event.changedTouches[0].x;
+      startPosition.value = {
+        x: event.changedTouches[0].x,
+        y: event.changedTouches[0].y,
+      };
     })
     .onTouchesMove((event, manager) => {
-      if (isLongPressed.value) {
-        const lastPosition = event.changedTouches[0].x;
-        const xMovement = lastPosition - startPosition.value;
-
-        if (xMovement < -MIN_HORIZONTAL_THRESHOLD) {
-          manager.activate();
-        }
+      const lastPosition = {
+        x: event.changedTouches[0].x,
+        y: event.changedTouches[0].y,
+      };
+      const xMovement = lastPosition.x - startPosition.value.x;
+      const slope = (lastPosition.y - startPosition.value.y) / xMovement;
+      if (Math.abs(slope) <= HORIZONTAL_SLOPE) {
+        manager.activate();
       } else {
         manager.fail();
       }
     })
     .onUpdate((event) => {
-      if (event.state === State.ACTIVE) {
-        if (event.translationX < 0) {
-          offset.value = {
-            x: event.translationX + start.value.x,
-            y: start.value.y,
-          };
-        }
+      if (event.state === State.ACTIVE && Math.abs(event.translationX) > 0) {
+        offset.value = {
+          x: event.translationX + start.value.x,
+          y: start.value.y,
+        };
       }
     })
     .onEnd(() => {
-      // TODO: make this a % of the element's width, ideally
-      if (offset.value.x < -FULL_HORIZONTAL_THRESHOLD) {
+      if (Math.abs(offset.value.x) > FULL_HORIZONTAL_THRESHOLD) {
         articleIdToArchive.value = item.id!;
+        if (offset.value.x < 0) {
+          offset.value = {
+            x: offset.value.x - 3000,
+            y: start.value.y,
+          };
+        } else {
+          offset.value = {
+            x: offset.value.x - 3000,
+            y: start.value.y,
+          };
+        }
       } else {
         offset.value = start.value;
       }
-    })
-    .onFinalize(() => {
-      isLongPressed.value = false;
-    })
-    .simultaneousWithExternalGesture(longPressGesture);
-
-  const composedGesture = Gesture.Race(horizontalPanGesture, longPressGesture);
-
-  const itemStyle = useMemo(() => {
-    const baseStyle = {
-      flex: 1,
-      justifyContent: "flex-start" as const,
-      marginVertical: 5,
-      marginHorizontal: 10,
-      borderWidth: 1,
-      borderColor: "gray",
-    };
-    if (isLongPressed.value) {
-      return {
-        ...baseStyle,
-        borderStyle: "dotted" as const,
-      };
-    }
-    return baseStyle;
-  }, [isLongPressed.value]);
-
-  useEffect(() => {
-    return () => {
-      isLongPressed.value = false;
-    };
-  }, []);
+    });
 
   return (
-    <GestureDetector gesture={composedGesture} key={`summary #${item.id}`}>
-      <Animated.View
-        style={animatedStyles}
-        exiting={SlideOutLeft.duration(SLIDE_OUT_DURATION)}
-      >
+    <GestureDetector gesture={horizontalPanGesture} key={`summary #${item.id}`}>
+      <Animated.View style={animatedStyles}>
         <ListItem
           bottomDivider
           hasTVPreferredFocus={undefined}
           tvParallaxProperties={undefined}
-          style={itemStyle}
+          style={{
+            flex: 1,
+            justifyContent: "flex-start",
+            marginVertical: 5,
+            marginHorizontal: 10,
+            borderWidth: 1,
+            borderColor: "gray",
+          }}
           onPress={onPress}
         >
           <Avatar
