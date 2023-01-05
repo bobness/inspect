@@ -158,7 +158,7 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
                   fontSize: 16,
                 }}
               >
-                {item.snippets.length}
+                {item.snippets?.length ?? "?"}
                 <Icon
                   name="sticky-note"
                   type="font-awesome-5"
@@ -172,7 +172,7 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
                   fontSize: 16,
                 }}
               >
-                {item.reactions.length}
+                {item.reactions?.length ?? "?"}
                 <Icon
                   name="smile"
                   type="font-awesome-5"
@@ -186,7 +186,7 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
                   fontSize: 16,
                 }}
               >
-                {item.comments.length}
+                {item.comments?.length ?? "?"}
                 <Icon
                   name="comments"
                   type="font-awesome-5"
@@ -200,7 +200,7 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
                   fontSize: 16,
                 }}
               >
-                {item.shares.length}
+                {item.shares?.length ?? "?"}
                 <Icon
                   name="share-alt"
                   type="font-awesome-5"
