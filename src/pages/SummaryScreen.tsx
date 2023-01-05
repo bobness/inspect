@@ -207,7 +207,7 @@ export default function SummaryScreen(props: Props) {
 
     cleanup();
     navigation.navigate("Home");
-  }, [currentSummaryId, newSnippet]);
+  }, [currentSummaryId, newSnippet, currentUser, title]);
 
   const handleCancel = () => {
     Alert.alert(
