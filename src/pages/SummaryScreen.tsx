@@ -194,7 +194,7 @@ export default function SummaryScreen(props: Props) {
       ) {
         await sendNotification({
           notification_title: `A summary was updated${
-            currentUser?.username ? `by ${currentUser.username}` : ""
+            currentUser?.username ? ` by ${currentUser.username}` : ""
           }!`,
           summary_title: title,
           summary_id: currentSummaryId,
