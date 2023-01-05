@@ -84,7 +84,6 @@ export default function AuthorViewScreen(props: any) {
       onPress={() => {
         navigation.navigate("NewsView", { data: item });
       }}
-      onLongPress={() => {}}
       onSwipeLeft={(id: number) => {}}
     />
   );
