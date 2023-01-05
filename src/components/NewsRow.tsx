@@ -16,7 +16,6 @@ interface Props {
   onSwipeLeft: (id: number) => void;
 }
 
-const HORIZONTAL_SLOPE = 45; // degrees
 const FULL_HORIZONTAL_THRESHOLD = 100; // px
 
 const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
@@ -54,7 +53,7 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
       };
       const xMovement = lastPosition.x - startPosition.value.x;
       const slope = (lastPosition.y - startPosition.value.y) / xMovement;
-      if (Math.abs(slope) <= HORIZONTAL_SLOPE) {
+      if (slope > -Infinity && Math.abs(slope) <= 1) {
         manager.activate();
       } else {
         manager.fail();
@@ -78,7 +77,7 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
           };
         } else {
           offset.value = {
-            x: offset.value.x - 3000,
+            x: offset.value.x + 3000,
             y: start.value.y,
           };
         }
