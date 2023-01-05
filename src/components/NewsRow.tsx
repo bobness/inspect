@@ -158,7 +158,8 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
                   fontSize: 16,
                 }}
               >
-                {item.snippets.length}
+                {/* TODO: get from the service route */}
+                {item.snippets?.length ?? "?"}
                 <Icon
                   name="sticky-note"
                   type="font-awesome-5"
@@ -172,7 +173,8 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
                   fontSize: 16,
                 }}
               >
-                {item.reactions.length}
+                {/* TODO: get from the service route */}
+                {item.reactions?.length ?? "?"}
                 <Icon
                   name="smile"
                   type="font-awesome-5"
@@ -186,7 +188,8 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
                   fontSize: 16,
                 }}
               >
-                {item.comments.length}
+                {/* TODO: get from the service route */}
+                {item.comments?.length ?? "?"}
                 <Icon
                   name="comments"
                   type="font-awesome-5"
@@ -200,7 +203,8 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
                   fontSize: 16,
                 }}
               >
-                {item.shares.length}
+                {/* TODO: get from the service route */}
+                {item.shares?.length ?? "?"}
                 <Icon
                   name="share-alt"
                   type="font-awesome-5"
