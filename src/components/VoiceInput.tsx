@@ -28,9 +28,6 @@ const VoiceInput = ({ resultCallback }: Props) => {
       if (isAvailable) {
         Voice.onSpeechResults = (e: SpeechResultsEvent) => {
           if (e.value) {
-            console.log(
-              `*** setting '${e.value[e.value.length - 1]}' to voiceInputData`
-            );
             setVoiceInputData(e.value.pop());
           }
         };
