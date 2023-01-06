@@ -28,6 +28,7 @@ import {
 import { User, Source } from "../types";
 import { instance } from "../store/api";
 import useCurrentUser from "../hooks/useCurrentUser";
+import VoiceInput from "../components/VoiceInput";
 
 interface Props {
   route: {
@@ -246,6 +247,7 @@ export default function SummaryScreen(props: Props) {
             <Text style={{ color: "blue", marginBottom: 10 }}>
               {cleanedUrl}
             </Text>
+            <VoiceInput resultCallback={(text: string) => setTitle(text)} />
             <Input
               ref={titleInputRef}
               label="Factual Title"

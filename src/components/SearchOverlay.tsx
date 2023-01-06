@@ -1,6 +1,5 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   SafeAreaView,
   Text,
@@ -8,8 +7,12 @@ import {
   View,
 } from "react-native";
 import { Overlay, SearchBar } from "react-native-elements";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { useIsFocused } from "@react-navigation/native";
+
+import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
+
 import { Summary, User } from "../types";
+import VoiceInput from "./VoiceInput";
 
 interface Props {
   toggleOverlay: () => void;
@@ -32,8 +35,23 @@ const SearchOverlay = ({
     (Summary | User)[] | undefined
   >();
 
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if (!isFocused) {
+      cleanup();
+    }
+  }, [isFocused]);
+
+  const cleanup = () => {
+    setKeyword("");
+    setTimeoutObject(undefined);
+    setSearchResults(undefined);
+  };
+
   const updateSearch = useCallback(
     (word: string) => {
+      setSearchResults(undefined);
       setKeyword(word);
       timeoutObject && clearTimeout(timeoutObject);
       const timeout = setTimeout(() => {
@@ -47,7 +65,13 @@ const SearchOverlay = ({
   );
 
   return (
-    <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
+    <Overlay
+      isVisible={visible}
+      onBackdropPress={() => {
+        cleanup();
+        toggleOverlay();
+      }}
+    >
       <SafeAreaView style={{ marginTop: 10, height: "100%" }}>
         <View style={{ alignItems: "center", flexDirection: "row" }}>
           <Text
@@ -62,13 +86,18 @@ const SearchOverlay = ({
           </Text>
           <TouchableOpacity
             style={{ alignSelf: "flex-end" }}
-            onPress={() => toggleOverlay()}
+            onPress={() => {
+              cleanup();
+              toggleOverlay();
+            }}
           >
-            <Icon name="close" color={"black"} size={24} />
+            <MaterialIcon name="close" color={"black"} size={24} />
           </TouchableOpacity>
         </View>
+        <VoiceInput resultCallback={(text: string) => updateSearch(text)} />
         <SearchBar
           placeholder="Type Here..."
+          // @ts-expect-error because the onChangeText types are ridiculous
           onChangeText={(item) => updateSearch(item)}
           value={keyword}
           showCancel={false}

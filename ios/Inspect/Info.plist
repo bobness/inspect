@@ -111,5 +111,9 @@
     <array>
       <string>remote-notification</string>
     </array>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>To get text input more conveniently</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>To get text input more conveniently</string>
   </dict>
 </plist>
