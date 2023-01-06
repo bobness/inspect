@@ -1,6 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { Ref, useCallback, useEffect, useState } from "react";
 import { Button, Icon } from "react-native-elements";
-import Voice, { SpeechResultsEvent } from "@react-native-voice/voice";
+import Voice, {
+  SpeechResultsEvent,
+  SpeechStartEvent,
+  SpeechEndEvent,
+} from "@react-native-voice/voice";
 
 interface Props {
   resultCallback: (text: string) => void;
@@ -12,23 +16,41 @@ const VoiceInput = ({ resultCallback }: Props) => {
   const [voiceInputData, setVoiceInputData] = useState<string | undefined>();
 
   useEffect(() => {
-    Voice.isAvailable().then((isaAvailable) => {
-      setVoiceIsAvailable(Boolean(isaAvailable));
+    return () => {
+      Voice.removeAllListeners();
+      Voice.destroy();
+    };
+  }, []);
+
+  useEffect(() => {
+    Voice.isAvailable().then((isAvailable) => {
+      setVoiceIsAvailable(Boolean(isAvailable));
+      if (isAvailable) {
+        Voice.onSpeechResults = (e: SpeechResultsEvent) => {
+          if (e.value) {
+            setVoiceInputData(e.value.pop());
+          }
+        };
+        // Voice.onSpeechStart = (e: SpeechStartEvent) => {
+        //   console.log("*** onSpeechStart");
+        // };
+        // Voice.onSpeechEnd = (e: SpeechEndEvent) => {
+        //   console.log("*** onSpeechEnd");
+        //   setVoiceIsOn(false);
+        // };
+      }
     });
   }, [Voice]);
 
   const toggleRecordVoice = useCallback(() => {
     if (voiceIsOn) {
-      Voice.stop();
-      setVoiceIsOn(false);
+      Voice.stop().then(() => {
+        setVoiceIsOn(false);
+      });
     } else {
-      Voice.onSpeechResults = (e: SpeechResultsEvent) => {
-        if (e.value) {
-          setVoiceInputData(e.value.pop());
-        }
-      };
-      setVoiceIsOn(true);
-      Voice.start("en-US");
+      Voice.start("en-US").then(() => {
+        setVoiceIsOn(true);
+      });
     }
   }, [voiceIsOn]);
 
@@ -56,5 +78,4 @@ const VoiceInput = ({ resultCallback }: Props) => {
   }
   return <></>;
 };
-
 export default VoiceInput;

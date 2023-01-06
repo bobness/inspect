@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   SafeAreaView,
   Text,
@@ -8,6 +7,8 @@ import {
   View,
 } from "react-native";
 import { Overlay, SearchBar } from "react-native-elements";
+import { useIsFocused } from "@react-navigation/native";
+
 import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
 
 import { Summary, User } from "../types";
@@ -34,6 +35,20 @@ const SearchOverlay = ({
     (Summary | User)[] | undefined
   >();
 
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if (!isFocused) {
+      cleanup();
+    }
+  }, [isFocused]);
+
+  const cleanup = () => {
+    setKeyword("");
+    setTimeoutObject(undefined);
+    setSearchResults(undefined);
+  };
+
   const updateSearch = useCallback(
     (word: string) => {
       setSearchResults(undefined);
@@ -50,7 +65,13 @@ const SearchOverlay = ({
   );
 
   return (
-    <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
+    <Overlay
+      isVisible={visible}
+      onBackdropPress={() => {
+        cleanup();
+        toggleOverlay();
+      }}
+    >
       <SafeAreaView style={{ marginTop: 10, height: "100%" }}>
         <View style={{ alignItems: "center", flexDirection: "row" }}>
           <Text
@@ -65,7 +86,10 @@ const SearchOverlay = ({
           </Text>
           <TouchableOpacity
             style={{ alignSelf: "flex-end" }}
-            onPress={() => toggleOverlay()}
+            onPress={() => {
+              cleanup();
+              toggleOverlay();
+            }}
           >
             <MaterialIcon name="close" color={"black"} size={24} />
           </TouchableOpacity>
