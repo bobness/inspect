@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -8,8 +8,10 @@ import {
   View,
 } from "react-native";
 import { Overlay, SearchBar } from "react-native-elements";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
+
 import { Summary, User } from "../types";
+import VoiceInput from "./VoiceInput";
 
 interface Props {
   toggleOverlay: () => void;
@@ -34,6 +36,7 @@ const SearchOverlay = ({
 
   const updateSearch = useCallback(
     (word: string) => {
+      setSearchResults(undefined);
       setKeyword(word);
       timeoutObject && clearTimeout(timeoutObject);
       const timeout = setTimeout(() => {
@@ -64,11 +67,13 @@ const SearchOverlay = ({
             style={{ alignSelf: "flex-end" }}
             onPress={() => toggleOverlay()}
           >
-            <Icon name="close" color={"black"} size={24} />
+            <MaterialIcon name="close" color={"black"} size={24} />
           </TouchableOpacity>
         </View>
+        <VoiceInput resultCallback={(text: string) => updateSearch(text)} />
         <SearchBar
           placeholder="Type Here..."
+          // @ts-expect-error because the onChangeText types are ridiculous
           onChangeText={(item) => updateSearch(item)}
           value={keyword}
           showCancel={false}
