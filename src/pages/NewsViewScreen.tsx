@@ -67,6 +67,7 @@ import CommentRow from "../components/CommentRow";
 import { convertDate } from "../util";
 import Snippet from "../components/Snippet";
 import useCurrentUser from "../hooks/useCurrentUser";
+import VoiceInput from "../components/VoiceInput";
 
 interface Props {
   route: {
@@ -739,6 +740,12 @@ export default function NewsViewScreen(props: Props) {
               }}
             >
               <Text>New Comment</Text>
+              <VoiceInput
+                resultCallback={(text: string) => {
+                  richText.current.setContentHTML(text);
+                  setCommentText(text);
+                }}
+              />
               <TouchableOpacity
                 onPress={handleSaveComment}
                 style={{
