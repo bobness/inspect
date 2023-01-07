@@ -15,7 +15,7 @@ import { Button, SocialIcon } from "react-native-elements";
 
 import styles from "../styles/LoginStyle";
 import { userLogin } from "../store/auth";
-import { setToken } from "../store/api";
+import { instance, setToken } from "../store/api";
 import { User } from "../types";
 
 const appId = "461371912646826";
@@ -66,8 +66,14 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
     userLogin(postData)
       .then(async (res) => {
         setLoading(false);
-        if (!res?.token) {
-          Alert.alert("Error: unable to get a login token ", res);
+        if (
+          !instance.defaults.baseURL?.includes("localhost") &&
+          !res?.expo_token
+        ) {
+          Alert.alert(
+            "Error: unable to obtain push notification token ",
+            res?.message
+          );
           return;
         }
         await AsyncStorage.setItem("@access_token", res.token);
@@ -117,6 +123,7 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
               editable={!loading}
               autoCapitalize="none"
               autoCorrect={false}
+              autoComplete="off"
             />
             <TextInput
               ref={passwordRef}
@@ -129,6 +136,7 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
               editable={!loading}
               autoCapitalize="none"
               autoCorrect={false}
+              autoComplete="off"
             />
             <Button
               buttonStyle={styles.loginButton}
