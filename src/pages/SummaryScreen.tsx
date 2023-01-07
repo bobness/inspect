@@ -27,7 +27,7 @@ import {
 } from "../store/news";
 import { User, Source } from "../types";
 import { instance } from "../store/api";
-import useCurrentUser from "../hooks/useCurrentUser";
+import useCurrentUserContext from "../hooks/useCurrentUserContext";
 import VoiceInput from "../components/VoiceInput";
 
 interface Props {
@@ -62,7 +62,7 @@ export default function SummaryScreen(props: Props) {
   const [defaultTitle, setDefaultTitle] = useState<string | undefined>();
   const [useDefaultTitle, setUseDefaultTitle] = useState(false);
 
-  const { currentUser } = useCurrentUser({});
+  const currentUser = useCurrentUserContext();
 
   useEffect(() => {
     if (currentSummaryId) {
@@ -250,7 +250,7 @@ export default function SummaryScreen(props: Props) {
             <VoiceInput resultCallback={(text: string) => setTitle(text)} />
             <Input
               ref={titleInputRef}
-              label="Factual Title"
+              label="New Title"
               placeholder="New title that explains the factual contribution"
               value={title}
               editable={!currentSummaryId}
@@ -261,6 +261,7 @@ export default function SummaryScreen(props: Props) {
                 setTitle(text);
               }}
               autoCompleteType={undefined}
+              multiline={true}
             />
             {!currentSummaryId && defaultTitle && (
               <CheckBox
@@ -309,7 +310,7 @@ export default function SummaryScreen(props: Props) {
             )}
             {!currentSummaryId && (
               <Button
-                disabled={!title}
+                disabled={!(currentUser && title)}
                 title="Create Summary"
                 onPress={submitShare}
               />

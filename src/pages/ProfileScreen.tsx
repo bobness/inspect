@@ -27,21 +27,26 @@ import {
   SearchBar,
   CheckBox,
 } from "react-native-elements";
-import { updateProfile } from "../store/auth";
+import { getAuthUser, updateProfile } from "../store/auth";
 import {
   actions,
   RichEditor,
   RichToolbar,
   SelectionChangeListener,
 } from "react-native-pell-rich-editor";
-import { Summary } from "../types";
+import { Summary, User } from "../types";
 import { searchUsers, unfollowAuthor } from "../store/news";
-import useCurrentUser from "../hooks/useCurrentUser";
+import useCurrentUserContext from "../hooks/useCurrentUserContext";
 import SearchOverlay from "../components/SearchOverlay";
 import UserListItem from "../components/UserListItem";
 
-export default function ProfileScreen(props: any) {
-  const { navigation } = props;
+interface Props {
+  navigation: any;
+  setCurrentUser: (user: User) => void;
+}
+
+export default function ProfileScreen(props: Props) {
+  const { navigation, setCurrentUser } = props;
   const usernameRef = useRef<any | undefined>();
   const emailRef = useRef<any | undefined>();
   const passwordRef = useRef<any | undefined>();
@@ -67,13 +72,19 @@ export default function ProfileScreen(props: any) {
   const [profileEditorDisabled, setProfileEditorDisabled] = useState(true);
   const [searchOverlayVisible, setSearchOverlayVisible] = useState(false);
 
-  const { currentUser, refreshCurrentUser } = useCurrentUser({
-    loadOnInit: false,
-  });
+  const currentUser = useCurrentUserContext();
 
   useEffect(() => {
-    handleRefresh();
-  }, []);
+    if (currentUser) {
+      setProfileData({
+        ...currentUser,
+        password: "",
+        confirmPassword: "",
+      });
+      setCurrentSummaries(currentUser.summaries);
+      setCurrentFollowingAuthors(currentUser.following);
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     navigation.addListener("focus", () => handleRefresh());
@@ -81,8 +92,9 @@ export default function ProfileScreen(props: any) {
 
   const handleRefresh = () => {
     setRefreshing(true);
-    refreshCurrentUser()
-      .then((user) => {
+    getAuthUser()
+      .then((user: User) => {
+        setCurrentUser(user);
         setProfileData({
           ...user,
           password: "",

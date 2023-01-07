@@ -24,7 +24,7 @@ import { getProfileInformation } from "../store/auth";
 import { followAuthor, unfollowAuthor } from "../store/news";
 import NewsRow from "../components/NewsRow";
 import { Source, Summary } from "../types";
-import useCurrentUser from "../hooks/useCurrentUser";
+import useCurrentUserContext from "../hooks/useCurrentUserContext";
 
 export default function AuthorViewScreen(props: any) {
   const {
@@ -41,7 +41,7 @@ export default function AuthorViewScreen(props: any) {
   >();
 
   const { width } = useWindowDimensions();
-  const { currentUser } = useCurrentUser({});
+  const currentUser = useCurrentUserContext();
 
   useEffect(() => {
     if (articleSearch) {

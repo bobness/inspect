@@ -54,7 +54,7 @@ import {
   updateSummary,
 } from "../store/news";
 
-import { getProfileInformation } from "../store/auth";
+import { getAuthUser, getProfileInformation } from "../store/auth";
 import {
   Comment,
   Reaction,
@@ -66,7 +66,7 @@ import {
 import CommentRow from "../components/CommentRow";
 import { convertDate } from "../util";
 import Snippet from "../components/Snippet";
-import useCurrentUser from "../hooks/useCurrentUser";
+import useCurrentUserContext from "../hooks/useCurrentUserContext";
 import VoiceInput from "../components/VoiceInput";
 
 interface Props {
@@ -75,6 +75,7 @@ interface Props {
   };
   navigation: any;
   setCurrentSummaryId: (id: number | undefined) => void;
+  setCurrentUser: (user: User) => void;
 }
 
 export default function NewsViewScreen(props: Props) {
@@ -84,6 +85,7 @@ export default function NewsViewScreen(props: Props) {
     },
     navigation,
     setCurrentSummaryId,
+    setCurrentUser,
   } = props;
   let richText: any = useRef(null);
   const [newsData, setNewsData] = useState<Summary | undefined>();
@@ -106,7 +108,7 @@ export default function NewsViewScreen(props: Props) {
   >();
   const [watchIsEnabled, setWatchIsEnabled] = useState(false);
 
-  const { currentUser, refreshCurrentUser } = useCurrentUser({});
+  const currentUser = useCurrentUserContext();
 
   const handleRefresh = async () => {
     setLoading(true);
@@ -115,7 +117,8 @@ export default function NewsViewScreen(props: Props) {
     } else if (data.uid) {
       await getNewsDataByUid(data.uid);
     }
-    await refreshCurrentUser();
+    const newUser = await getAuthUser();
+    setCurrentUser(newUser);
     setLoading(false);
   };
 

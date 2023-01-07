@@ -9,8 +9,10 @@ export interface User {
   email: string;
   username: string;
   avatar_uri?: string;
-  following?: User[]; // TODO: type this
+  following?: User[];
   followers?: User[];
+  summaries?: Summary[];
+  expo_token?: string;
 }
 
 export interface Snippet {

@@ -31,6 +31,8 @@ import { updateUserExpoToken } from "./src/store/auth";
 import SummaryScreen from "./src/pages/SummaryScreen";
 import { Subscription } from "expo-modules-core";
 import { instance } from "./src/store/api";
+import { User } from "./src/types";
+import CurrentUserContext from "./src/contexts/CurrentUserContext";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -66,7 +68,7 @@ interface RouteObejct {
 
 export default function App() {
   const navigationRef = useNavigationContainerRef();
-  const [user, setUser] = useState<any | undefined>();
+  const [user, setUser] = useState<User | undefined>();
   const [notification, setNotification] = useState<Notification | undefined>();
   const notificationListener = useRef<Subscription | undefined>();
   const responseListener = useRef<Subscription | undefined>();
@@ -172,7 +174,7 @@ export default function App() {
   }, []);
 
   const handleOnLogin = useCallback(
-    (userObject: any) => {
+    (userObject: User) => {
       if (expoToken && !userObject.expo_token) {
         updateUserExpoToken(expoToken);
         userObject.expo_token = expoToken;
@@ -188,8 +190,9 @@ export default function App() {
     [expoToken]
   );
 
+  // TODO: save `deepLinkUrl` for the login page if they aren't logged in
   useEffect(() => {
-    if (user && deepLinkUrl && deepLinkUrl.match(deepLinkUrlRegex)) {
+    if (deepLinkUrl && deepLinkUrl.match(deepLinkUrlRegex)) {
       setDeepLinkLoading(true);
       const match = deepLinkUrl.match(deepLinkUrlRegex);
       const uid = match![1];
@@ -215,58 +218,61 @@ export default function App() {
     );
   } else {
     return (
-      <NavigationContainer
-        ref={navigationRef}
-        onReady={() => setNavigationIsReady(true)}
-      >
-        <Stack.Navigator
-          initialRouteName={desiredRoute?.path ?? "Login"}
-          initialRouteParams={desiredRoute?.args ?? {}}
+      <CurrentUserContext.Provider value={user}>
+        <NavigationContainer
+          ref={navigationRef}
+          onReady={() => setNavigationIsReady(true)}
         >
-          <Stack.Screen name="Login" options={{ headerShown: false }}>
-            {(props: any) => (
-              <LoginScreen {...props} onLoginCallback={handleOnLogin} />
-            )}
-          </Stack.Screen>
-          <Stack.Screen
-            name="Register"
-            component={RegisterScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen name="Home" options={{ headerShown: false }}>
-            {(props: any) => (
-              <HomeScreen
-                {...props}
-                clearCurrentSummaryId={() => setCurrentSummaryId(undefined)}
-              />
-            )}
-          </Stack.Screen>
-          <Stack.Screen name="NewsView" options={{ headerShown: true }}>
-            {(props: any) => (
-              <NewsViewScreen
-                {...props}
-                setCurrentSummaryId={setCurrentSummaryId}
-              />
-            )}
-          </Stack.Screen>
-          <Stack.Screen
-            name="AuthorView"
-            component={AuthorViewScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="My Profile"
-            component={ProfileScreen}
-            options={{ headerShown: true }}
-          />
-          <Stack.Screen name="CreateSummary" options={{ headerShown: false }}>
-            {(props: any) => (
-              <SummaryScreen {...props} currentSummaryId={currentSummaryId} />
-            )}
-          </Stack.Screen>
-        </Stack.Navigator>
-        <StatusBar style="auto" />
-      </NavigationContainer>
+          <Stack.Navigator
+            initialRouteName={desiredRoute?.path ?? "Login"}
+            initialRouteParams={desiredRoute?.args ?? {}}
+          >
+            <Stack.Screen name="Login" options={{ headerShown: false }}>
+              {(props: any) => (
+                <LoginScreen {...props} onLoginCallback={handleOnLogin} />
+              )}
+            </Stack.Screen>
+            <Stack.Screen
+              name="Register"
+              component={RegisterScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="Home" options={{ headerShown: false }}>
+              {(props: any) => (
+                <HomeScreen
+                  {...props}
+                  clearCurrentSummaryId={() => setCurrentSummaryId(undefined)}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="NewsView" options={{ headerShown: true }}>
+              {(props: any) => (
+                <NewsViewScreen
+                  {...props}
+                  setCurrentSummaryId={setCurrentSummaryId}
+                  setCurrentUser={setUser}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen
+              name="AuthorView"
+              component={AuthorViewScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="My Profile" options={{ headerShown: true }}>
+              {(props: any) => (
+                <ProfileScreen {...props} setCurrentUser={setUser} />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="CreateSummary" options={{ headerShown: false }}>
+              {(props: any) => (
+                <SummaryScreen {...props} currentSummaryId={currentSummaryId} />
+              )}
+            </Stack.Screen>
+          </Stack.Navigator>
+          <StatusBar style="auto" />
+        </NavigationContainer>
+      </CurrentUserContext.Provider>
     );
   }
 }
