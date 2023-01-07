@@ -573,7 +573,6 @@ export default function ProfileScreen(props: Props) {
                   autoComplete="off"
                   autoCorrect={false}
                 />
-                {/*   // FIXME: not working */}
                 <FlatList
                   data={currentFollowingAuthors ?? []}
                   renderItem={renderFollowingUser}
