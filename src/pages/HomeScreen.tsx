@@ -58,7 +58,7 @@ export default function HomeScreen(props: Props) {
       follower_id: user_id,
     };
     followAuthor(postData).then(() => {
-      setAuthorsData(undefined);
+      handleAuthorRefresh();
       refreshNewsData();
     });
   };
@@ -105,7 +105,9 @@ export default function HomeScreen(props: Props) {
         // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
       />
       <ListItem.Content>
-        <ListItem.Title>{item.username}</ListItem.Title>
+        <ListItem.Title>
+          {item.username} ({item.summaries_count})
+        </ListItem.Title>
       </ListItem.Content>
       <Button
         onPress={() => handleFollow(item.id)}
@@ -138,28 +140,36 @@ export default function HomeScreen(props: Props) {
           </Text>
         )}
 
-        {authorsData && authorsData.length > 0 && (
-          <View style={{ flex: 1 }}>
-            <Text
-              style={{
-                textAlign: "center",
-                fontWeight: "bold",
-                marginBottom: 10,
-              }}
-            >
-              Follow others to stay up-to-date on the news!
-            </Text>
-            <FlatList
-              data={authorsData}
-              renderItem={renderAuthorItem}
-              style={{
-                width: "100%",
-              }}
-              refreshing={isRefreshingAuthors}
-              onRefresh={handleAuthorRefresh}
-            />
-          </View>
+        {newsData && newsData.length === 0 && (
+          <Text style={{ textAlign: "center", margin: 10 }}>
+            No news right now!
+          </Text>
         )}
+
+        {(!newsData || newsData.length === 0) &&
+          authorsData &&
+          authorsData.length > 0 && (
+            <View style={{ flex: 1 }}>
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  marginBottom: 10,
+                }}
+              >
+                Follow others to stay up-to-date on the news!
+              </Text>
+              <FlatList
+                data={authorsData}
+                renderItem={renderAuthorItem}
+                style={{
+                  width: "100%",
+                }}
+                refreshing={isRefreshingAuthors}
+                onRefresh={handleAuthorRefresh}
+              />
+            </View>
+          )}
 
         {newsData && newsData.length > 0 && (
           <View
@@ -175,8 +185,6 @@ export default function HomeScreen(props: Props) {
             />
           </View>
         )}
-
-        {newsData && newsData.length === 0 && <Text>No news right now!</Text>}
 
         {!newsData && isRefreshingNewsData && <ActivityIndicator />}
 

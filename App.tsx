@@ -179,7 +179,10 @@ export default function App() {
         updateUserExpoToken(expoToken);
         userObject.expo_token = expoToken;
       }
-      if (userObject.expo_token) {
+      if (
+        userObject.expo_token ||
+        instance.defaults.baseURL?.includes("localhost")
+      ) {
         AsyncStorage.setItem("@user", JSON.stringify(userObject));
         setUser(userObject);
         setDesiredRoute({ path: "Home" });

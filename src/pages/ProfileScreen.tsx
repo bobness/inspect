@@ -147,8 +147,6 @@ export default function ProfileScreen(props: Props) {
         ...updateBlock,
         password: profileData.password,
       });
-    } else {
-      await updateProfile(updateBlock);
     }
     setProfileData({ ...profileData, password: "", confirmPassword: "" });
     setLoading(false);
@@ -219,7 +217,7 @@ export default function ProfileScreen(props: Props) {
       <Button
         title="Unfollow"
         buttonStyle={{ backgroundColor: "#6AA84F" }}
-        onPress={() => handleUnfollow(item.id)}
+        onPress={() => handleUnfollow(item.user_id)}
       />
     </ListItem>
   );
