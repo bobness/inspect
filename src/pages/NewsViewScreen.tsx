@@ -85,7 +85,7 @@ export default function NewsViewScreen(props: Props) {
     },
     navigation,
     setCurrentSummaryId,
-    setCurrentUser: setUser,
+    setCurrentUser,
   } = props;
   let richText: any = useRef(null);
   const [newsData, setNewsData] = useState<Summary | undefined>();
@@ -118,7 +118,7 @@ export default function NewsViewScreen(props: Props) {
       await getNewsDataByUid(data.uid);
     }
     const newUser = await getAuthUser();
-    setUser(newUser);
+    setCurrentUser(newUser);
     setLoading(false);
   };
 
