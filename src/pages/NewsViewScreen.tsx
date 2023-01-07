@@ -75,7 +75,7 @@ interface Props {
   };
   navigation: any;
   setCurrentSummaryId: (id: number | undefined) => void;
-  setUser: (user: User) => void;
+  setCurrentUser: (user: User) => void;
 }
 
 export default function NewsViewScreen(props: Props) {
@@ -85,7 +85,7 @@ export default function NewsViewScreen(props: Props) {
     },
     navigation,
     setCurrentSummaryId,
-    setUser,
+    setCurrentUser: setUser,
   } = props;
   let richText: any = useRef(null);
   const [newsData, setNewsData] = useState<Summary | undefined>();

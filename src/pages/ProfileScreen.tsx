@@ -42,11 +42,11 @@ import UserListItem from "../components/UserListItem";
 
 interface Props {
   navigation: any;
-  setUser: (user: User) => void;
+  setCurrentUser: (user: User) => void;
 }
 
 export default function ProfileScreen(props: Props) {
-  const { navigation, setUser } = props;
+  const { navigation, setCurrentUser } = props;
   const usernameRef = useRef<any | undefined>();
   const emailRef = useRef<any | undefined>();
   const passwordRef = useRef<any | undefined>();
@@ -94,7 +94,7 @@ export default function ProfileScreen(props: Props) {
     setRefreshing(true);
     getAuthUser()
       .then((user: User) => {
-        setUser(user);
+        setCurrentUser(user);
         setProfileData({
           ...user,
           password: "",

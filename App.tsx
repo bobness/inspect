@@ -250,7 +250,7 @@ export default function App() {
                 <NewsViewScreen
                   {...props}
                   setCurrentSummaryId={setCurrentSummaryId}
-                  setUser={setUser}
+                  setCurrentUser={setUser}
                 />
               )}
             </Stack.Screen>
@@ -260,7 +260,9 @@ export default function App() {
               options={{ headerShown: false }}
             />
             <Stack.Screen name="My Profile" options={{ headerShown: true }}>
-              {(props: any) => <ProfileScreen {...props} setUser={setUser} />}
+              {(props: any) => (
+                <ProfileScreen {...props} setCurrentUser={setUser} />
+              )}
             </Stack.Screen>
             <Stack.Screen name="CreateSummary" options={{ headerShown: false }}>
               {(props: any) => (
