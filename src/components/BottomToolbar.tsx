@@ -1,11 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  View,
-  TouchableOpacity,
-  Alert,
-  SafeAreaView,
-  Text,
-} from "react-native";
+import { View, TouchableOpacity, SafeAreaView, Text } from "react-native";
 import { Button, Input, Overlay } from "react-native-elements";
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
 
@@ -24,28 +18,6 @@ export default function BottomToolbar({ navigation }: any) {
     (text?: string) => text && text.match(validUrlRegex),
     [validUrlRegex]
   );
-
-  const confirmLogout = () => {
-    Alert.alert(
-      "Confirm Logout",
-      "Are you sure you want to Logout?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Logout",
-          onPress: () => {
-            navigation.navigate("Login");
-          },
-        },
-      ],
-      {
-        cancelable: true,
-      }
-    );
-  };
 
   return (
     <>
