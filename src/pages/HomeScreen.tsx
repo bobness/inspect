@@ -122,9 +122,31 @@ export default function HomeScreen(props: Props) {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "white" }}>
       <View style={{ flex: 1, flexDirection: "column", padding: 10 }}>
-        <Text style={commonStyle.logoText}>INSPECT</Text>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            maxHeight: 134,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 40,
+              fontWeight: "800",
+              marginTop: 50,
+              marginBottom: 30,
+              textTransform: "uppercase",
+              textAlign: "center",
+            }}
+          >
+            <Avatar source={{ uri: "icon.png" }} />
+            INSPECT
+          </Text>
+        </View>
         <Button title="Search" onPress={toggleSearchOverlay} />
 
         {showArchiveHint && (

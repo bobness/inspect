@@ -99,10 +99,10 @@ export default function BottomToolbar({ navigation }: any) {
             flex: 1,
           }}
           onPress={() => {
-            confirmLogout();
+            navigation.navigate("About");
           }}
         >
-          <FontAwesomeIcon name="sign-out" size={20} color="black" />
+          <FontAwesomeIcon name="question" size={20} color="black" />
         </TouchableOpacity>
       </View>
       <Overlay
