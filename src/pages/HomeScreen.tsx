@@ -124,7 +124,10 @@ export default function HomeScreen(props: Props) {
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 1, flexDirection: "column", padding: 10 }}>
-        <Text style={commonStyle.logoText}>INSPECT</Text>
+        <Text style={commonStyle.logoText}>
+          <Avatar source={{ uri: "AppIcon.png" }} />
+          INSPECT
+        </Text>
         <Button title="Search" onPress={toggleSearchOverlay} />
 
         {showArchiveHint && (

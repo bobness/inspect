@@ -33,6 +33,7 @@ import { Subscription } from "expo-modules-core";
 import { instance } from "./src/store/api";
 import { User } from "./src/types";
 import CurrentUserContext from "./src/contexts/CurrentUserContext";
+import AboutScreen from "./src/pages/AboutScreen";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -272,6 +273,11 @@ export default function App() {
                 <SummaryScreen {...props} currentSummaryId={currentSummaryId} />
               )}
             </Stack.Screen>
+            <Stack.Screen
+              name="About"
+              component={AboutScreen}
+              options={{ headerShown: false }}
+            />
           </Stack.Navigator>
           <StatusBar style="auto" />
         </NavigationContainer>
