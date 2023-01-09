@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     textTransform: "uppercase",
     textAlign: "center",
+    marginHorizontal: "auto",
   },
   row: {
     flexDirection: "row",
