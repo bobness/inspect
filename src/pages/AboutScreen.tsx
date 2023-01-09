@@ -10,9 +10,6 @@ interface Props {
 }
 
 export default function AboutScreen(props: Props) {
-  // states
-  // effects
-  // callbacks
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
       <View style={{ flex: 1, flexDirection: "column" }}>
