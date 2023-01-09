@@ -16,10 +16,20 @@ export default function AboutScreen(props: Props) {
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
       <View style={{ flex: 1, flexDirection: "column" }}>
-        <Text style={commonStyle.logoText}>
-          <Avatar source={{ uri: "icon.png" }} />
-          INSPECT
-        </Text>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            maxHeight: 134,
+          }}
+        >
+          <Text style={commonStyle.logoText}>
+            <Avatar source={{ uri: "icon.png" }} />
+            INSPECT
+          </Text>
+        </View>
         <Text style={{ margin: 10 }}>
           A mobile app to share important news with those close to you
         </Text>
@@ -45,7 +55,7 @@ export default function AboutScreen(props: Props) {
               )
             }
           >
-            Discord Channel
+            Discord server
           </Text>{" "}
           -- where you can ask questions or just chat!
         </Text>
