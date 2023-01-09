@@ -477,7 +477,7 @@
 			baseConfigurationReference = 16E7F4BE754D67DA9A685891 /* Pods-Inspect.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = icon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Inspect/Inspect.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -519,7 +519,7 @@
 			baseConfigurationReference = C9BD886D575B93FE1AE794D7 /* Pods-Inspect.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = icon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Inspect/Inspect.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
