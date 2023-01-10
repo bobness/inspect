@@ -20,6 +20,7 @@ import {
   ScrollView,
   RefreshControl,
   Share,
+  TextInput,
 } from "react-native";
 import {
   Avatar,
@@ -107,6 +108,8 @@ export default function NewsViewScreen(props: Props) {
     Reaction[] | undefined
   >();
   const [watchIsEnabled, setWatchIsEnabled] = useState(false);
+  const [addSnippetIsVisible, setAddSnippetVisible] = useState(false);
+  const [newSnippetValue, setNewSnippetValue] = useState<string | undefined>();
 
   const currentUser = useCurrentUserContext();
 
@@ -362,6 +365,22 @@ export default function NewsViewScreen(props: Props) {
       });
     }
   };
+
+  const saveNewSnippet = useCallback(() => {
+    if (newsData?.id && newSnippetValue) {
+      const newSnippet = {
+        value: newSnippetValue,
+        summary_id: newsData.id,
+      };
+      updateSummary(newsData.id, {
+        snippets: [newSnippet],
+      }).then(() => {
+        setAddSnippetVisible(false);
+        setNewSnippetValue(undefined);
+        handleRefresh();
+      });
+    }
+  }, [newsData, newSnippetValue]);
 
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
@@ -621,6 +640,26 @@ export default function NewsViewScreen(props: Props) {
               </View>
             </View>
 
+            {addSnippetIsVisible && (
+              <View style={{ flex: 1 }}>
+                <TextInput
+                  style={{
+                    height: 100,
+                    width: "100%",
+                    backgroundColor: "white",
+                  }}
+                  value={newSnippetValue}
+                  onChangeText={(text: string) => setNewSnippetValue(text)}
+                  multiline={true}
+                />
+                <Button
+                  title="Save"
+                  onPress={saveNewSnippet}
+                  disabled={!newSnippetValue}
+                />
+              </View>
+            )}
+
             <View style={{ flex: 1 }}>
               <View
                 style={{
@@ -663,14 +702,15 @@ export default function NewsViewScreen(props: Props) {
                   key={`snippet component #${snippet.id}`}
                 />
               ))}
-              <Button
-                title="➕ Evidence"
-                onPress={() => {
-                  // TODO
-                  // setAddSnippetVisible(true);
-                }}
-                titleStyle={{ fontSize: 16 }}
-              />
+              {newsData && (
+                <Button
+                  title="➕ Evidence"
+                  onPress={() => {
+                    setAddSnippetVisible(true);
+                  }}
+                  titleStyle={{ fontSize: 16 }}
+                />
+              )}
             </View>
 
             <View
