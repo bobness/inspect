@@ -557,6 +557,7 @@ export default function NewsViewScreen(props: Props) {
                     });
                   }}
                   autoCompleteType={undefined}
+                  multiline={true}
                 />
               )}
             </View>
@@ -620,51 +621,57 @@ export default function NewsViewScreen(props: Props) {
               </View>
             </View>
 
-            {newsData.snippets && newsData.snippets.length > 0 && (
-              <View style={{ flex: 1 }}>
+            <View style={{ flex: 1 }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <View
-                    style={{ flex: 1, height: 1, backgroundColor: "black" }}
-                  />
-                  <View>
-                    <Text
-                      style={{
-                        width: 70,
-                        textAlign: "center",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Evidence
-                    </Text>
-                  </View>
-                  <View
-                    style={{ flex: 1, height: 1, backgroundColor: "black" }}
-                  />
+                  style={{ flex: 1, height: 1, backgroundColor: "black" }}
+                />
+                <View>
+                  <Text
+                    style={{
+                      width: 70,
+                      textAlign: "center",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Evidence
+                  </Text>
                 </View>
-                {newsData.snippets.map((snippet) => (
-                  <Snippet
-                    snippet={snippet}
-                    comments={newsData.comments.filter(
-                      (comment) => comment.snippet_id == snippet.id
-                    )}
-                    reactions={newsData.reactions.filter(
-                      (reaction) => reaction.snippet_id == snippet.id
-                    )}
-                    navigation={navigation}
-                    toggleCommentOverlay={toggleCommentOverlay}
-                    toggleEmojiOverlay={toggleEmojiOverlay}
-                    handleRefresh={handleRefresh}
-                    key={`snippet component #${snippet.id}`}
-                  />
-                ))}
+                <View
+                  style={{ flex: 1, height: 1, backgroundColor: "black" }}
+                />
               </View>
-            )}
+              {newsData.snippets.map((snippet) => (
+                <Snippet
+                  snippet={snippet}
+                  comments={newsData.comments.filter(
+                    (comment) => comment.snippet_id == snippet.id
+                  )}
+                  reactions={newsData.reactions.filter(
+                    (reaction) => reaction.snippet_id == snippet.id
+                  )}
+                  navigation={navigation}
+                  toggleCommentOverlay={toggleCommentOverlay}
+                  toggleEmojiOverlay={toggleEmojiOverlay}
+                  handleRefresh={handleRefresh}
+                  key={`snippet component #${snippet.id}`}
+                />
+              ))}
+              <Button
+                title="➕ Evidence"
+                onPress={() => {
+                  // TODO
+                  // setAddSnippetVisible(true);
+                }}
+                titleStyle={{ fontSize: 16 }}
+              />
+            </View>
 
             <View
               style={{
@@ -691,13 +698,6 @@ export default function NewsViewScreen(props: Props) {
                 justifyContent: "space-around",
               }}
             >
-              <Button
-                title="➕ Evidence"
-                onPress={() => {
-                  goToUrl(newsData);
-                }}
-                titleStyle={{ fontSize: 16 }}
-              />
               {!newsData.is_archived && (
                 <Button
                   onPress={archiveItem}

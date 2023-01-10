@@ -15,6 +15,7 @@ import {
   View,
   Alert,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { Input, CheckBox, Button } from "react-native-elements";
 import {
@@ -128,7 +129,7 @@ export default function SummaryScreen(props: Props) {
           });
         }
       }),
-    ]).then(() => setLoading(false));
+    ]).finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -158,6 +159,7 @@ export default function SummaryScreen(props: Props) {
 
   const submitShare = useCallback(async () => {
     if (currentUser && title) {
+      setLoading(true);
       const summary = {
         url: cleanedUrl,
         title,
@@ -176,6 +178,7 @@ export default function SummaryScreen(props: Props) {
         });
       }
       cleanup();
+      setLoading(false);
       navigation.navigate("Home");
     } else {
       Alert.alert("Please specify a title for your summary");
@@ -247,79 +250,84 @@ export default function SummaryScreen(props: Props) {
             <Text style={{ color: "blue", marginBottom: 10 }}>
               {cleanedUrl}
             </Text>
-            <VoiceInput resultCallback={(text: string) => setTitle(text)} />
-            <Input
-              ref={titleInputRef}
-              label="New Title"
-              placeholder="New title that explains the factual contribution"
-              value={title}
-              editable={!currentSummaryId}
-              onChangeText={(text: string) => {
-                if (text !== defaultTitle) {
-                  setUseDefaultTitle(false);
-                }
-                setTitle(text);
-              }}
-              autoCompleteType={undefined}
-              multiline={true}
-            />
-            {!currentSummaryId && defaultTitle && (
-              <CheckBox
-                title="Use existing title?"
-                checked={useDefaultTitle}
-                onPress={() => setUseDefaultTitle(!useDefaultTitle)}
-              />
-            )}
-            {currentSummaryId && (
+            {!loading && (
               <>
-                <ScrollView>
-                  {snippets.map((snippet) => (
-                    <Text
-                      key={`snippet #${snippet.id}`}
-                      style={{
-                        opacity: 0.5,
-                      }}
-                    >
-                      {snippet.value}
-                    </Text>
-                  ))}
-                  <View
-                    key="new snippet"
-                    style={{
-                      borderRadius: 5,
-                      borderWidth: 1,
-                      borderColor: "black",
-                      borderStyle: "dashed",
-                      backgroundColor: "#ccc",
-                      padding: 10,
-                    }}
-                  >
-                    <Text>{newSnippet?.value}</Text>
-                  </View>
-                  {newSnippet?.value.length > 1000 && (
-                    <Text style={{ color: "red" }}>
-                      WARNING: your selection is greater than the max length
-                      (1000), so updating may not work
-                    </Text>
-                  )}
-                </ScrollView>
+                <VoiceInput resultCallback={(text: string) => setTitle(text)} />
+                <Input
+                  ref={titleInputRef}
+                  label="New Title"
+                  placeholder="New title that explains the factual contribution"
+                  value={title}
+                  editable={!currentSummaryId}
+                  onChangeText={(text: string) => {
+                    if (text !== defaultTitle) {
+                      setUseDefaultTitle(false);
+                    }
+                    setTitle(text);
+                  }}
+                  autoCompleteType={undefined}
+                  multiline={true}
+                />
+                {!currentSummaryId && defaultTitle && (
+                  <CheckBox
+                    title="Use existing title?"
+                    checked={useDefaultTitle}
+                    onPress={() => setUseDefaultTitle(!useDefaultTitle)}
+                  />
+                )}
+                {currentSummaryId && (
+                  <>
+                    <ScrollView>
+                      {snippets.map((snippet) => (
+                        <Text
+                          key={`snippet #${snippet.id}`}
+                          style={{
+                            opacity: 0.5,
+                          }}
+                        >
+                          {snippet.value}
+                        </Text>
+                      ))}
+                      <View
+                        key="new snippet"
+                        style={{
+                          borderRadius: 5,
+                          borderWidth: 1,
+                          borderColor: "black",
+                          borderStyle: "dashed",
+                          backgroundColor: "#ccc",
+                          padding: 10,
+                        }}
+                      >
+                        <Text>{newSnippet?.value}</Text>
+                      </View>
+                      {newSnippet?.value.length > 1000 && (
+                        <Text style={{ color: "red" }}>
+                          WARNING: your selection is greater than the max length
+                          (1000), so updating may not work
+                        </Text>
+                      )}
+                    </ScrollView>
+                  </>
+                )}
+                {currentSummaryId && (
+                  <Button title="Update Summary" onPress={submitUpdate} />
+                )}
+                {!currentSummaryId && (
+                  <Button
+                    disabled={!(currentUser && title)}
+                    title="Create Summary"
+                    onPress={submitShare}
+                  />
+                )}
+                <Button
+                  containerStyle={{ backgroundColor: "#FF6600" }}
+                  title="Cancel"
+                  onPress={handleCancel}
+                />
               </>
             )}
-            {currentSummaryId && (
-              <Button title="Update Summary" onPress={submitUpdate} />
-            )}
-            {!currentSummaryId && (
-              <Button
-                disabled={!(currentUser && title)}
-                title="Create Summary"
-                onPress={submitShare}
-              />
-            )}
-            <Button
-              containerStyle={{ backgroundColor: "#FF6600" }}
-              title="Cancel"
-              onPress={handleCancel}
-            />
+            {loading && <ActivityIndicator />}
           </View>
         </View>
       </TouchableWithoutFeedback>
