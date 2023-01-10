@@ -20,6 +20,7 @@ import {
   ScrollView,
   RefreshControl,
   Share,
+  TextInput,
 } from "react-native";
 import {
   Avatar,
@@ -107,6 +108,8 @@ export default function NewsViewScreen(props: Props) {
     Reaction[] | undefined
   >();
   const [watchIsEnabled, setWatchIsEnabled] = useState(false);
+  const [addSnippetIsVisible, setAddSnippetVisible] = useState(false);
+  const [newSnippetValue, setNewSnippetValue] = useState<string | undefined>();
 
   const currentUser = useCurrentUserContext();
 
@@ -363,6 +366,22 @@ export default function NewsViewScreen(props: Props) {
     }
   };
 
+  const saveNewSnippet = useCallback(() => {
+    if (newsData?.id && newSnippetValue) {
+      const newSnippet = {
+        value: newSnippetValue,
+        summary_id: newsData.id,
+      };
+      updateSummary(newsData.id, {
+        snippets: [newSnippet],
+      }).then(() => {
+        setAddSnippetVisible(false);
+        setNewSnippetValue(undefined);
+        handleRefresh();
+      });
+    }
+  }, [newsData, newSnippetValue]);
+
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <View style={commonStyle.pageContainer}>
@@ -557,6 +576,7 @@ export default function NewsViewScreen(props: Props) {
                     });
                   }}
                   autoCompleteType={undefined}
+                  multiline={true}
                 />
               )}
             </View>
@@ -620,51 +640,78 @@ export default function NewsViewScreen(props: Props) {
               </View>
             </View>
 
-            {newsData.snippets && newsData.snippets.length > 0 && (
+            {addSnippetIsVisible && (
               <View style={{ flex: 1 }}>
-                <View
+                <TextInput
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    height: 100,
+                    width: "100%",
+                    backgroundColor: "white",
                   }}
-                >
-                  <View
-                    style={{ flex: 1, height: 1, backgroundColor: "black" }}
-                  />
-                  <View>
-                    <Text
-                      style={{
-                        width: 70,
-                        textAlign: "center",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Evidence
-                    </Text>
-                  </View>
-                  <View
-                    style={{ flex: 1, height: 1, backgroundColor: "black" }}
-                  />
-                </View>
-                {newsData.snippets.map((snippet) => (
-                  <Snippet
-                    snippet={snippet}
-                    comments={newsData.comments.filter(
-                      (comment) => comment.snippet_id == snippet.id
-                    )}
-                    reactions={newsData.reactions.filter(
-                      (reaction) => reaction.snippet_id == snippet.id
-                    )}
-                    navigation={navigation}
-                    toggleCommentOverlay={toggleCommentOverlay}
-                    toggleEmojiOverlay={toggleEmojiOverlay}
-                    handleRefresh={handleRefresh}
-                    key={`snippet component #${snippet.id}`}
-                  />
-                ))}
+                  value={newSnippetValue}
+                  onChangeText={(text: string) => setNewSnippetValue(text)}
+                  multiline={true}
+                />
+                <Button
+                  title="Save"
+                  onPress={saveNewSnippet}
+                  disabled={!newSnippetValue}
+                />
               </View>
             )}
+
+            <View style={{ flex: 1 }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <View
+                  style={{ flex: 1, height: 1, backgroundColor: "black" }}
+                />
+                <View>
+                  <Text
+                    style={{
+                      width: 70,
+                      textAlign: "center",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Evidence
+                  </Text>
+                </View>
+                <View
+                  style={{ flex: 1, height: 1, backgroundColor: "black" }}
+                />
+              </View>
+              {newsData.snippets.map((snippet) => (
+                <Snippet
+                  snippet={snippet}
+                  comments={newsData.comments.filter(
+                    (comment) => comment.snippet_id == snippet.id
+                  )}
+                  reactions={newsData.reactions.filter(
+                    (reaction) => reaction.snippet_id == snippet.id
+                  )}
+                  navigation={navigation}
+                  toggleCommentOverlay={toggleCommentOverlay}
+                  toggleEmojiOverlay={toggleEmojiOverlay}
+                  handleRefresh={handleRefresh}
+                  key={`snippet component #${snippet.id}`}
+                />
+              ))}
+              {newsData && (
+                <Button
+                  title="➕ Evidence"
+                  onPress={() => {
+                    setAddSnippetVisible(true);
+                  }}
+                  titleStyle={{ fontSize: 16 }}
+                />
+              )}
+            </View>
 
             <View
               style={{
@@ -691,13 +738,6 @@ export default function NewsViewScreen(props: Props) {
                 justifyContent: "space-around",
               }}
             >
-              <Button
-                title="➕ Evidence"
-                onPress={() => {
-                  goToUrl(newsData);
-                }}
-                titleStyle={{ fontSize: 16 }}
-              />
               {!newsData.is_archived && (
                 <Button
                   onPress={archiveItem}

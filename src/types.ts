@@ -16,7 +16,7 @@ export interface User {
 }
 
 export interface Snippet {
-  id: number;
+  id?: number;
   value: string;
   summary_id: number;
 }
