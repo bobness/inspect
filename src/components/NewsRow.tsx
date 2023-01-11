@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Image, View } from "react-native";
+import React from "react";
+import { View } from "react-native";
 import { Avatar, Icon, ListItem, Text } from "react-native-elements";
 import { Gesture, GestureDetector, State } from "react-native-gesture-handler";
 import Animated, {
@@ -7,7 +7,7 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 
-import { Source, Summary } from "../types";
+import { Summary } from "../types";
 import { convertDate } from "../util";
 import SourceLogo from "./SourceLogo";
 

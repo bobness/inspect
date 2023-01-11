@@ -123,11 +123,14 @@ export default function AuthorViewScreen(props: any) {
     );
   }
 
-  const getSourceLogoBGColor = (sourceId: number) => {
-    if (sourceId === sourceFilter?.id) {
-      return "#ccc";
-    }
-  };
+  const getSourceLogoBGColor = useCallback(
+    (sourceId: number) => {
+      if (sourceId === sourceFilter?.id) {
+        return "#ccc";
+      }
+    },
+    [sourceFilter]
+  );
 
   return (
     <View style={commonStyle.pageContainer}>
