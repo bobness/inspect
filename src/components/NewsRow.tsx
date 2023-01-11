@@ -7,8 +7,9 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 
-import { Summary } from "../types";
+import { Source, Summary } from "../types";
 import { convertDate } from "../util";
+import SourceLogo from "./SourceLogo";
 
 interface Props {
   item: Summary;
@@ -120,23 +121,13 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
             </ListItem.Title>
           </ListItem.Content>
           <View>
-            {item.logo_uri && (
-              <Image
-                // title={item.title[0]}
-                // titleStyle={{ color: "black" }}
-                source={(item.logo_uri as any) && { uri: item.logo_uri }}
-                style={{
-                  // borderColor: "green",
-                  // borderWidth: 1,
-                  // padding: 3,
-                  height: 34,
-                  resizeMode: "contain",
-                }}
-              />
-            )}
-            {!item.logo_uri && (
-              <Text style={{ textAlign: "center" }}>{item.source_baseurl}</Text>
-            )}
+            <SourceLogo
+              data={{
+                id: item.source_id,
+                baseurl: item.source_baseurl,
+                logo_uri: item.logo_uri,
+              }}
+            />
             <Text style={{ fontSize: 12, textAlign: "center" }}>
               {item.updated_at &&
                 item.updated_at === item.created_at &&
