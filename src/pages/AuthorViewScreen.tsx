@@ -6,25 +6,18 @@ import {
   Text,
   View,
   FlatList,
-  ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Image,
   useWindowDimensions,
 } from "react-native";
-import {
-  ListItem,
-  Avatar,
-  Button,
-  Icon,
-  SearchBar,
-} from "react-native-elements";
+import { Avatar, Button, Icon, SearchBar } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
 import { getProfileInformation } from "../store/auth";
 import { followAuthor, unfollowAuthor } from "../store/news";
 import NewsRow from "../components/NewsRow";
-import { Source, Summary } from "../types";
+import { Source, Summary, User } from "../types";
 import useCurrentUserContext from "../hooks/useCurrentUserContext";
+import SourceLogo from "../components/SourceLogo";
 
 export default function AuthorViewScreen(props: any) {
   const {
@@ -33,27 +26,35 @@ export default function AuthorViewScreen(props: any) {
     },
     navigation,
   } = props;
-  const [userData, setUserData] = useState<any | undefined>();
+  const [userData, setUserData] = useState<User | undefined>();
   const [isRefreshing, setRefreshing] = useState(false);
   const [articleSearch, setArticleSearch] = useState<string>("");
   const [currentSummaries, setCurrentSummaries] = useState<
     Summary[] | undefined
   >();
+  const [sourceFilter, setSourceFilter] = useState<Source | undefined>();
 
   const { width } = useWindowDimensions();
   const currentUser = useCurrentUserContext();
 
   useEffect(() => {
-    if (articleSearch) {
-      setCurrentSummaries(
-        userData.summaries.filter((summary: Summary) =>
+    if (userData?.summaries) {
+      let newSummaries = userData?.summaries;
+      if (articleSearch) {
+        newSummaries = newSummaries.filter((summary: Summary) =>
           summary.title
             .toLocaleLowerCase()
             .includes(articleSearch.toLocaleLowerCase())
-        )
-      );
+        );
+      }
+      if (sourceFilter) {
+        newSummaries = newSummaries.filter(
+          (summary: Summary) => summary.source_baseurl === sourceFilter.baseurl
+        );
+      }
+      setCurrentSummaries(newSummaries);
     }
-  }, [articleSearch]);
+  }, [userData?.summaries, articleSearch, sourceFilter]);
 
   const handleFollow = (user_id: number) => {
     const postData = {
@@ -72,8 +73,10 @@ export default function AuthorViewScreen(props: any) {
 
   const followerIds = useMemo(() => {
     if (userData) {
-      return userData.followers.map((follower: any) =>
-        Number(follower.follower_id)
+      return (
+        userData?.followers?.map((follower: any) =>
+          Number(follower.follower_id)
+        ) ?? []
       );
     }
   }, [userData]);
@@ -120,6 +123,15 @@ export default function AuthorViewScreen(props: any) {
     );
   }
 
+  const getSourceLogoBGColor = useCallback(
+    (sourceId: number) => {
+      if (sourceId === sourceFilter?.id) {
+        return "#ccc";
+      }
+    },
+    [sourceFilter]
+  );
+
   return (
     <View style={commonStyle.pageContainer}>
       <View style={{ flex: 1, padding: 10 }}>
@@ -156,60 +168,77 @@ export default function AuthorViewScreen(props: any) {
               //   borderWidth: 1,
               //   padding: 3,
               // }}
-              source={userData.avatar_uri && { uri: userData.avatar_uri }}
+              source={
+                userData &&
+                (userData.avatar_uri as any) && { uri: userData.avatar_uri }
+              }
             />
             <Text style={{ paddingLeft: 10, fontSize: 18 }}>
               {userData.username}
             </Text>
           </View>
-          {currentUser && followerIds.includes(currentUser.id) && (
-            <Button
-              title="Unfollow"
-              buttonStyle={{ backgroundColor: "#6AA84F" }}
-              onPress={() => handleUnfollow(userData.id)}
-            />
-          )}
-          {currentUser && !followerIds.includes(currentUser.id) && (
-            <Button
-              title="Follow"
-              buttonStyle={{ backgroundColor: "#6AA84F" }}
-              onPress={() => handleFollow(userData.id)}
-            />
-          )}
+          {currentUser &&
+            currentUser.id !== userData.id &&
+            followerIds?.includes(currentUser.id) && (
+              <Button
+                title="Unfollow"
+                buttonStyle={{ backgroundColor: "#6AA84F" }}
+                onPress={() => handleUnfollow(userData.id)}
+              />
+            )}
+          {currentUser &&
+            currentUser.id !== userData.id &&
+            !followerIds?.includes(currentUser.id) && (
+              <Button
+                title="Follow"
+                buttonStyle={{ backgroundColor: "#6AA84F" }}
+                onPress={() => handleFollow(userData.id)}
+              />
+            )}
         </View>
         <View style={{ flexDirection: "row", padding: 10 }}>
-          {userData.profile && (
+          {userData?.profile && (
             <RenderHtml
               contentWidth={width}
               source={{ html: userData.profile }}
             />
           )}
         </View>
-        {userData.trusted_sources && userData.trusted_sources.length > 0 && (
+        {userData?.trusted_sources && userData.trusted_sources.length > 0 && (
           <View
-            style={{ flexDirection: "row", alignItems: "center", padding: 10 }}
+            style={{
+              flexDirection: "row",
+              padding: 10,
+              alignItems: "flex-start",
+              justifyContent: "flex-end",
+            }}
           >
             <Text style={{ fontSize: 16, fontWeight: "700", marginRight: 10 }}>
-              Trusted sources:
+              Trusted sources:{" "}
             </Text>
-            {userData.trusted_sources
-              .filter((source: Source) => !!source.logo_uri)
-              .map((source: Source) => (
-                <Image
-                  // title={item.title[0]}
-                  // titleStyle={{ color: "black" }}
-                  source={(source.logo_uri as any) && { uri: source.logo_uri }}
-                  style={{
-                    // borderColor: "green",
-                    // borderWidth: 1,
-                    // padding: 3,
-                    height: 34,
-                    width: 34,
-                    resizeMode: "contain",
-                  }}
-                  key={`trusted source #${source.id}`}
-                />
+            <View
+              style={{
+                flex: 1,
+              }}
+            >
+              {userData.trusted_sources.map((source: Source) => (
+                <View
+                  style={{ backgroundColor: getSourceLogoBGColor(source.id) }}
+                >
+                  <SourceLogo
+                    data={source}
+                    onPress={(source: Source) => {
+                      if (sourceFilter?.id === source.id) {
+                        setSourceFilter(undefined);
+                      } else {
+                        setSourceFilter(source);
+                      }
+                    }}
+                    key={`source logo #${source.id}`}
+                  />
+                </View>
               ))}
+            </View>
           </View>
         )}
         <SearchBar

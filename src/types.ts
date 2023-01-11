@@ -13,6 +13,8 @@ export interface User {
   followers?: User[];
   summaries?: Summary[];
   expo_token?: string;
+  profile?: string;
+  trusted_sources?: Source[];
 }
 
 export interface Snippet {
@@ -57,8 +59,8 @@ export interface Summary {
   title: string;
   user_id: number;
   source_id: number;
-  logo_uri?: string;
-  source_baseurl?: string;
+  logo_uri: string;
+  source_baseurl: string;
   avatar_uri?: string;
   username?: string;
   is_archived?: boolean;
