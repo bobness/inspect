@@ -123,14 +123,11 @@ export default function AuthorViewScreen(props: any) {
     );
   }
 
-  const getSourceLogoBGColor = useCallback(
-    (sourceId: number) => {
-      if (sourceId === sourceFilter?.id) {
-        return "#ccc";
-      }
-    },
-    [sourceFilter]
-  );
+  const getSourceLogoBGColor = (sourceId: number) => {
+    if (sourceId === sourceFilter?.id) {
+      return "#ccc";
+    }
+  };
 
   return (
     <View style={commonStyle.pageContainer}>
@@ -224,6 +221,7 @@ export default function AuthorViewScreen(props: any) {
               {userData.trusted_sources.map((source: Source) => (
                 <View
                   style={{ backgroundColor: getSourceLogoBGColor(source.id) }}
+                  key={`trusted_source #${source.id}`}
                 >
                   <SourceLogo
                     data={source}
