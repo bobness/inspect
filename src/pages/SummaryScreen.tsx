@@ -253,6 +253,12 @@ export default function SummaryScreen(props: Props) {
             {!loading && (
               <>
                 <VoiceInput resultCallback={(text: string) => setTitle(text)} />
+                {title && title.length > 50 && (
+                  <Text style={{ color: "red" }}>
+                    !!! Length {">"} 50 -- maye not show up correctly on
+                    Facebook
+                  </Text>
+                )}
                 <Input
                   ref={titleInputRef}
                   label="New Title"
