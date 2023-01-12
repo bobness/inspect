@@ -1,6 +1,8 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import IonIcon from "react-native-vector-icons/Ionicons";
+import FontistoIcon from "react-native-vector-icons/Fontisto";
 
 import {
   Comment,
@@ -85,10 +87,7 @@ const Snippet = ({
 
           <View style={{ flex: 1 }}>
             <View style={{ flex: 1, flexDirection: "row", paddingVertical: 5 }}>
-              <Text
-                style={{ flex: 1, flexWrap: "wrap", textAlign: "justify" }}
-                onPress={() => toggleEmojiOverlay(true, snippet.id)}
-              >
+              <Text style={{ flex: 1, flexWrap: "wrap", textAlign: "justify" }}>
                 {snippet.value}
               </Text>
             </View>
@@ -116,16 +115,23 @@ const Snippet = ({
                 key={`comment #${comment.id}`}
               />
             ))}
-          <View style={{ flex: 1 }}>
-            <TouchableOpacity
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-around" }}
+          >
+            <Text
+              style={{ color: "blue", textAlign: "center", padding: 10 }}
+              onPress={() => toggleEmojiOverlay(true, snippet.id)}
+            >
+              <FontistoIcon name="surprised" /> React
+            </Text>
+            <Text
+              style={{ color: "blue", textAlign: "center", padding: 10 }}
               onPress={() => {
                 toggleCommentOverlay(true, snippet.id);
               }}
             >
-              <Text style={{ color: "blue", textAlign: "center", padding: 10 }}>
-                Add comment
-              </Text>
-            </TouchableOpacity>
+              <IonIcon name="chatbubble" /> Comment
+            </Text>
           </View>
         </View>
       </View>
