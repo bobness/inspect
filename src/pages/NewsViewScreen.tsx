@@ -611,7 +611,8 @@ export default function NewsViewScreen(props: Props) {
                   style={{ color: "blue", textAlign: "center", padding: 10 }}
                   onPress={() => toggleEmojiOverlay(true)}
                 >
-                  <FontistoIcon name="surprised" /> React
+                  <FontistoIcon name="surprised" /> React (
+                  {globalReactions?.length ?? 0})
                 </Text>
                 <Text
                   style={{ color: "blue", textAlign: "center", padding: 10 }}
@@ -619,7 +620,8 @@ export default function NewsViewScreen(props: Props) {
                     toggleCommentOverlay(true);
                   }}
                 >
-                  <IonIcon name="chatbubble" /> Comment
+                  <IonIcon name="chatbubble" /> Comment (
+                  {globalComments?.length ?? 0})
                 </Text>
                 <Text
                   style={{ color: "blue", textAlign: "center", padding: 10 }}
@@ -632,7 +634,8 @@ export default function NewsViewScreen(props: Props) {
                     }
                   }}
                 >
-                  <IonIcon name="share-social" /> Share
+                  <IonIcon name="share-social" /> Share (
+                  {newsData.shares.length})
                 </Text>
               </View>
             </View>

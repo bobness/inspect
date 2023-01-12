@@ -122,7 +122,7 @@ const Snippet = ({
               style={{ color: "blue", textAlign: "center", padding: 10 }}
               onPress={() => toggleEmojiOverlay(true, snippet.id)}
             >
-              <FontistoIcon name="surprised" /> React
+              <FontistoIcon name="surprised" /> React ({reactions?.length ?? 0})
             </Text>
             <Text
               style={{ color: "blue", textAlign: "center", padding: 10 }}
@@ -130,7 +130,7 @@ const Snippet = ({
                 toggleCommentOverlay(true, snippet.id);
               }}
             >
-              <IonIcon name="chatbubble" /> Comment
+              <IonIcon name="chatbubble" /> Comment ({comments?.length ?? 0})
             </Text>
           </View>
         </View>

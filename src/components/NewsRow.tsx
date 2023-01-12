@@ -6,6 +6,8 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
+import FontistoIcon from "react-native-vector-icons/Fontisto";
+import IonIcon from "react-native-vector-icons/Ionicons";
 
 import { Summary } from "../types";
 import { convertDate } from "../util";
@@ -151,7 +153,6 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
                   fontSize: 16,
                 }}
               >
-                {/* TODO: get from the service route */}
                 {item.snippets?.length ?? "?"}
                 <Icon
                   name="sticky-note"
@@ -166,30 +167,16 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
                   fontSize: 16,
                 }}
               >
-                {/* TODO: get from the service route */}
                 {item.reactions?.length ?? "?"}
-                <Icon
-                  name="smile"
-                  type="font-awesome-5"
-                  color="black"
-                  size={16}
-                  tvParallaxProperties={undefined}
-                />
+                <FontistoIcon name="surprised" size={16} color="black" />
               </Text>
               <Text
                 style={{
                   fontSize: 16,
                 }}
               >
-                {/* TODO: get from the service route */}
                 {item.comments?.length ?? "?"}
-                <Icon
-                  name="comments"
-                  type="font-awesome-5"
-                  color="black"
-                  size={16}
-                  tvParallaxProperties={undefined}
-                />
+                <IonIcon name="chatbubble" color="black" size={16} />
               </Text>
               <Text
                 style={{
