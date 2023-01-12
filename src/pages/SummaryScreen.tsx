@@ -5,8 +5,6 @@ import React, {
   useRef,
   useMemo,
 } from "react";
-
-import commonStyle from "../styles/CommonStyle";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -17,7 +15,12 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
-import { Input, CheckBox, Button } from "react-native-elements";
+import { Input, CheckBox, Button, Avatar } from "react-native-elements";
+
+// @ts-expect-error no @types for react-native-html-parser
+import { DOMParser } from "react-native-html-parser";
+
+import commonStyle from "../styles/CommonStyle";
 import {
   createSource,
   getNewsById,
@@ -26,7 +29,7 @@ import {
   sendNotification,
   updateSummary,
 } from "../store/news";
-import { User, Source } from "../types";
+import { Source } from "../types";
 import { instance } from "../store/api";
 import useCurrentUserContext from "../hooks/useCurrentUserContext";
 import VoiceInput from "../components/VoiceInput";
@@ -107,20 +110,27 @@ export default function SummaryScreen(props: Props) {
     }
   }, []);
 
-  const processSharedUrl = (url: string) => {
+  const processSharedUrl = async (url: string) => {
     setLoading(true);
     setCleanedUrl(cleanUrl(url));
     const baseUrl = parseBaseUrl(url);
-    Promise.all([
-      instance.get<string>(url).then((result) => {
-        const html = result.data;
-        const match = html.match(titleRegex);
-        if (match && match[1]) {
-          const docTitle = match[1];
-          setDefaultTitle(docTitle);
-        }
-      }),
-      getSource(baseUrl).then((data) => {
+    try {
+      await instance
+        .get<string>(url, {
+          headers: { "Content-Type": "text/html" },
+        })
+        .then((result) => {
+          const html = result.data;
+
+          const dom = new DOMParser().parseFromString(html, "text/html");
+          const titlesCollection = dom.getElementsByTagName("title");
+
+          if (titlesCollection[0]) {
+            const title = titlesCollection[0].firstChild;
+            setDefaultTitle(title.nodeValue);
+          }
+        });
+      await getSource(baseUrl).then((data) => {
         if (data) {
           setSource(data);
         } else {
@@ -128,8 +138,11 @@ export default function SummaryScreen(props: Props) {
             setSource(newSource);
           });
         }
-      }),
-    ]).finally(() => setLoading(false));
+      });
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -239,19 +252,39 @@ export default function SummaryScreen(props: Props) {
   }, [useDefaultTitle]);
 
   return (
-    <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
+    <KeyboardAvoidingView
+      style={{
+        flex: 1,
+        width: "100%",
+        alignItems: "center",
+        backgroundColor: "white",
+      }}
+      behavior="padding"
+    >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={commonStyle.pageContainer}>
           <View style={{ flex: 1, padding: 10, marginBottom: 30 }}>
-            <Text style={commonStyle.logoText}>INSPECT</Text>
-            <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
-              {defaultTitle}
+            <Text
+              style={{
+                fontSize: 40,
+                fontWeight: "800",
+                marginTop: 50,
+                marginBottom: 30,
+                textTransform: "uppercase",
+                textAlign: "center",
+              }}
+            >
+              <Avatar source={{ uri: "icon.png" }} />
+              INSPECT
             </Text>
             <Text style={{ color: "blue", marginBottom: 10 }}>
               {cleanedUrl}
             </Text>
             {!loading && (
               <>
+                <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
+                  {defaultTitle}
+                </Text>
                 <VoiceInput resultCallback={(text: string) => setTitle(text)} />
                 {title && title.length > 50 && (
                   <Text style={{ color: "red" }}>
