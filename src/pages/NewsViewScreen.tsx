@@ -33,6 +33,7 @@ import {
 import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import IonIcon from "react-native-vector-icons/Ionicons";
+import FontistoIcon from "react-native-vector-icons/Fontisto";
 import {
   RichEditor,
   RichToolbar,
@@ -69,6 +70,7 @@ import { convertDate } from "../util";
 import Snippet from "../components/Snippet";
 import useCurrentUserContext from "../hooks/useCurrentUserContext";
 import VoiceInput from "../components/VoiceInput";
+import SourceLogo from "../components/SourceLogo";
 
 interface Props {
   route: {
@@ -237,6 +239,8 @@ export default function NewsViewScreen(props: Props) {
     }
     if (snippetId) {
       setSelectedSnippetId(snippetId);
+    } else {
+      setSelectedSnippetId(undefined);
     }
   };
 
@@ -493,50 +497,15 @@ export default function NewsViewScreen(props: Props) {
                   fontSize: 26,
                 }}
               >
-                {topReactions}
+                {topReactions.join("") || <FontistoIcon name="surprised" />}
               </Text>
-              {newsData.logo_uri && (
-                <Avatar
-                  // title={newsData.title[0]}
-                  // titleStyle={{ color: "black" }}
-                  source={
-                    (newsData.logo_uri as any) && { uri: newsData.logo_uri }
-                  }
-                  size="medium"
-                  // containerStyle={{
-                  //   borderColor: "green",
-                  //   borderWidth: 1,
-                  //   padding: 3,
-                  // }}
-                  avatarStyle={{ resizeMode: "contain" }}
-                />
-              )}
-              {!newsData.logo_uri && <Text>{newsData.source_baseurl}</Text>}
-              <Text onPress={() => goToUrl(newsData)}>
-                <Icon
-                  name="external-link-alt"
-                  type="font-awesome-5"
-                  color="blue"
-                  size={26}
-                  // style={{ paddingHorizontal: 10 }}
-                  tvParallaxProperties={undefined}
-                />
-              </Text>
-              <Text style={{ fontSize: 26 }}>
-                {newsData.shares.length}
-                <IonIcon
-                  name="share-social"
-                  style={commonStyle.actionButtonIcon}
-                  onPress={async () => {
-                    const result = await Share.share({
-                      message: `https://inspect.datagotchi.net/facts/${newsData.uid}`,
-                    });
-                    if (result.action === Share.sharedAction) {
-                      await postShare(newsData.id, result.activityType);
-                    }
-                  }}
-                />
-              </Text>
+              <SourceLogo
+                data={{
+                  id: newsData.source_id,
+                  logo_uri: newsData.logo_uri,
+                  baseurl: newsData.source_baseurl,
+                }}
+              />
             </View>
 
             <View
@@ -550,11 +519,12 @@ export default function NewsViewScreen(props: Props) {
                 <Text
                   style={{
                     fontSize: 18,
-                    paddingHorizontal: 10,
+                    padding: 10,
                     textAlign: "center",
                     fontWeight: "bold",
+                    color: "blue",
                   }}
-                  onPress={() => toggleEmojiOverlay(true)}
+                  onPress={() => goToUrl(newsData)}
                 >
                   {newsData.title}
                 </Text>
@@ -625,18 +595,36 @@ export default function NewsViewScreen(props: Props) {
                       key={`comment #${comment.id}`}
                     />
                   ))}
-              <View style={{ flex: 1 }}>
-                <TouchableOpacity
+              <View
+                style={{ flexDirection: "row", justifyContent: "space-around" }}
+              >
+                <Text
+                  style={{ color: "blue", textAlign: "center", padding: 10 }}
+                  onPress={() => toggleEmojiOverlay(true)}
+                >
+                  <FontistoIcon name="surprised" /> React
+                </Text>
+                <Text
+                  style={{ color: "blue", textAlign: "center", padding: 10 }}
                   onPress={() => {
                     toggleCommentOverlay(true);
                   }}
                 >
-                  <Text
-                    style={{ color: "blue", textAlign: "center", padding: 10 }}
-                  >
-                    Add comment
-                  </Text>
-                </TouchableOpacity>
+                  <IonIcon name="chatbubble" /> Comment
+                </Text>
+                <Text
+                  style={{ color: "blue", textAlign: "center", padding: 10 }}
+                  onPress={async () => {
+                    const result = await Share.share({
+                      message: `https://inspect.datagotchi.net/facts/${newsData.uid}`,
+                    });
+                    if (result.action === Share.sharedAction) {
+                      await postShare(newsData.id, result.activityType);
+                    }
+                  }}
+                >
+                  <IonIcon name="share-social" /> Share
+                </Text>
               </View>
             </View>
 
