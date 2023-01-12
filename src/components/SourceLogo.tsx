@@ -1,10 +1,17 @@
-import React, { useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity } from "react-native";
+import React from "react";
+import {
+  Image,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 
 import { Source } from "../types";
 
 interface Props {
   data: Source;
+  style?: StyleProp<any>;
   onPress?: (source: Source) => void;
 }
 
@@ -14,11 +21,10 @@ const SHARED_STYLE = StyleSheet.create({
     textAlign: "center",
     borderWidth: 1,
     borderRadius: 5,
-    height: 34,
   },
 });
 
-const SourceLogo = ({ data, onPress }: Props) => {
+const SourceLogo = ({ data, style, onPress }: Props) => {
   const content = data.logo_uri ? (
     <Image
       // title={item.title[0]}
@@ -26,6 +32,7 @@ const SourceLogo = ({ data, onPress }: Props) => {
       source={(data.logo_uri as any) && { uri: data.logo_uri }}
       style={{
         ...SHARED_STYLE.shared,
+        ...style,
         // borderColor: "green",
         // borderWidth: 1,
         resizeMode: "contain",
@@ -36,6 +43,7 @@ const SourceLogo = ({ data, onPress }: Props) => {
     <Text
       style={{
         ...SHARED_STYLE.shared,
+        ...style,
       }}
       key={`trusted source #${data.id}`}
     >

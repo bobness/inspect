@@ -232,6 +232,7 @@ export default function AuthorViewScreen(props: any) {
                         setSourceFilter(source);
                       }
                     }}
+                    style={{ height: 34 }}
                     key={`source logo #${source.id}`}
                   />
                 </View>
