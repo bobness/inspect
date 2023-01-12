@@ -21,6 +21,7 @@ const SHARED_STYLE = StyleSheet.create({
     textAlign: "center",
     borderWidth: 1,
     borderRadius: 5,
+    borderStyle: "solid",
   },
 });
 

@@ -411,13 +411,13 @@ export default function NewsViewScreen(props: Props) {
               }}
             >
               <View style={{ flex: 1 }}>
-                <Icon
+                {/* <Icon
                   name="file-alt"
                   type="font-awesome-5"
                   color="black"
                   size={50}
                   tvParallaxProperties={undefined}
-                />
+                /> */}
               </View>
 
               <TouchableOpacity
@@ -506,7 +506,7 @@ export default function NewsViewScreen(props: Props) {
                   baseurl: newsData.source_baseurl,
                 }}
                 style={{
-                  minWidth: 100,
+                  minWidth: 34,
                   height: 34,
                 }}
               />
@@ -588,7 +588,12 @@ export default function NewsViewScreen(props: Props) {
               />
             </View>
 
-            <View style={{ flex: 1, flexDirection: "column" }}>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "column",
+              }}
+            >
               {newsData.comments &&
                 newsData.comments
                   .filter((comment) => !comment.snippet_id)
@@ -680,7 +685,7 @@ export default function NewsViewScreen(props: Props) {
               </View>
               {newsData.snippets.length === 0 && (
                 <Text style={{ textAlign: "center", padding: 10 }}>
-                  None yet
+                  (None yet added)
                 </Text>
               )}
               {newsData.snippets.map((snippet) => (
