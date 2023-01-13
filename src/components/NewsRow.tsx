@@ -38,8 +38,8 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
     if (articleIdToArchive.value > 0) {
       if (onSwipeLeft) {
         onSwipeLeft(articleIdToArchive.value);
+        articleIdToArchive.value = 0;
       }
-      articleIdToArchive.value = 0;
     }
   }, 50);
 

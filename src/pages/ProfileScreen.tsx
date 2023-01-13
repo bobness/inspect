@@ -163,31 +163,6 @@ export default function ProfileScreen(props: Props) {
   };
 
   const renderNewsItem = ({ item }: any) => (
-    // <ListItem
-    //   bottomDivider
-    //   hasTVPreferredFocus={undefined}
-    //   tvParallaxProperties={undefined}
-    //   style={{ flex: 1, width: "100%" }}
-    //   onPress={() => {
-    //     navigation.navigate("NewsView", { data: item });
-    //   }}
-    // >
-    //   <Avatar
-    //     // title={item?.title[0] ?? ""}
-    //     // titleStyle={{ color: "black" }}
-    //     source={item?.avatar_uri && { uri: item.avatar_uri }}
-    //     // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
-    //   />
-    //   <ListItem.Content>
-    //     <ListItem.Title>{item?.title}</ListItem.Title>
-    //   </ListItem.Content>
-    //   <Avatar
-    //     // title={item?.title[0] ?? ""}
-    //     // titleStyle={{ color: "black" }}
-    //     source={item?.logo_uri && { uri: item.logo_uri }}
-    //     // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
-    //   />
-    // </ListItem>
     <NewsRow
       item={item}
       onPress={() => {
