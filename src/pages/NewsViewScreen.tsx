@@ -835,6 +835,7 @@ export default function NewsViewScreen(props: Props) {
                 onChange={(descriptionText) => {
                   setCommentText(descriptionText);
                 }}
+                pasteAsPlainText={true}
               />
             </KeyboardAvoidingView>
             <RichToolbar
