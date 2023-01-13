@@ -515,6 +515,7 @@ export default function NewsViewScreen(props: Props) {
             <View
               style={{
                 flexDirection: "row",
+                justifyContent: "center",
                 flexWrap: "wrap",
                 flexShrink: 1,
               }}
