@@ -168,6 +168,8 @@ export default function SummaryScreen(props: Props) {
     setDefaultTitle(undefined);
     setUseDefaultTitle(false);
     setTitle(undefined);
+    delete data.weblink;
+    delete data.text;
   }, []);
 
   const submitShare = useCallback(async () => {
