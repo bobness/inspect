@@ -39,6 +39,7 @@ import { searchUsers, unfollowAuthor } from "../store/news";
 import useCurrentUserContext from "../hooks/useCurrentUserContext";
 import SearchOverlay from "../components/SearchOverlay";
 import UserListItem from "../components/UserListItem";
+import NewsRow from "../components/NewsRow";
 
 interface Props {
   navigation: any;
@@ -162,31 +163,12 @@ export default function ProfileScreen(props: Props) {
   };
 
   const renderNewsItem = ({ item }: any) => (
-    <ListItem
-      bottomDivider
-      hasTVPreferredFocus={undefined}
-      tvParallaxProperties={undefined}
-      style={{ flex: 1, width: "100%" }}
+    <NewsRow
+      item={item}
       onPress={() => {
-        navigation.navigate("NewsView", { data: item });
+        navigation.navigate("NewsView", { data: { id: item.id } });
       }}
-    >
-      <Avatar
-        // title={item?.title[0] ?? ""}
-        // titleStyle={{ color: "black" }}
-        source={item?.avatar_uri && { uri: item.avatar_uri }}
-        // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
-      />
-      <ListItem.Content>
-        <ListItem.Title>{item?.title}</ListItem.Title>
-      </ListItem.Content>
-      <Avatar
-        // title={item?.title[0] ?? ""}
-        // titleStyle={{ color: "black" }}
-        source={item?.logo_uri && { uri: item.logo_uri }}
-        // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
-      />
-    </ListItem>
+    />
   );
 
   const handleUnfollow = (user_id: number) => {

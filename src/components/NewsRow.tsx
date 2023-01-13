@@ -15,8 +15,8 @@ import SourceLogo from "./SourceLogo";
 
 interface Props {
   item: Summary;
-  onPress: (e: any) => void;
-  onSwipeLeft: (id: number) => void;
+  onPress?: (e: any) => void;
+  onSwipeLeft?: (id: number) => void;
 }
 
 const FULL_HORIZONTAL_THRESHOLD = 100; // px
@@ -36,8 +36,10 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
   // then, on the JS thread, occasionally check it and act on it
   setInterval(() => {
     if (articleIdToArchive.value > 0) {
-      onSwipeLeft(articleIdToArchive.value);
-      articleIdToArchive.value = 0;
+      if (onSwipeLeft) {
+        onSwipeLeft(articleIdToArchive.value);
+        articleIdToArchive.value = 0;
+      }
     }
   }, 50);
 

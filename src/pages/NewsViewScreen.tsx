@@ -497,7 +497,9 @@ export default function NewsViewScreen(props: Props) {
                   fontSize: 26,
                 }}
               >
-                {topReactions.join("") || <FontistoIcon name="surprised" />}
+                {topReactions.join("") || (
+                  <FontistoIcon name="surprised" size={26} />
+                )}
               </Text>
               <SourceLogo
                 data={{
@@ -515,6 +517,7 @@ export default function NewsViewScreen(props: Props) {
             <View
               style={{
                 flexDirection: "row",
+                justifyContent: "center",
                 flexWrap: "wrap",
                 flexShrink: 1,
               }}
