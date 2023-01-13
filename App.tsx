@@ -158,7 +158,10 @@ export default function App() {
       Notifications.addNotificationResponseReceivedListener((response) => {
         const data = response.notification.request.content.data;
         if (data && data.id) {
-          setDesiredRoute({ path: "NewsView", args: { data } });
+          setDesiredRoute({
+            path: "NewsView",
+            args: { data: { id: data.id } },
+          });
         }
       });
 
