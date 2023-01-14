@@ -11,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ActivityIndicator, Platform, View } from "react-native";
 import {
   NavigationContainer,
+  useIsFocused,
   useNavigationContainerRef,
 } from "@react-navigation/native";
 
@@ -86,9 +87,14 @@ export default function App() {
     []
   );
   const deepLinkUrl = Linking.useURL();
-  const currentRoute = useMemo(
+
+  const currentRoutePath = useMemo(
     () =>
       navigationIsReady ? navigationRef.getCurrentRoute()?.name : undefined,
+    [navigationIsReady, navigationRef]
+  );
+  const currentRouteArgs: any = useMemo(
+    () => (navigationIsReady ? navigationRef.getCurrentOptions() : undefined),
     [navigationIsReady, navigationRef]
   );
 
@@ -98,13 +104,19 @@ export default function App() {
     };
   }, []);
 
+  // FIXME: navigation hasn't been initialized yet, even though I check navigationIsReady
   useEffect(() => {
-    if (navigationIsReady) {
-      if (desiredRoute && currentRoute !== desiredRoute.path) {
-        navigationRef.navigate(desiredRoute.path, desiredRoute.args);
+    if (navigationIsReady && desiredRoute) {
+      if (
+        (desiredRoute.path && currentRoutePath !== desiredRoute.path) ||
+        currentRouteArgs !== desiredRoute.args
+      ) {
+        setDeepLinkLoading(false);
+        // @ts-expect-error no navigationRef template/generic arg
+        navigationRef.navigate(desiredRoute.path, desiredRoute.args ?? {});
       }
     }
-  }, [navigationIsReady, currentRoute, desiredRoute]);
+  }, [navigationIsReady, currentRoutePath, desiredRoute?.path]);
 
   instance.interceptors.response.use(
     (response) => response,
@@ -149,6 +161,7 @@ export default function App() {
   useEffect(() => {
     registerForPushNotificationsAsync().then((token) => setExpoToken(token));
 
+    // FIXME: may not be necessary
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
         setNotification(notification);
@@ -205,88 +218,92 @@ export default function App() {
       const uid = match![1];
       setDesiredRoute({ path: "NewsView", args: { data: { uid } } });
     }
-  }, [user, deepLinkUrl, deepLinkUrlRegex]);
+  }, [deepLinkUrl]);
 
   // ReceiveSharingIntent.clearReceivedFiles();
 
-  // TODO: add || deepLinkLoading
-  if (userLoading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          flexDirection: "row",
-          justifyContent: "space-around",
-          padding: 10,
-        }}
+  useEffect(() => {
+    if (navigationIsReady && currentRoutePath === "Loading") {
+      setDesiredRoute({ path: "Login" });
+    }
+  }, [navigationIsReady, currentRoutePath]);
+
+  return (
+    <CurrentUserContext.Provider value={user}>
+      <NavigationContainer
+        ref={navigationRef}
+        onReady={() => setNavigationIsReady(true)}
       >
-        <ActivityIndicator />
-      </View>
-    );
-  } else {
-    return (
-      <CurrentUserContext.Provider value={user}>
-        <NavigationContainer
-          ref={navigationRef}
-          onReady={() => setNavigationIsReady(true)}
+        <Stack.Navigator
+          initialRouteName={desiredRoute?.path ?? "Loading"}
+          initialRouteParams={desiredRoute?.args ?? {}}
         >
-          <Stack.Navigator
-            initialRouteName={desiredRoute?.path ?? "Login"}
-            initialRouteParams={desiredRoute?.args ?? {}}
-          >
-            <Stack.Screen name="Login" options={{ headerShown: false }}>
-              {(props: any) => (
-                <LoginScreen {...props} onLoginCallback={handleOnLogin} />
-              )}
-            </Stack.Screen>
-            <Stack.Screen
-              name="Register"
-              component={RegisterScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen name="Home" options={{ headerShown: false }}>
-              {(props: any) => (
-                <HomeScreen
-                  {...props}
-                  clearCurrentSummaryId={() => setCurrentSummaryId(undefined)}
-                />
-              )}
-            </Stack.Screen>
-            <Stack.Screen name="NewsView" options={{ headerShown: true }}>
-              {(props: any) => (
-                <NewsViewScreen
-                  {...props}
-                  setCurrentSummaryId={setCurrentSummaryId}
-                  setCurrentUser={setUser}
-                />
-              )}
-            </Stack.Screen>
-            <Stack.Screen
-              name="AuthorView"
-              component={AuthorViewScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen name="My Profile" options={{ headerShown: true }}>
-              {(props: any) => (
-                <ProfileScreen {...props} setCurrentUser={setUser} />
-              )}
-            </Stack.Screen>
-            <Stack.Screen name="CreateSummary" options={{ headerShown: false }}>
-              {(props: any) => (
-                <SummaryScreen {...props} currentSummaryId={currentSummaryId} />
-              )}
-            </Stack.Screen>
-            <Stack.Screen
-              name="About"
-              component={AboutScreen}
-              options={{ headerShown: false }}
-            />
-          </Stack.Navigator>
-          <StatusBar style="auto" />
-        </NavigationContainer>
-      </CurrentUserContext.Provider>
-    );
-  }
+          <Stack.Screen name="Loading" options={{ headerShown: false }}>
+            {(props: any) => (
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  padding: 10,
+                }}
+              >
+                <ActivityIndicator />
+              </View>
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="Login" options={{ headerShown: false }}>
+            {(props: any) => (
+              <LoginScreen {...props} onLoginCallback={handleOnLogin} />
+            )}
+          </Stack.Screen>
+          <Stack.Screen
+            name="Register"
+            component={RegisterScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="Home" options={{ headerShown: false }}>
+            {(props: any) => (
+              <HomeScreen
+                {...props}
+                clearCurrentSummaryId={() => setCurrentSummaryId(undefined)}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="NewsView" options={{ headerShown: true }}>
+            {(props: any) => (
+              <NewsViewScreen
+                {...props}
+                setCurrentSummaryId={setCurrentSummaryId}
+                setCurrentUser={setUser}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen
+            name="AuthorView"
+            component={AuthorViewScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="My Profile" options={{ headerShown: true }}>
+            {(props: any) => (
+              <ProfileScreen {...props} setCurrentUser={setUser} />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="CreateSummary" options={{ headerShown: false }}>
+            {(props: any) => (
+              <SummaryScreen {...props} currentSummaryId={currentSummaryId} />
+            )}
+          </Stack.Screen>
+          <Stack.Screen
+            name="About"
+            component={AboutScreen}
+            options={{ headerShown: false }}
+          />
+        </Stack.Navigator>
+        <StatusBar style="auto" />
+      </NavigationContainer>
+    </CurrentUserContext.Provider>
+  );
 }
 
 async function registerForPushNotificationsAsync() {

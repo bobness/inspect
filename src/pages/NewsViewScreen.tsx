@@ -160,6 +160,7 @@ export default function NewsViewScreen(props: Props) {
   }, []);
 
   useEffect(() => {
+    // TODO: add logic to possibly not refresh when navigating here from HomeScreen because `data` already contains everything
     handleRefresh();
   }, [data]);
 

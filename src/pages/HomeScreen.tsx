@@ -34,7 +34,6 @@ export default function HomeScreen(props: Props) {
   } = useUnreadArticles();
   const [authorsData, setAuthorsData] = useState<any[] | undefined>();
   const [isRefreshingAuthors, setRefreshingAuthors] = useState<boolean>(false);
-  const [showArchiveHint, setShowArchiveHint] = useState(false);
   const [searchOverlayVisible, setSearchOverlayVisible] = useState(false);
 
   useEffect(() => {
@@ -78,7 +77,6 @@ export default function HomeScreen(props: Props) {
           "worklet";
           // TODO: is called twice or more
           markAsRead(id).then(() => {
-            setShowArchiveHint(false);
             refreshNewsData();
           });
         }}
@@ -148,19 +146,6 @@ export default function HomeScreen(props: Props) {
           </Text>
         </View>
         <Button title="Search" onPress={toggleSearchOverlay} />
-
-        {showArchiveHint && (
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              textAlign: "center",
-              marginBottom: 10,
-            }}
-          >
-            &lt;-- Swipe left to archive
-          </Text>
-        )}
 
         {newsData && newsData.length === 0 && (
           <Text style={{ textAlign: "center", margin: 10 }}>
