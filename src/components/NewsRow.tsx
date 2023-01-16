@@ -125,8 +125,9 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
             hasTVPreferredFocus={undefined}
             tvParallaxProperties={undefined}
             style={{
-              flex: 1,
-              justifyContent: "flex-start",
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              alignItems: "flex-end",
               marginVertical: 5,
               marginHorizontal: 10,
               borderWidth: 1,
@@ -134,23 +135,35 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
             }}
             onPress={onPress}
           >
-            <Avatar
-              // title={item.title[0]}
-              // titleStyle={{ color: "black" }}
-              size="medium"
-              source={(item.avatar_uri as any) && { uri: item.avatar_uri }}
-              // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
-            />
+            <View
+              style={{
+                flex: 1,
+                maxWidth: 50,
+              }}
+            >
+              <Avatar
+                // title={item.title[0]}
+                // titleStyle={{ color: "black" }}
+                size="medium"
+                source={(item.avatar_uri as any) && { uri: item.avatar_uri }}
+                // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
+              />
+            </View>
             <ListItem.Content
               style={{
                 flex: 1,
               }}
             >
-              <ListItem.Title style={{ fontSize: 14 }}>
+              <Text style={{ fontSize: 14 }} numberOfLines={5}>
                 {item.title}
-              </ListItem.Title>
+              </Text>
             </ListItem.Content>
-            <View>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+              }}
+            >
               <SourceLogo
                 data={{
                   id: item.source_id,
