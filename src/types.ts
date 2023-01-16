@@ -8,6 +8,8 @@ export interface User {
   id: number;
   email: string;
   username: string;
+  password?: string;
+  confirmPassword?: string;
   avatar_uri?: string;
   following?: User[];
   followers?: User[];
@@ -15,6 +17,8 @@ export interface User {
   expo_token?: string;
   profile?: string;
   trusted_sources?: Source[];
+  enable_push_notifications?: boolean;
+  enable_email_notifications?: boolean;
 }
 
 export interface Snippet {

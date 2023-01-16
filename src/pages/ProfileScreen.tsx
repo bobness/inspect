@@ -54,7 +54,7 @@ export default function ProfileScreen(props: Props) {
   const confirmPasswordRef = useRef<any | undefined>();
   const profileRef = useRef<any | undefined>();
 
-  const [profileData, setProfileData] = useState<any | undefined>();
+  const [profileData, setProfileData] = useState<User | undefined>();
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [isRefreshing, setRefreshing] = useState(false);
@@ -95,14 +95,16 @@ export default function ProfileScreen(props: Props) {
     setRefreshing(true);
     getAuthUser()
       .then((user: User) => {
-        setCurrentUser(user);
-        setProfileData({
-          ...user,
-          password: "",
-          confirmPassword: "",
-        });
-        setCurrentSummaries(user.summaries);
-        setCurrentFollowingAuthors(user.following);
+        if (user) {
+          setCurrentUser(user);
+          setProfileData({
+            ...user,
+            password: "",
+            confirmPassword: "",
+          });
+          setCurrentSummaries(user.summaries);
+          setCurrentFollowingAuthors(user.following);
+        }
       })
       .finally(() => setRefreshing(false));
   };
@@ -129,37 +131,41 @@ export default function ProfileScreen(props: Props) {
 
   // TOOD: make this more intelligent to only save items that have been updated
   const handleSave = async () => {
-    setLoading(true);
-    const updateBlock = {
-      email: profileData.email,
-      username: profileData.username,
-      avatar_uri: profileData.avatar_uri,
-      enable_push_notifications: profileData.enable_push_notifications,
-      enable_email_notifications: profileData.enable_email_notifications,
-    };
-    if (profileData.password && profileData.confirmPassword) {
-      if (profileData.password !== profileData.confirmPassword) {
-        Alert.alert("Please make sure your passwords match.");
-        setProfileData({ ...profileData, confirmPassword: "" });
-        confirmPasswordRef.current.focus();
-        return;
+    if (profileData) {
+      setLoading(true);
+      const updateBlock = {
+        email: profileData.email,
+        username: profileData.username,
+        avatar_uri: profileData.avatar_uri,
+        enable_push_notifications: profileData.enable_push_notifications,
+        enable_email_notifications: profileData.enable_email_notifications,
+      };
+      if (profileData.password && profileData.confirmPassword) {
+        if (profileData.password !== profileData.confirmPassword) {
+          Alert.alert("Please make sure your passwords match.");
+          setProfileData({ ...profileData, confirmPassword: "" });
+          confirmPasswordRef.current.focus();
+          return;
+        }
+        await updateProfile({
+          ...updateBlock,
+          password: profileData.password,
+        });
       }
-      await updateProfile({
-        ...updateBlock,
-        password: profileData.password,
-      });
+      setProfileData({ ...profileData, password: "", confirmPassword: "" });
+      setLoading(false);
     }
-    setProfileData({ ...profileData, password: "", confirmPassword: "" });
-    setLoading(false);
   };
 
   const handleProfileSave = async () => {
-    setLoading(true);
-    const updateBlock = {
-      profile: profileData.profile,
-    };
-    await updateProfile(updateBlock);
-    setLoading(false);
+    if (profileData) {
+      setLoading(true);
+      const updateBlock = {
+        profile: profileData.profile,
+      };
+      await updateProfile(updateBlock);
+      setLoading(false);
+    }
   };
 
   const renderNewsItem = ({ item }: any) => (
@@ -211,7 +217,7 @@ export default function ProfileScreen(props: Props) {
   }, [profileData?.avatar_uri]);
 
   const handlePickPicture = useCallback(() => {
-    if (ImagePicker?.openPicker) {
+    if (profileData && ImagePicker?.openPicker) {
       ImagePicker.openPicker({
         width: 200,
         height: 200,
@@ -236,7 +242,7 @@ export default function ProfileScreen(props: Props) {
   }, []);
 
   const doInsertLink = useCallback(() => {
-    if (profileRef.current && insertLinkHref && insertLinkText) {
+    if (profileData && profileRef.current && insertLinkHref && insertLinkText) {
       const { profile } = profileData;
       const link = `<a href="${insertLinkHref}">${insertLinkText}</a>`;
       // TODO: insert link where their cursor is/where text is selected
@@ -246,20 +252,20 @@ export default function ProfileScreen(props: Props) {
   }, [insertLinkHref, insertLinkText]);
 
   useEffect(() => {
-    if (articleSearch) {
+    if (profileData && articleSearch) {
       setCurrentSummaries(
-        profileData.summaries.filter((summary: Summary) =>
+        profileData.summaries?.filter((summary: Summary) =>
           summary.title
             .toLocaleLowerCase()
             .includes(articleSearch.toLocaleLowerCase())
         )
       );
     }
-  }, [articleSearch]);
+  }, [profileData, articleSearch]);
 
   useEffect(() => {
-    if (authorSearch) {
-      const newAuthors = profileData.following.filter((user: any) =>
+    if (profileData && authorSearch) {
+      const newAuthors = profileData.following?.filter((user: any) =>
         user.username
           .toLocaleLowerCase()
           .includes(authorSearch.toLocaleLowerCase())
@@ -290,39 +296,41 @@ export default function ProfileScreen(props: Props) {
           onPress={() => setProfileOverlayVisible(true)}
           style={{ margin: 10 }}
         />
-        <Overlay
-          isVisible={profileOverlayVisible}
-          onBackdropPress={() => setProfileOverlayVisible(false)}
-          overlayStyle={{ width: "100%" }}
-        >
-          <RichToolbar
-            editor={profileRef}
-            actions={[
-              actions.setBold,
-              actions.setItalic,
-              actions.setUnderline,
-              actions.insertLink,
-            ]}
-            onInsertLink={() => {
-              setInsertLinkModalVisible(true);
-            }}
-          />
-          <RichEditor
-            ref={profileRef}
-            placeholder="Your Profile"
-            initialContentHTML={profileData?.profile}
-            initialHeight={250}
-            disabled={profileEditorDisabled}
-            style={{
-              backgroundColor: profileEditorDisabled ? "#ccc" : "white",
-            }}
-            editorInitializedCallback={() => setProfileEditorDisabled(false)}
-            onChange={(text: string) => {
-              setProfileData({ ...profileData, profile: text });
-            }}
-          />
-          <Button title="Save" onPress={() => handleProfileSave()} />
-        </Overlay>
+        {profileData && (
+          <Overlay
+            isVisible={profileOverlayVisible}
+            onBackdropPress={() => setProfileOverlayVisible(false)}
+            overlayStyle={{ width: "100%" }}
+          >
+            <RichToolbar
+              editor={profileRef}
+              actions={[
+                actions.setBold,
+                actions.setItalic,
+                actions.setUnderline,
+                actions.insertLink,
+              ]}
+              onInsertLink={() => {
+                setInsertLinkModalVisible(true);
+              }}
+            />
+            <RichEditor
+              ref={profileRef}
+              placeholder="Your Profile"
+              initialContentHTML={profileData?.profile}
+              initialHeight={250}
+              disabled={profileEditorDisabled}
+              style={{
+                backgroundColor: profileEditorDisabled ? "#ccc" : "white",
+              }}
+              editorInitializedCallback={() => setProfileEditorDisabled(false)}
+              onChange={(text: string) => {
+                setProfileData({ ...profileData, profile: text });
+              }}
+            />
+            <Button title="Save" onPress={() => handleProfileSave()} />
+          </Overlay>
+        )}
         <Overlay
           isVisible={insertLinkModalVisible}
           onBackdropPress={() => {
@@ -400,7 +408,9 @@ export default function ProfileScreen(props: Props) {
                   value={profileData?.email}
                   editable={!loading}
                   onChangeText={(text: string) => {
-                    setProfileData({ ...profileData, email: text });
+                    if (profileData) {
+                      setProfileData({ ...profileData, email: text });
+                    }
                   }}
                   autoCompleteType={undefined}
                   autoCapitalize="none"
@@ -413,7 +423,9 @@ export default function ProfileScreen(props: Props) {
                   editable={!loading}
                   value={profileData?.username}
                   onChangeText={(text: string) => {
-                    setProfileData({ ...profileData, username: text });
+                    if (profileData) {
+                      setProfileData({ ...profileData, username: text });
+                    }
                   }}
                   autoCompleteType={undefined}
                   autoCapitalize="none"
@@ -424,9 +436,11 @@ export default function ProfileScreen(props: Props) {
                   placeholder="Password"
                   leftIcon={<Icon name="lock" size={24} color="black" />}
                   editable={!loading}
-                  value={profileData?.password || ""}
+                  value={profileData?.password ?? ""}
                   onChangeText={(text: string) => {
-                    setProfileData({ ...profileData, password: text });
+                    if (profileData) {
+                      setProfileData({ ...profileData, password: text });
+                    }
                   }}
                   secureTextEntry={true}
                   autoCompleteType={undefined}
@@ -439,9 +453,11 @@ export default function ProfileScreen(props: Props) {
                   placeholder="Confirm Password"
                   leftIcon={<Icon name="lock" size={24} color="black" />}
                   editable={!loading}
-                  value={profileData?.confirmPassword || ""}
+                  value={profileData?.confirmPassword ?? ""}
                   onChangeText={(text: string) => {
-                    setProfileData({ ...profileData, confirmPassword: text });
+                    if (profileData) {
+                      setProfileData({ ...profileData, confirmPassword: text });
+                    }
                   }}
                   secureTextEntry={true}
                   autoCompleteType={undefined}
@@ -452,23 +468,27 @@ export default function ProfileScreen(props: Props) {
                   title="Enable push notifications"
                   checked={profileData?.enable_push_notifications}
                   onPress={() => {
-                    setProfileData({
-                      ...profileData,
-                      enable_push_notifications:
-                        !profileData.enable_push_notifications,
-                    });
+                    if (profileData) {
+                      setProfileData({
+                        ...profileData,
+                        enable_push_notifications:
+                          !profileData.enable_push_notifications,
+                      });
+                    }
                   }}
                 />
                 <CheckBox
                   title="Enable email notifications"
                   checked={profileData?.enable_email_notifications}
-                  onPress={() =>
-                    setProfileData({
-                      ...profileData,
-                      enable_email_notifications:
-                        !profileData.enable_email_notifications,
-                    })
-                  }
+                  onPress={() => {
+                    if (profileData) {
+                      setProfileData({
+                        ...profileData,
+                        enable_email_notifications:
+                          !profileData.enable_email_notifications,
+                      });
+                    }
+                  }}
                 />
                 <Button title="Save" onPress={() => handleSave()} />
               </ScrollView>

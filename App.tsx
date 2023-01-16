@@ -104,7 +104,6 @@ export default function App() {
     };
   }, []);
 
-  // FIXME: navigation hasn't been initialized yet, even though I check navigationIsReady
   useEffect(() => {
     if (navigationIsReady && desiredRoute) {
       if (
@@ -161,7 +160,7 @@ export default function App() {
   useEffect(() => {
     registerForPushNotificationsAsync().then((token) => setExpoToken(token));
 
-    // FIXME: may not be necessary
+    // FIXME: addNotificationReceivedListener may not be necessary; I don't even use the resulting 'notification' object
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
         setNotification(notification);
