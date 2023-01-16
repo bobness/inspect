@@ -15,7 +15,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
-import { Input, CheckBox, Button, Avatar } from "react-native-elements";
+import { Input, CheckBox, Button, Avatar, Icon } from "react-native-elements";
 
 // @ts-expect-error no @types for react-native-html-parser
 import { DOMParser } from "react-native-html-parser";
@@ -283,17 +283,11 @@ export default function SummaryScreen(props: Props) {
               {cleanedUrl}
             </Text>
             {!loading && (
-              <>
+              <View style={{ flex: 1 }}>
                 <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
                   {defaultTitle}
                 </Text>
                 <VoiceInput resultCallback={(text: string) => setTitle(text)} />
-                {title && title.length > 50 && (
-                  <Text style={{ color: "red" }}>
-                    !!! Length {">"} 50 -- maye not show up correctly on
-                    Facebook
-                  </Text>
-                )}
                 <Input
                   ref={titleInputRef}
                   label="New Title"
@@ -309,6 +303,31 @@ export default function SummaryScreen(props: Props) {
                   autoCompleteType={undefined}
                   multiline={true}
                 />
+                {title && title.length > 50 && (
+                  <View
+                    style={{
+                      flex: 1,
+                      flexDirection: "column",
+                      margin: 5,
+                      padding: 5,
+                      justifyContent: "flex-start",
+                      alignItems: "center",
+                      maxHeight: 70,
+                    }}
+                  >
+                    <Icon
+                      name="exclamation-triangle"
+                      type="font-awesome-5"
+                      color="orange"
+                      size={16}
+                      tvParallaxProperties={undefined}
+                    />
+                    <Text style={{ color: "orange", textAlign: "center" }}>
+                      Length is greater than 50 {"\n"}
+                      So it may not show up correctly on Facebook
+                    </Text>
+                  </View>
+                )}
                 {!currentSummaryId && defaultTitle && (
                   <CheckBox
                     title="Use existing title?"
@@ -366,7 +385,7 @@ export default function SummaryScreen(props: Props) {
                   title="Cancel"
                   onPress={handleCancel}
                 />
-              </>
+              </View>
             )}
             {loading && <ActivityIndicator />}
           </View>
