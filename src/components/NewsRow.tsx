@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { View } from "react-native";
 import { Avatar, Icon, ListItem, Text } from "react-native-elements";
 import { Gesture, GestureDetector, State } from "react-native-gesture-handler";
@@ -24,8 +24,30 @@ const FULL_HORIZONTAL_THRESHOLD = 100; // px
 const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
   const offset = useSharedValue({ x: 0, y: 0 });
   const start = useSharedValue({ x: 0, y: 0 });
-  const animatedStyles = useAnimatedStyle(() => ({
+  const mainAnimatedStyles = useAnimatedStyle(() => ({
     transform: [{ translateX: offset.value.x }],
+  }));
+  const archiveAnimatedStyles = useAnimatedStyle(() => {
+    const styles = {
+      width: Math.abs(offset.value.x),
+      borderColor: "gray",
+      borderWidth: Math.abs(offset.value.x) >= 2 ? 1 : 0,
+      left: offset.value.x > 0 ? -offset.value.x : "auto",
+      right: offset.value.x < 0 ? offset.value.x : "auto",
+      position: "absolute" as const,
+      top: -1,
+      bottom: -1,
+    };
+    return styles;
+  });
+  const archiveTextAnimatedStyles = useAnimatedStyle(() => ({
+    width: "100%",
+    textAlign: "center",
+    fontSize: 16,
+    fontWeight: "bold",
+    flexWrap: "nowrap",
+    overflow: "hidden",
+    display: Math.abs(offset.value.x) >= 70 ? "flex" : "none",
   }));
 
   const startPosition = useSharedValue({ x: 0, y: 0 });
@@ -41,7 +63,7 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
         articleIdToArchive.value = 0;
       }
     }
-  }, 50);
+  }, 100);
 
   const horizontalPanGesture = Gesture.Pan()
     .manualActivation(true)
@@ -92,114 +114,153 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
     });
 
   return (
-    <GestureDetector gesture={horizontalPanGesture} key={`summary #${item.id}`}>
-      <Animated.View style={animatedStyles}>
-        <ListItem
-          bottomDivider
-          hasTVPreferredFocus={undefined}
-          tvParallaxProperties={undefined}
-          style={{
-            flex: 1,
-            justifyContent: "flex-start",
-            marginVertical: 5,
-            marginHorizontal: 10,
-            borderWidth: 1,
-            borderColor: "gray",
-          }}
-          onPress={onPress}
-        >
-          <Avatar
-            // title={item.title[0]}
-            // titleStyle={{ color: "black" }}
-            size="medium"
-            source={(item.avatar_uri as any) && { uri: item.avatar_uri }}
-            // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
-          />
-          <ListItem.Content
+    <>
+      <GestureDetector
+        gesture={horizontalPanGesture}
+        key={`summary #${item.id}`}
+      >
+        <Animated.View style={mainAnimatedStyles}>
+          <ListItem
+            bottomDivider
+            hasTVPreferredFocus={undefined}
+            tvParallaxProperties={undefined}
             style={{
-              flex: 1,
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              alignItems: "flex-end",
+              marginVertical: 5,
+              marginHorizontal: 10,
+              borderWidth: 1,
+              borderColor: "gray",
             }}
+            onPress={onPress}
           >
-            <ListItem.Title style={{ fontSize: 14 }}>
-              {item.title}
-            </ListItem.Title>
-          </ListItem.Content>
-          <View>
-            <SourceLogo
-              data={{
-                id: item.source_id,
-                baseurl: item.source_baseurl,
-                logo_uri: item.logo_uri,
-              }}
-              style={{
-                height: 34,
-              }}
-            />
-            <Text style={{ fontSize: 12, textAlign: "center" }}>
-              {item.updated_at &&
-                item.updated_at === item.created_at &&
-                `Created ${convertDate(item.updated_at)}`}
-              {item.updated_at &&
-                item.updated_at !== item.created_at &&
-                `Updated ${convertDate(item.updated_at)}`}
-            </Text>
             <View
               style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
+                flex: 1,
+                maxWidth: 50,
               }}
             >
-              <Text
-                style={{
-                  fontSize: 16,
-                }}
-              >
-                {item.snippets?.length ?? "?"}
-                <Icon
-                  name="sticky-note"
-                  type="font-awesome-5"
-                  color="black"
-                  size={16}
-                  tvParallaxProperties={undefined}
-                />
-              </Text>
-              <Text
-                style={{
-                  fontSize: 16,
-                }}
-              >
-                {item.reactions?.length ?? "?"}
-                <FontistoIcon name="surprised" size={16} color="black" />
-              </Text>
-              <Text
-                style={{
-                  fontSize: 16,
-                }}
-              >
-                {item.comments?.length ?? "?"}
-                <IonIcon name="chatbubble" color="black" size={16} />
-              </Text>
-              <Text
-                style={{
-                  fontSize: 16,
-                }}
-              >
-                {/* TODO: get from the service route */}
-                {item.shares?.length ?? "?"}
-                <Icon
-                  name="share-alt"
-                  type="font-awesome-5"
-                  color="black"
-                  size={16}
-                  tvParallaxProperties={undefined}
-                />
-              </Text>
+              <Avatar
+                // title={item.title[0]}
+                // titleStyle={{ color: "black" }}
+                size="medium"
+                source={(item.avatar_uri as any) && { uri: item.avatar_uri }}
+                // containerStyle={{ borderColor: "green", borderWidth: 1, padding: 3 }}
+              />
             </View>
-          </View>
-        </ListItem>
-      </Animated.View>
-    </GestureDetector>
+            <ListItem.Content
+              style={{
+                flex: 1,
+              }}
+            >
+              <Text style={{ fontSize: 14 }} numberOfLines={5}>
+                {item.title}
+              </Text>
+            </ListItem.Content>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <SourceLogo
+                  data={{
+                    id: item.source_id,
+                    baseurl: item.source_baseurl,
+                    logo_uri: item.logo_uri,
+                  }}
+                  style={{ textAlign: "center" }}
+                />
+              </View>
+              <Text style={{ fontSize: 12, textAlign: "center" }}>
+                {item.updated_at &&
+                  item.updated_at === item.created_at &&
+                  `Created ${convertDate(item.updated_at)}`}
+                {item.updated_at &&
+                  item.updated_at !== item.created_at &&
+                  `Updated ${convertDate(item.updated_at)}`}
+              </Text>
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 16,
+                  }}
+                >
+                  {item.snippets?.length ?? "?"}
+                  <Icon
+                    name="sticky-note"
+                    type="font-awesome-5"
+                    color="black"
+                    size={16}
+                    tvParallaxProperties={undefined}
+                  />
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 16,
+                  }}
+                >
+                  {item.reactions?.length ?? "?"}
+                  <FontistoIcon name="surprised" size={16} color="black" />
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 16,
+                  }}
+                >
+                  {item.comments?.length ?? "?"}
+                  <IonIcon name="chatbubble" color="black" size={16} />
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 16,
+                  }}
+                >
+                  {item.shares?.length ?? "?"}
+                  <Icon
+                    name="share-alt"
+                    type="font-awesome-5"
+                    color="black"
+                    size={16}
+                    tvParallaxProperties={undefined}
+                  />
+                </Text>
+              </View>
+            </View>
+            <Animated.View style={archiveAnimatedStyles}>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: "orange",
+                  height: "100%",
+                }}
+              >
+                <Animated.Text style={archiveTextAnimatedStyles}>
+                  Archive
+                </Animated.Text>
+              </View>
+            </Animated.View>
+          </ListItem>
+        </Animated.View>
+      </GestureDetector>
+    </>
   );
 };
 

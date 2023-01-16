@@ -160,6 +160,7 @@ export default function NewsViewScreen(props: Props) {
   }, []);
 
   useEffect(() => {
+    // TODO: add logic to possibly not refresh when navigating here from HomeScreen because `data` already contains everything
     handleRefresh();
   }, [data]);
 
@@ -498,7 +499,10 @@ export default function NewsViewScreen(props: Props) {
                 }}
               >
                 {topReactions.join("") || (
-                  <FontistoIcon name="surprised" size={26} />
+                  <>
+                    <FontistoIcon name="surprised" size={26} />
+                    <Text>(no reactions)</Text>
+                  </>
                 )}
               </Text>
               <SourceLogo
@@ -506,10 +510,6 @@ export default function NewsViewScreen(props: Props) {
                   id: newsData.source_id,
                   logo_uri: newsData.logo_uri,
                   baseurl: newsData.source_baseurl,
-                }}
-                style={{
-                  minWidth: 34,
-                  height: 34,
                 }}
               />
             </View>
@@ -710,7 +710,7 @@ export default function NewsViewScreen(props: Props) {
                   key={`snippet component #${snippet.id}`}
                 />
               ))}
-              {newsData && (
+              {currentUser?.id == newsData.user_id && newsData && (
                 <Button
                   title="➕ Evidence"
                   onPress={() => {
@@ -835,6 +835,7 @@ export default function NewsViewScreen(props: Props) {
                 onChange={(descriptionText) => {
                   setCommentText(descriptionText);
                 }}
+                pasteAsPlainText={true}
               />
             </KeyboardAvoidingView>
             <RichToolbar

@@ -49,7 +49,8 @@ export default function AboutScreen(props: Props) {
           </Text>
         </View>
         <Text style={{ margin: 10 }}>
-          A mobile app to share important news with those close to you
+          A mobile app to share important news, from reliable sources, with to
+          those close to you
         </Text>
         <Text style={{ margin: 10 }}>
           <Avatar source={{ uri: "Color1.png" }} />
