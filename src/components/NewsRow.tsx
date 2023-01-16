@@ -170,9 +170,6 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
                   baseurl: item.source_baseurl,
                   logo_uri: item.logo_uri,
                 }}
-                style={{
-                  height: 34,
-                }}
               />
               <Text style={{ fontSize: 12, textAlign: "center" }}>
                 {item.updated_at &&
