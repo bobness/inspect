@@ -39,10 +39,6 @@ const SourceLogo = ({ data, style, onPress }: Props) => {
       style={{
         ...SHARED_STYLE,
         ...style,
-        // flex: 1,
-        // display: "flex",
-        // justifyContent: "center",
-        // alignItems: "center",
       }}
       adjustsFontSizeToFit={true}
       numberOfLines={1}
