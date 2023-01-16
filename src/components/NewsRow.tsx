@@ -165,14 +165,22 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
                 alignItems: "center",
               }}
             >
-              <SourceLogo
-                data={{
-                  id: item.source_id,
-                  baseurl: item.source_baseurl,
-                  logo_uri: item.logo_uri,
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
-                style={{ textAlign: "center" }}
-              />
+              >
+                <SourceLogo
+                  data={{
+                    id: item.source_id,
+                    baseurl: item.source_baseurl,
+                    logo_uri: item.logo_uri,
+                  }}
+                  style={{ textAlign: "center" }}
+                />
+              </View>
               <Text style={{ fontSize: 12, textAlign: "center" }}>
                 {item.updated_at &&
                   item.updated_at === item.created_at &&

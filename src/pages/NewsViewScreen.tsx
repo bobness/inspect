@@ -511,10 +511,6 @@ export default function NewsViewScreen(props: Props) {
                   logo_uri: newsData.logo_uri,
                   baseurl: newsData.source_baseurl,
                 }}
-                style={{
-                  minWidth: 34,
-                  height: 34,
-                }}
               />
             </View>
 
