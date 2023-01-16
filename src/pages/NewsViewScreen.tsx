@@ -711,7 +711,7 @@ export default function NewsViewScreen(props: Props) {
                   key={`snippet component #${snippet.id}`}
                 />
               ))}
-              {newsData && (
+              {currentUser?.id == newsData.user_id && newsData && (
                 <Button
                   title="➕ Evidence"
                   onPress={() => {
