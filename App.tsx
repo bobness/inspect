@@ -11,7 +11,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ActivityIndicator, Platform, View } from "react-native";
 import {
   NavigationContainer,
-  useIsFocused,
   useNavigationContainerRef,
 } from "@react-navigation/native";
 
@@ -115,7 +114,12 @@ export default function App() {
         navigationRef.navigate(desiredRoute.path, desiredRoute.args ?? {});
       }
     }
-  }, [navigationIsReady, currentRoutePath, desiredRoute?.path]);
+  }, [
+    navigationIsReady,
+    currentRoutePath,
+    desiredRoute?.path,
+    desiredRoute?.args,
+  ]);
 
   instance.interceptors.response.use(
     (response) => response,
@@ -222,10 +226,19 @@ export default function App() {
   // ReceiveSharingIntent.clearReceivedFiles();
 
   useEffect(() => {
-    if (navigationIsReady && currentRoutePath === "Loading") {
-      setDesiredRoute({ path: "Login" });
+    if (
+      currentRoutePath === "Loading" &&
+      navigationIsReady &&
+      !userLoading &&
+      !deepLinkLoading
+    ) {
+      if (user) {
+        setDesiredRoute({ path: "Home" });
+      } else {
+        setDesiredRoute({ path: "Login" });
+      }
     }
-  }, [navigationIsReady, currentRoutePath]);
+  }, [navigationIsReady, currentRoutePath, userLoading, deepLinkLoading]);
 
   return (
     <CurrentUserContext.Provider value={user}>
