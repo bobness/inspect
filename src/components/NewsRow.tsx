@@ -126,8 +126,8 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
             tvParallaxProperties={undefined}
             style={{
               flexDirection: "row",
-              justifyContent: "flex-end",
-              alignItems: "flex-end",
+              justifyContent: "space-between",
+              alignItems: "center",
               marginVertical: 5,
               marginHorizontal: 10,
               borderWidth: 1,
