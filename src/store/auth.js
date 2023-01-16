@@ -1,7 +1,9 @@
 import { instance } from "./api";
 
+// FIXME: remove the res.data thens because that breaks debugging
+
 const userLogin = (data) => {
-  return instance.post("/login", data).then((res) => res.data);
+  return instance.post("/login", data);
 };
 
 const userRegister = (data) => {

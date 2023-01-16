@@ -65,22 +65,23 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
     setLoading(true);
     userLogin(postData)
       .then(async (res) => {
+        const data = res.data;
         setLoading(false);
         if (
           !instance.defaults.baseURL?.includes("localhost") &&
-          !res?.expo_token
+          !data?.expo_token
         ) {
           Alert.alert(
             "Error: unable to obtain push notification token ",
-            res?.message
+            data?.message
           );
           return;
         }
-        await AsyncStorage.setItem("@access_token", res.token);
-        await AsyncStorage.setItem("@user", JSON.stringify(res));
+        await AsyncStorage.setItem("@access_token", data.token);
+        await AsyncStorage.setItem("@user", JSON.stringify(data));
         await AsyncStorage.setItem("@password", password);
-        setToken(res.token);
-        onLoginCallback(res);
+        setToken(data.token);
+        onLoginCallback(data);
       })
       .catch((err) => {
         Alert.alert("Error: ", err);

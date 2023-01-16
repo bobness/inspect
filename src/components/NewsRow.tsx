@@ -162,6 +162,7 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
               style={{
                 flex: 1,
                 justifyContent: "center",
+                alignItems: "center",
               }}
             >
               <SourceLogo
@@ -170,6 +171,7 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
                   baseurl: item.source_baseurl,
                   logo_uri: item.logo_uri,
                 }}
+                style={{ textAlign: "center" }}
               />
               <Text style={{ fontSize: 12, textAlign: "center" }}>
                 {item.updated_at &&

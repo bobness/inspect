@@ -499,7 +499,10 @@ export default function NewsViewScreen(props: Props) {
                 }}
               >
                 {topReactions.join("") || (
-                  <FontistoIcon name="surprised" size={26} />
+                  <>
+                    <FontistoIcon name="surprised" size={26} />
+                    <Text>(no reactions)</Text>
+                  </>
                 )}
               </Text>
               <SourceLogo
