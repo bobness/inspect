@@ -127,7 +127,7 @@ export default function SummaryScreen(props: Props) {
 
           if (titlesCollection[0]) {
             const title = titlesCollection[0].firstChild;
-            setDefaultTitle(title.nodeValue);
+            setDefaultTitle(title.nodeValue.trim());
           }
         });
       await getSource(baseUrl).then((data) => {
