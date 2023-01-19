@@ -114,7 +114,7 @@ export default function SummaryScreen(props: Props) {
     setLoading(true);
     setCleanedUrl(cleanUrl(url));
     const baseUrl = parseBaseUrl(url);
-    try {
+    setTimeout(async () => {
       await instance
         .get<string>(url, {
           headers: { "Content-Type": "text/html" },
@@ -130,18 +130,16 @@ export default function SummaryScreen(props: Props) {
             setDefaultTitle(title.nodeValue.trim());
           }
         });
-      await getSource(baseUrl).then((data) => {
-        if (data) {
-          setSource(data);
-        } else {
-          return createSource(baseUrl).then((newSource) => {
-            setSource(newSource);
-          });
-        }
-      });
-    } catch (err) {
-      console.error(err);
-    }
+    }, 100);
+    await getSource(baseUrl).then((data) => {
+      if (data) {
+        setSource(data);
+      } else {
+        return createSource(baseUrl).then((newSource) => {
+          setSource(newSource);
+        });
+      }
+    });
     setLoading(false);
   };
 
