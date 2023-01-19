@@ -33,6 +33,7 @@ import { Source } from "../types";
 import { instance } from "../store/api";
 import useCurrentUserContext from "../hooks/useCurrentUserContext";
 import VoiceInput from "../components/VoiceInput";
+import usePageTitle from "../hooks/usePageTitle";
 
 interface Props {
   route: {
@@ -114,23 +115,9 @@ export default function SummaryScreen(props: Props) {
     setLoading(true);
     setCleanedUrl(cleanUrl(url));
     const baseUrl = parseBaseUrl(url);
-    setTimeout(async () => {
-      await instance
-        .get<string>(url, {
-          headers: { "Content-Type": "text/html" },
-        })
-        .then((result) => {
-          const html = result.data;
+    const title = await usePageTitle(url);
+    setDefaultTitle(title);
 
-          const dom = new DOMParser().parseFromString(html, "text/html");
-          const titlesCollection = dom.getElementsByTagName("title");
-
-          if (titlesCollection[0]) {
-            const title = titlesCollection[0].firstChild;
-            setDefaultTitle(title.nodeValue.trim());
-          }
-        });
-    }, 100);
     await getSource(baseUrl).then((data) => {
       if (data) {
         setSource(data);
