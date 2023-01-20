@@ -30,7 +30,7 @@ const SourceLogo = ({ data, style, onPress }: Props) => {
         // borderColor: "green",
         // borderWidth: 1,
         resizeMode: "contain",
-        height: "100%",
+        minHeight: 34,
       }}
       key={`trusted source #${data.id}`}
     />
