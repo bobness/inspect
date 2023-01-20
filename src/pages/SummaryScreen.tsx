@@ -33,6 +33,7 @@ import { Source } from "../types";
 import { instance } from "../store/api";
 import useCurrentUserContext from "../hooks/useCurrentUserContext";
 import VoiceInput from "../components/VoiceInput";
+import usePageTitle from "../hooks/usePageTitle";
 
 interface Props {
   route: {
@@ -114,34 +115,18 @@ export default function SummaryScreen(props: Props) {
     setLoading(true);
     setCleanedUrl(cleanUrl(url));
     const baseUrl = parseBaseUrl(url);
-    try {
-      await instance
-        .get<string>(url, {
-          headers: { "Content-Type": "text/html" },
-        })
-        .then((result) => {
-          const html = result.data;
+    const title = await usePageTitle(url);
+    setDefaultTitle(title);
 
-          const dom = new DOMParser().parseFromString(html, "text/html");
-          const titlesCollection = dom.getElementsByTagName("title");
-
-          if (titlesCollection[0]) {
-            const title = titlesCollection[0].firstChild;
-            setDefaultTitle(title.nodeValue);
-          }
+    await getSource(baseUrl).then((data) => {
+      if (data) {
+        setSource(data);
+      } else {
+        return createSource(baseUrl).then((newSource) => {
+          setSource(newSource);
         });
-      await getSource(baseUrl).then((data) => {
-        if (data) {
-          setSource(data);
-        } else {
-          return createSource(baseUrl).then((newSource) => {
-            setSource(newSource);
-          });
-        }
-      });
-    } catch (err) {
-      console.error(err);
-    }
+      }
+    });
     setLoading(false);
   };
 
@@ -285,26 +270,31 @@ export default function SummaryScreen(props: Props) {
 
             <View style={{ flex: 1 }}>
               {!loading && (
-                <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
-                  {defaultTitle}
-                </Text>
+                <>
+                  <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
+                    {defaultTitle}
+                  </Text>
+
+                  <VoiceInput
+                    resultCallback={(text: string) => setTitle(text)}
+                  />
+                  <Input
+                    ref={titleInputRef}
+                    label="New Title"
+                    placeholder="New title that explains the factual contribution"
+                    value={title}
+                    editable={!currentSummaryId}
+                    onChangeText={(text: string) => {
+                      if (text !== defaultTitle) {
+                        setUseDefaultTitle(false);
+                      }
+                      setTitle(text);
+                    }}
+                    autoCompleteType={undefined}
+                    multiline={true}
+                  />
+                </>
               )}
-              <VoiceInput resultCallback={(text: string) => setTitle(text)} />
-              <Input
-                ref={titleInputRef}
-                label="New Title"
-                placeholder="New title that explains the factual contribution"
-                value={title}
-                editable={!currentSummaryId}
-                onChangeText={(text: string) => {
-                  if (text !== defaultTitle) {
-                    setUseDefaultTitle(false);
-                  }
-                  setTitle(text);
-                }}
-                autoCompleteType={undefined}
-                multiline={true}
-              />
               {title && title.length > 50 && (
                 <View
                   style={{
@@ -337,6 +327,7 @@ export default function SummaryScreen(props: Props) {
                   onPress={() => setUseDefaultTitle(!useDefaultTitle)}
                 />
               )}
+              {/* TODO: turn into its own component */}
               {currentSummaryId && (
                 <>
                   <ScrollView>
@@ -382,11 +373,13 @@ export default function SummaryScreen(props: Props) {
                   onPress={submitShare}
                 />
               )}
-              <Button
-                containerStyle={{ backgroundColor: "#FF6600" }}
-                title="Cancel"
-                onPress={handleCancel}
-              />
+              {!loading && (
+                <Button
+                  containerStyle={{ backgroundColor: "#FF6600" }}
+                  title="Cancel"
+                  onPress={handleCancel}
+                />
+              )}
             </View>
             {loading && <ActivityIndicator />}
           </View>

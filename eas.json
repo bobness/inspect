@@ -9,7 +9,8 @@
         "gradleCommand": ":app:assembleDebug"
       },
       "ios": {
-        "buildConfiguration": "Debug"
+        "buildConfiguration": "Debug",
+        "resourceClass": "m1-medium"
       }
     },
     "preview": {
@@ -20,7 +21,8 @@
     },
     "production": {
       "ios": {
-        "autoIncrement": "buildNumber"
+        "autoIncrement": "buildNumber",
+        "resourceClass": "m1-medium"
       }
     }
   },

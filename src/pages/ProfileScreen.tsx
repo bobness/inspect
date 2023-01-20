@@ -388,7 +388,7 @@ export default function ProfileScreen(props: Props) {
               titleStyle={{ color: "black", fontSize: 12 }}
             />
             <Tab.Item
-              title="Articles"
+              title="Summaries"
               titleStyle={{ color: "black", fontSize: 12 }}
             />
             <Tab.Item
@@ -502,7 +502,7 @@ export default function ProfileScreen(props: Props) {
                 {profileData?.summaries && profileData.summaries.length > 0 && (
                   <>
                     <SearchBar
-                      placeholder="Filter on your article summaries..."
+                      placeholder="Filter on your summaries..."
                       // @ts-expect-error wtf is this complaining? it's working
                       onChangeText={(text: string) => setArticleSearch(text)}
                       value={articleSearch}
