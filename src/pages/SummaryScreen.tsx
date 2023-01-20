@@ -270,26 +270,31 @@ export default function SummaryScreen(props: Props) {
 
             <View style={{ flex: 1 }}>
               {!loading && (
-                <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
-                  {defaultTitle}
-                </Text>
+                <>
+                  <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
+                    {defaultTitle}
+                  </Text>
+
+                  <VoiceInput
+                    resultCallback={(text: string) => setTitle(text)}
+                  />
+                  <Input
+                    ref={titleInputRef}
+                    label="New Title"
+                    placeholder="New title that explains the factual contribution"
+                    value={title}
+                    editable={!currentSummaryId}
+                    onChangeText={(text: string) => {
+                      if (text !== defaultTitle) {
+                        setUseDefaultTitle(false);
+                      }
+                      setTitle(text);
+                    }}
+                    autoCompleteType={undefined}
+                    multiline={true}
+                  />
+                </>
               )}
-              <VoiceInput resultCallback={(text: string) => setTitle(text)} />
-              <Input
-                ref={titleInputRef}
-                label="New Title"
-                placeholder="New title that explains the factual contribution"
-                value={title}
-                editable={!currentSummaryId}
-                onChangeText={(text: string) => {
-                  if (text !== defaultTitle) {
-                    setUseDefaultTitle(false);
-                  }
-                  setTitle(text);
-                }}
-                autoCompleteType={undefined}
-                multiline={true}
-              />
               {title && title.length > 50 && (
                 <View
                   style={{
@@ -322,6 +327,7 @@ export default function SummaryScreen(props: Props) {
                   onPress={() => setUseDefaultTitle(!useDefaultTitle)}
                 />
               )}
+              {/* TODO: turn into its own component */}
               {currentSummaryId && (
                 <>
                   <ScrollView>
@@ -367,11 +373,13 @@ export default function SummaryScreen(props: Props) {
                   onPress={submitShare}
                 />
               )}
-              <Button
-                containerStyle={{ backgroundColor: "#FF6600" }}
-                title="Cancel"
-                onPress={handleCancel}
-              />
+              {!loading && (
+                <Button
+                  containerStyle={{ backgroundColor: "#FF6600" }}
+                  title="Cancel"
+                  onPress={handleCancel}
+                />
+              )}
             </View>
             {loading && <ActivityIndicator />}
           </View>
