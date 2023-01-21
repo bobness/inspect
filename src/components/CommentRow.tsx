@@ -75,17 +75,8 @@ const CommentRow = ({ item, navigation }: Props) => {
               LIST_PADDING -
               2, // TODO: why is -2 necessary?
           }}
-          files={[
-            {
-              href: "cssfileaddress",
-              type: "text/css",
-              rel: "stylesheet",
-            },
-          ]}
           source={{ html: item.comment }}
-          // scalesPageToFit={true}
           scrollEnabled={false}
-          viewportContent={"width=device-width, user-scalable=no"}
         />
       </View>
       <View style={{ alignItems: "flex-end", marginTop: 5 }}>
