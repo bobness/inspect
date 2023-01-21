@@ -57,6 +57,11 @@ export interface Share {
   message: string;
 }
 
+export interface Follower {
+  user_id: number;
+  follower_id: number;
+}
+
 export interface Summary {
   id?: number;
   url: string;
@@ -77,4 +82,6 @@ export interface Summary {
   author: User;
   is_watched?: boolean;
   uid: string;
+  author_id: number;
+  followers: Follower[];
 }

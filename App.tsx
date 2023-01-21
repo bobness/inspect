@@ -287,7 +287,6 @@ export default function App() {
               <NewsViewScreen
                 {...props}
                 setCurrentSummaryId={setCurrentSummaryId}
-                setCurrentUser={setUser}
               />
             )}
           </Stack.Screen>
