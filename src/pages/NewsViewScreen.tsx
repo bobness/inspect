@@ -6,10 +6,8 @@ import React, {
   useState,
 } from "react";
 import {
-  Keyboard,
   KeyboardAvoidingView,
   Text,
-  TouchableWithoutFeedback,
   View,
   TouchableOpacity,
   SafeAreaView,
@@ -51,20 +49,11 @@ import {
   postComment,
   postReaction,
   postShare,
-  sendNotification,
   unfollowAuthor,
   updateSummary,
 } from "../store/news";
 
-import { getAuthUser, getProfileInformation } from "../store/auth";
-import {
-  Comment,
-  Reaction,
-  ReactionMap,
-  Snippet as SnippetType,
-  Summary,
-  User,
-} from "../types";
+import { Comment, Reaction, ReactionMap, Summary, User } from "../types";
 import CommentRow from "../components/CommentRow";
 import { convertDate } from "../util";
 import Snippet from "../components/Snippet";
@@ -88,7 +77,6 @@ export default function NewsViewScreen(props: Props) {
     },
     navigation,
     setCurrentSummaryId,
-    setCurrentUser,
   } = props;
   let richText: any = useRef(null);
   const [newsData, setNewsData] = useState<Summary | undefined>();
@@ -101,9 +89,7 @@ export default function NewsViewScreen(props: Props) {
   const [commentText, setCommentText] = useState("");
   const [visibleCommentModal, setVisibleCommentModal] = useState(false);
   const [emojiSelectorIsVisible, setEmojiSelectorIsVisible] = useState(false);
-  // const [emoji, setEmoji] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
-  const [authorData, setAuthorData] = useState<User | undefined>();
   const [editTitleMode, setEditTitleMode] = useState(false);
   const [globalComments, setGlobalComments] = useState<Comment[] | undefined>();
   const [globalReactions, setGlobalReactions] = useState<
@@ -122,16 +108,8 @@ export default function NewsViewScreen(props: Props) {
     } else if (data.uid) {
       await getNewsDataByUid(data.uid);
     }
-    const newUser = await getAuthUser();
-    setCurrentUser(newUser);
     setLoading(false);
   };
-
-  useEffect(() => {
-    if (newsData && !authorData) {
-      populateAuthorData(newsData.user_id);
-    }
-  }, [newsData]);
 
   useEffect(() => {
     if (newsData) {
@@ -314,22 +292,6 @@ export default function NewsViewScreen(props: Props) {
     });
   }, [navigation]);
 
-  const populateAuthorData = async (user_id: number) => {
-    setLoading(true);
-    const data = await getProfileInformation(user_id);
-    setAuthorData(data);
-    setLoading(false);
-  };
-
-  const followerIds = useMemo(() => {
-    if (authorData?.followers) {
-      return authorData.followers.map((follower: any) =>
-        Number(follower.follower_id)
-      );
-    }
-    return [];
-  }, [authorData]);
-
   const handleFollow = useCallback((user_id: number) => {
     const postData = {
       follower_id: user_id,
@@ -386,6 +348,12 @@ export default function NewsViewScreen(props: Props) {
       });
     }
   }, [newsData, newSnippetValue]);
+
+  const followerIds = useMemo(() => {
+    if (newsData) {
+      return newsData.followers.map((f) => Number(f.follower_id));
+    }
+  }, [newsData]);
 
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
@@ -458,26 +426,28 @@ export default function NewsViewScreen(props: Props) {
               </TouchableOpacity>
 
               <View style={{ flex: 1 }}>
-                {authorData &&
+                {newsData &&
                   currentUser &&
-                  authorData.id !== currentUser.id &&
+                  followerIds &&
+                  newsData.author_id !== currentUser.id &&
                   followerIds.includes(currentUser.id) && (
                     <Button
                       title="Unfollow"
                       titleStyle={{ fontSize: 16 }}
                       buttonStyle={{ backgroundColor: "#6AA84F" }}
-                      onPress={() => handleUnfollow(authorData.id)}
+                      onPress={() => handleUnfollow(newsData.author_id)}
                     />
                   )}
-                {authorData &&
+                {newsData &&
                   currentUser &&
-                  authorData.id !== currentUser.id &&
+                  followerIds &&
+                  newsData.author_id !== currentUser.id &&
                   !followerIds.includes(currentUser.id) && (
                     <Button
                       title="Follow"
                       titleStyle={{ fontSize: 16 }}
                       buttonStyle={{ backgroundColor: "#6AA84F" }}
-                      onPress={() => handleFollow(authorData.id)}
+                      onPress={() => handleFollow(newsData.author_id)}
                     />
                   )}
               </View>
@@ -628,13 +598,14 @@ export default function NewsViewScreen(props: Props) {
                 </Text>
                 <Text
                   style={{ color: "blue", textAlign: "center", padding: 10 }}
-                  onPress={async () => {
-                    const result = await Share.share({
+                  onPress={() => {
+                    Share.share({
                       message: `https://inspect.datagotchi.net/facts/${newsData.uid}`,
+                    }).then((result) => {
+                      if (result.action === Share.sharedAction) {
+                        postShare(newsData.id, result.activityType);
+                      }
                     });
-                    if (result.action === Share.sharedAction) {
-                      await postShare(newsData.id, result.activityType);
-                    }
                   }}
                 >
                   <IonIcon name="share-social" /> Share (
