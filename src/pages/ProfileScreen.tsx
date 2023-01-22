@@ -292,8 +292,10 @@ export default function ProfileScreen(props: Props) {
           {
             text: "Delete",
             onPress: async () => {
+              setLoading(true);
               await deleteAccount(currentUser.id);
               await AsyncStorage.clear();
+              setLoading(false);
               props.navigation.navigate("Login");
             },
           },
