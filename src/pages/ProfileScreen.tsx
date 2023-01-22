@@ -27,7 +27,7 @@ import {
   SearchBar,
   CheckBox,
 } from "react-native-elements";
-import { getAuthUser, updateProfile } from "../store/auth";
+import { deleteAccount, getAuthUser, updateProfile } from "../store/auth";
 import {
   actions,
   RichEditor,
@@ -40,6 +40,7 @@ import useCurrentUserContext from "../hooks/useCurrentUserContext";
 import SearchOverlay from "../components/SearchOverlay";
 import UserListItem from "../components/UserListItem";
 import NewsRow from "../components/NewsRow";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface Props {
   navigation: any;
@@ -278,6 +279,32 @@ export default function ProfileScreen(props: Props) {
     setSearchOverlayVisible(!searchOverlayVisible);
   };
 
+  const confirmDelete = () => {
+    if (currentUser) {
+      Alert.alert(
+        "Confirm Delete",
+        "Are you sure you want to Delete your account?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Delete",
+            onPress: async () => {
+              await deleteAccount(currentUser.id);
+              await AsyncStorage.clear();
+              props.navigation.navigate("Login");
+            },
+          },
+        ],
+        {
+          cancelable: true,
+        }
+      );
+    }
+  };
+
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <View style={{ alignItems: "center", padding: 10 }}>
@@ -291,11 +318,19 @@ export default function ProfileScreen(props: Props) {
             }}
           />
         </TouchableOpacity>
-        <Button
-          title="Update Profile"
-          onPress={() => setProfileOverlayVisible(true)}
-          style={{ margin: 10 }}
-        />
+        <View style={{ flexDirection: "row" }}>
+          <Button
+            title="Update Profile"
+            onPress={() => setProfileOverlayVisible(true)}
+            style={{ margin: 10 }}
+          />
+          <Button
+            title="Delete Account"
+            onPress={confirmDelete}
+            style={{ margin: 10 }}
+            buttonStyle={{ backgroundColor: "red" }}
+          />
+        </View>
         {profileData && (
           <Overlay
             isVisible={profileOverlayVisible}

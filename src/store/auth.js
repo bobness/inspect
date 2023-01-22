@@ -26,6 +26,10 @@ const updateProfile = (data) => {
   return instance.put("/users", data).then((res) => res.data);
 };
 
+const deleteAccount = (userId) => {
+  return instance.delete("/users/" + userId);
+};
+
 const updateUserExpoToken = (expo_token) => {
   return instance.put("/notification", { expo_token }).then((res) => res.data);
 };
@@ -38,4 +42,5 @@ export {
   getProfileInformation,
   updateProfile,
   updateUserExpoToken,
+  deleteAccount,
 };
