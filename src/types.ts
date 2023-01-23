@@ -84,4 +84,5 @@ export interface Summary {
   uid: string;
   author_id: number;
   followers: Follower[];
+  flagged_by?: number;
 }

@@ -67,14 +67,12 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
       .then(async (res) => {
         setLoading(false);
         if (!res.data) {
-          // console.log("*** res: ", Object.keys(res.response));
           // @ts-expect-error 'response does not exit on type' -- but it does
           switch (res.response.status) {
             case 401:
               alert("Invalid credentials");
               break;
             default:
-              console.log("*** status: ", res.status);
               alert("Error from the server");
           }
           return;
