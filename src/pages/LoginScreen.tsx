@@ -65,18 +65,27 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
     setLoading(true);
     userLogin(postData)
       .then(async (res) => {
-        const data = res.data;
         setLoading(false);
-        if (
+        if (!res.data) {
+          // console.log("*** res: ", Object.keys(res.response));
+          // @ts-expect-error 'response does not exit on type' -- but it does
+          switch (res.response.status) {
+            case 401:
+              alert("Invalid credentials");
+              break;
+            default:
+              console.log("*** status: ", res.status);
+              alert("Error from the server");
+          }
+          return;
+        } else if (
           !instance.defaults.baseURL?.includes("localhost") &&
-          !data?.expo_token
+          !res.data.expo_token
         ) {
-          Alert.alert(
-            "Error: unable to obtain push notification token ",
-            data?.message
-          );
+          Alert.alert("Error: unable to obtain push notification token ");
           return;
         }
+        const data = res.data;
         await AsyncStorage.setItem("@access_token", data.token);
         await AsyncStorage.setItem("@user", JSON.stringify(data));
         await AsyncStorage.setItem("@password", password);
