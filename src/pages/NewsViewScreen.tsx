@@ -355,6 +355,34 @@ export default function NewsViewScreen(props: Props) {
     }
   }, [newsData]);
 
+  const flagContent = () => {
+    if (currentUser && newsData) {
+      Alert.alert(
+        "Flag Content",
+        "Are you sure you want to Flag this item as objectionable?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Flag",
+            onPress: async () => {
+              const updateBlock = {
+                flagged_by: currentUser.id,
+              };
+              await updateSummary(newsData.id, updateBlock);
+              navigation.navigate("Home");
+            },
+          },
+        ],
+        {
+          cancelable: true,
+        }
+      );
+    }
+  };
+
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <View style={commonStyle.pageContainer}>
@@ -559,8 +587,15 @@ export default function NewsViewScreen(props: Props) {
                   setWatchIsEnabled(!watchIsEnabled);
                 }}
               />
+              {newsData.flagged_by && <Text>⚠️</Text>}
+              {!newsData.flagged_by && (
+                <Button
+                  title="⚠️"
+                  onPress={flagContent}
+                  buttonStyle={{ backgroundColor: "rgb(253,199,13)" }}
+                />
+              )}
             </View>
-
             <View
               style={{
                 flex: 1,
