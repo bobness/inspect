@@ -9,11 +9,12 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   useWindowDimensions,
+  Alert,
 } from "react-native";
 import { Avatar, Button, Icon, SearchBar } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
 import { getProfileInformation } from "../store/auth";
-import { followAuthor, unfollowAuthor } from "../store/news";
+import { blockUser, followAuthor, unfollowAuthor } from "../store/news";
 import NewsRow from "../components/NewsRow";
 import { Source, Summary, User } from "../types";
 import useCurrentUserContext from "../hooks/useCurrentUserContext";
@@ -69,6 +70,31 @@ export default function AuthorViewScreen(props: any) {
     unfollowAuthor(user_id).then(() => {
       handleRefresh();
     });
+  };
+
+  const handleBlock = (user_id: number) => {
+    if (currentUser) {
+      Alert.alert(
+        "Block User",
+        "Are you sure you want to Block this user?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Block",
+            onPress: async () => {
+              await blockUser(user_id);
+              navigation.navigate("Home");
+            },
+          },
+        ],
+        {
+          cancelable: true,
+        }
+      );
+    }
   };
 
   const followerIds = useMemo(() => {
@@ -192,6 +218,13 @@ export default function AuthorViewScreen(props: any) {
                 onPress={() => handleFollow(userData.id)}
               />
             )}
+          {currentUser && currentUser.id !== userData.id && (
+            <Button
+              title="Block"
+              buttonStyle={{ backgroundColor: "red" }}
+              onPress={() => handleBlock(userData.id)}
+            />
+          )}
         </View>
         <View style={{ flexDirection: "row", padding: 10 }}>
           {userData?.profile && (

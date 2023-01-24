@@ -41,6 +41,7 @@ import {
 import commonStyle from "../styles/CommonStyle";
 import BottomToolbar from "../components/BottomToolbar";
 import {
+  blockUser,
   deleteSummary,
   followAuthor,
   getNewsById,
@@ -307,6 +308,31 @@ export default function NewsViewScreen(props: Props) {
     });
   }, []);
 
+  const handleBlock = (user_id: number) => {
+    if (currentUser) {
+      Alert.alert(
+        "Block User",
+        "Are you sure you want to Block this user?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Block",
+            onPress: async () => {
+              await blockUser(user_id);
+              navigation.navigate("Home");
+            },
+          },
+        ],
+        {
+          cancelable: true,
+        }
+      );
+    }
+  };
+
   const handleEmojiSelect = async (emoji: string, snippetId?: number) => {
     setEmojiSelectorIsVisible(false);
     await postReaction({
@@ -478,6 +504,13 @@ export default function NewsViewScreen(props: Props) {
                       onPress={() => handleFollow(newsData.author_id)}
                     />
                   )}
+                {currentUser && currentUser.id !== newsData.author_id && (
+                  <Button
+                    title="Block"
+                    buttonStyle={{ backgroundColor: "red" }}
+                    onPress={() => handleBlock(newsData.author_id)}
+                  />
+                )}
               </View>
             </View>
 
