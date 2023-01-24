@@ -112,7 +112,7 @@ export default function ProfileScreen(props: Props) {
         }
       })
       .catch((err) => {
-        console.error("Error! ", err);
+        alert(`Error! ${err.toString()}`);
       })
       .finally(() => setRefreshing(false));
   };
