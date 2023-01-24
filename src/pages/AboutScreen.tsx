@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useCallback } from "react";
 import { Alert, Linking, Text, View } from "react-native";
 import { Avatar, Button } from "react-native-elements";
@@ -21,7 +22,8 @@ export default function AboutScreen(props: Props) {
         },
         {
           text: "Logout",
-          onPress: () => {
+          onPress: async () => {
+            await AsyncStorage.clear();
             props.navigation.navigate("Login");
           },
         },
