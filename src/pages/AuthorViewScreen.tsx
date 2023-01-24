@@ -14,7 +14,12 @@ import {
 import { Avatar, Button, Icon, SearchBar } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
 import { getProfileInformation } from "../store/auth";
-import { blockUser, followAuthor, unfollowAuthor } from "../store/news";
+import {
+  blockUser,
+  followAuthor,
+  unblockUser,
+  unfollowAuthor,
+} from "../store/news";
 import NewsRow from "../components/NewsRow";
 import { Source, Summary, User } from "../types";
 import useCurrentUserContext from "../hooks/useCurrentUserContext";
@@ -95,6 +100,12 @@ export default function AuthorViewScreen(props: any) {
         }
       );
     }
+  };
+
+  const handleUnblock = (user_id: number) => {
+    unblockUser(user_id).then(() => {
+      navigation.navigate("Home");
+    });
   };
 
   const followerIds = useMemo(() => {
@@ -218,13 +229,24 @@ export default function AuthorViewScreen(props: any) {
                 onPress={() => handleFollow(userData.id)}
               />
             )}
-          {currentUser && currentUser.id !== userData.id && (
-            <Button
-              title="Block"
-              buttonStyle={{ backgroundColor: "red" }}
-              onPress={() => handleBlock(userData.id)}
-            />
-          )}
+          {currentUser &&
+            currentUser.id !== userData.id &&
+            !currentUser.blocked_user_ids.includes(userData.id) && (
+              <Button
+                title="Block"
+                buttonStyle={{ backgroundColor: "red" }}
+                onPress={() => handleBlock(userData.id)}
+              />
+            )}
+          {currentUser &&
+            currentUser.id !== userData.id &&
+            currentUser.blocked_user_ids.includes(userData.id) && (
+              <Button
+                title="Unblock"
+                buttonStyle={{ backgroundColor: "#6AA84F" }}
+                onPress={() => handleUnblock(userData.id)}
+              />
+            )}
         </View>
         <View style={{ flexDirection: "row", padding: 10 }}>
           {userData?.profile && (

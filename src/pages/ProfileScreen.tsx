@@ -99,7 +99,6 @@ export default function ProfileScreen(props: Props) {
       .then((response) => {
         if (response.data) {
           const user = response.data as AuthUser;
-          console.log("*** got user: ", user);
           setCurrentUser(user);
           setProfileData({
             ...user,

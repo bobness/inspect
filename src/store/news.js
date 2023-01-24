@@ -68,6 +68,10 @@ const blockUser = (userId) => {
   return instance.post("/blocks", { user_id: userId });
 };
 
+const unblockUser = (userId) => {
+  return instance.delete("/blocks/" + userId);
+};
+
 const sendNotification = (data) => {
   return instance.post("/notification", data).then((res) => res.data);
 };
@@ -107,4 +111,5 @@ export {
   getNewsByUid,
   postShare,
   blockUser,
+  unblockUser,
 };
