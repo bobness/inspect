@@ -17,8 +17,12 @@ export interface User {
   expo_token?: string;
   profile?: string;
   trusted_sources?: Source[];
-  enable_push_notifications?: boolean;
-  enable_email_notifications?: boolean;
+}
+
+export interface AuthUser extends User {
+  enable_push_notifications: boolean;
+  enable_email_notifications: boolean;
+  blocked_user_ids: number[];
 }
 
 export interface Snippet {

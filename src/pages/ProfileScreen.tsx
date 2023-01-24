@@ -14,6 +14,7 @@ import {
   Text,
   ScrollView,
   SafeAreaView,
+  RefreshControl,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import {
@@ -34,7 +35,7 @@ import {
   RichToolbar,
   SelectionChangeListener,
 } from "react-native-pell-rich-editor";
-import { Summary, User } from "../types";
+import { AuthUser, Summary, User } from "../types";
 import { searchUsers, unfollowAuthor } from "../store/news";
 import useCurrentUserContext from "../hooks/useCurrentUserContext";
 import SearchOverlay from "../components/SearchOverlay";
@@ -55,7 +56,7 @@ export default function ProfileScreen(props: Props) {
   const confirmPasswordRef = useRef<any | undefined>();
   const profileRef = useRef<any | undefined>();
 
-  const [profileData, setProfileData] = useState<User | undefined>();
+  const [profileData, setProfileData] = useState<AuthUser | undefined>();
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [isRefreshing, setRefreshing] = useState(false);
@@ -95,8 +96,10 @@ export default function ProfileScreen(props: Props) {
   const handleRefresh = () => {
     setRefreshing(true);
     getAuthUser()
-      .then((user: User) => {
-        if (user) {
+      .then((response) => {
+        if (response.data) {
+          const user = response.data as AuthUser;
+          console.log("*** got user: ", user);
           setCurrentUser(user);
           setProfileData({
             ...user,
@@ -105,7 +108,12 @@ export default function ProfileScreen(props: Props) {
           });
           setCurrentSummaries(user.summaries);
           setCurrentFollowingAuthors(user.following);
+        } else {
+          throw new Error("No auth user returned");
         }
+      })
+      .catch((err) => {
+        console.error("Error! ", err);
       })
       .finally(() => setRefreshing(false));
   };
@@ -436,7 +444,15 @@ export default function ProfileScreen(props: Props) {
           {/* @ts-expect-error TODO: TabView can't have children??? */}
           <TabView value={tabIndex} onChange={setTabIndex} style={{ flex: 1 }}>
             <TabView.Item style={{ flex: 1, width: "100%" }}>
-              <ScrollView style={{ flex: 1, padding: 10 }}>
+              <ScrollView
+                style={{ flex: 1, padding: 10 }}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={loading}
+                    onRefresh={handleRefresh}
+                  />
+                }
+              >
                 <Input
                   ref={emailRef}
                   label="Email Address"
