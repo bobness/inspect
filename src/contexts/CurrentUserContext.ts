@@ -1,5 +1,5 @@
 import React from "react";
-import { User } from "../types";
+import { AuthUser } from "../types";
 
-const CurrentUserContext = React.createContext<User | undefined>(undefined);
+const CurrentUserContext = React.createContext<AuthUser | undefined>(undefined);
 export default CurrentUserContext;

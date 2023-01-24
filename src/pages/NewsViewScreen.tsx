@@ -41,6 +41,7 @@ import {
 import commonStyle from "../styles/CommonStyle";
 import BottomToolbar from "../components/BottomToolbar";
 import {
+  blockUser,
   deleteSummary,
   followAuthor,
   getNewsById,
@@ -307,6 +308,31 @@ export default function NewsViewScreen(props: Props) {
     });
   }, []);
 
+  const handleBlock = (user_id: number) => {
+    if (currentUser) {
+      Alert.alert(
+        "Block User",
+        "Are you sure you want to Block this user?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Block",
+            onPress: async () => {
+              await blockUser(user_id);
+              navigation.navigate("Home");
+            },
+          },
+        ],
+        {
+          cancelable: true,
+        }
+      );
+    }
+  };
+
   const handleEmojiSelect = async (emoji: string, snippetId?: number) => {
     setEmojiSelectorIsVisible(false);
     await postReaction({
@@ -381,6 +407,10 @@ export default function NewsViewScreen(props: Props) {
         }
       );
     }
+  };
+
+  const toggleAddSnippetIsVisible = () => {
+    setAddSnippetVisible(!addSnippetIsVisible);
   };
 
   return (
@@ -478,6 +508,13 @@ export default function NewsViewScreen(props: Props) {
                       onPress={() => handleFollow(newsData.author_id)}
                     />
                   )}
+                {currentUser && currentUser.id !== newsData.author_id && (
+                  <Button
+                    title="Block"
+                    buttonStyle={{ backgroundColor: "red" }}
+                    onPress={() => handleBlock(newsData.author_id)}
+                  />
+                )}
               </View>
             </View>
 
@@ -660,6 +697,7 @@ export default function NewsViewScreen(props: Props) {
                   value={newSnippetValue}
                   onChangeText={(text: string) => setNewSnippetValue(text)}
                   multiline={true}
+                  placeholder="Put an excerpt from the article here"
                 />
                 <Button
                   title="Save"
@@ -718,9 +756,9 @@ export default function NewsViewScreen(props: Props) {
               ))}
               {currentUser?.id == newsData.user_id && newsData && (
                 <Button
-                  title="➕ Evidence"
+                  title={addSnippetIsVisible ? "Cancel" : "➕ Evidence"}
                   onPress={() => {
-                    setAddSnippetVisible(true);
+                    toggleAddSnippetIsVisible();
                   }}
                   titleStyle={{ fontSize: 16 }}
                 />

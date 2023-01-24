@@ -11,11 +11,11 @@ const userRegister = (data) => {
 };
 
 const userLogout = () => {
-  return instance.post("/logout").then((res) => res.data);
+  return instance.post("/logout");
 };
 
 const getAuthUser = () => {
-  return instance.get("/users").then((res) => res.data);
+  return instance.get("/users");
 };
 
 const getProfileInformation = (userId) => {

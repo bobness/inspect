@@ -31,7 +31,7 @@ import { updateUserExpoToken } from "./src/store/auth";
 import SummaryScreen from "./src/pages/SummaryScreen";
 import { Subscription } from "expo-modules-core";
 import { instance } from "./src/store/api";
-import { User } from "./src/types";
+import { AuthUser, User } from "./src/types";
 import CurrentUserContext from "./src/contexts/CurrentUserContext";
 import AboutScreen from "./src/pages/AboutScreen";
 
@@ -69,7 +69,7 @@ interface RouteObejct {
 
 export default function App() {
   const navigationRef = useNavigationContainerRef();
-  const [user, setUser] = useState<User | undefined>();
+  const [user, setUser] = useState<AuthUser | undefined>();
   const [notification, setNotification] = useState<Notification | undefined>();
   const notificationListener = useRef<Subscription | undefined>();
   const responseListener = useRef<Subscription | undefined>();
@@ -194,7 +194,7 @@ export default function App() {
   }, []);
 
   const handleOnLogin = useCallback(
-    (userObject: User) => {
+    (userObject: AuthUser) => {
       if (expoToken && !userObject.expo_token) {
         updateUserExpoToken(expoToken);
         userObject.expo_token = expoToken;

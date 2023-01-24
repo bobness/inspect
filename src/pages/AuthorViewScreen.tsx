@@ -9,11 +9,17 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   useWindowDimensions,
+  Alert,
 } from "react-native";
 import { Avatar, Button, Icon, SearchBar } from "react-native-elements";
 import BottomToolbar from "../components/BottomToolbar";
 import { getProfileInformation } from "../store/auth";
-import { followAuthor, unfollowAuthor } from "../store/news";
+import {
+  blockUser,
+  followAuthor,
+  unblockUser,
+  unfollowAuthor,
+} from "../store/news";
 import NewsRow from "../components/NewsRow";
 import { Source, Summary, User } from "../types";
 import useCurrentUserContext from "../hooks/useCurrentUserContext";
@@ -68,6 +74,37 @@ export default function AuthorViewScreen(props: any) {
   const handleUnfollow = (user_id: number) => {
     unfollowAuthor(user_id).then(() => {
       handleRefresh();
+    });
+  };
+
+  const handleBlock = (user_id: number) => {
+    if (currentUser) {
+      Alert.alert(
+        "Block User",
+        "Are you sure you want to Block this user?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Block",
+            onPress: async () => {
+              await blockUser(user_id);
+              navigation.navigate("Home");
+            },
+          },
+        ],
+        {
+          cancelable: true,
+        }
+      );
+    }
+  };
+
+  const handleUnblock = (user_id: number) => {
+    unblockUser(user_id).then(() => {
+      navigation.navigate("Home");
     });
   };
 
@@ -190,6 +227,24 @@ export default function AuthorViewScreen(props: any) {
                 title="Follow"
                 buttonStyle={{ backgroundColor: "#6AA84F" }}
                 onPress={() => handleFollow(userData.id)}
+              />
+            )}
+          {currentUser &&
+            currentUser.id !== userData.id &&
+            !currentUser.blocked_user_ids.includes(userData.id) && (
+              <Button
+                title="Block"
+                buttonStyle={{ backgroundColor: "red" }}
+                onPress={() => handleBlock(userData.id)}
+              />
+            )}
+          {currentUser &&
+            currentUser.id !== userData.id &&
+            currentUser.blocked_user_ids.includes(userData.id) && (
+              <Button
+                title="Unblock"
+                buttonStyle={{ backgroundColor: "#6AA84F" }}
+                onPress={() => handleUnblock(userData.id)}
               />
             )}
         </View>

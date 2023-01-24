@@ -64,6 +64,14 @@ const unfollowAuthor = (authorId) => {
   return instance.delete(`/followers/${authorId}`);
 };
 
+const blockUser = (userId) => {
+  return instance.post("/blocks", { user_id: userId });
+};
+
+const unblockUser = (userId) => {
+  return instance.delete("/blocks/" + userId);
+};
+
 const sendNotification = (data) => {
   return instance.post("/notification", data).then((res) => res.data);
 };
@@ -102,4 +110,6 @@ export {
   createSource,
   getNewsByUid,
   postShare,
+  blockUser,
+  unblockUser,
 };

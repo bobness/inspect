@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useCallback } from "react";
 import { Alert, Linking, Text, View } from "react-native";
 import { Avatar, Button } from "react-native-elements";
@@ -21,7 +22,8 @@ export default function AboutScreen(props: Props) {
         },
         {
           text: "Logout",
-          onPress: () => {
+          onPress: async () => {
+            await AsyncStorage.clear();
             props.navigation.navigate("Login");
           },
         },
@@ -77,22 +79,6 @@ export default function AboutScreen(props: Props) {
             Discord server
           </Text>{" "}
           -- where you can ask questions or just chat!
-        </Text>
-        <Text style={{ margin: 10 }}>
-          <Avatar source={{ uri: "patreon.png" }} />
-          If you can, please consider donating on our{" "}
-          <Text
-            style={{
-              color: "blue",
-              textDecorationLine: "underline",
-              margin: 10,
-            }}
-            onPress={() =>
-              Linking.openURL("https://www.patreon.com/datagotchi")
-            }
-          >
-            Patreon page
-          </Text>
         </Text>
         <Button
           title="Logout"
