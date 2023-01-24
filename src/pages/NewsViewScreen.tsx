@@ -409,6 +409,10 @@ export default function NewsViewScreen(props: Props) {
     }
   };
 
+  const toggleAddSnippetIsVisible = () => {
+    setAddSnippetVisible(!addSnippetIsVisible);
+  };
+
   return (
     <KeyboardAvoidingView style={commonStyle.containerView} behavior="padding">
       <View style={commonStyle.pageContainer}>
@@ -693,6 +697,7 @@ export default function NewsViewScreen(props: Props) {
                   value={newSnippetValue}
                   onChangeText={(text: string) => setNewSnippetValue(text)}
                   multiline={true}
+                  placeholder="Put an excerpt from the article here"
                 />
                 <Button
                   title="Save"
@@ -751,9 +756,9 @@ export default function NewsViewScreen(props: Props) {
               ))}
               {currentUser?.id == newsData.user_id && newsData && (
                 <Button
-                  title="➕ Evidence"
+                  title={addSnippetIsVisible ? "Cancel" : "➕ Evidence"}
                   onPress={() => {
-                    setAddSnippetVisible(true);
+                    toggleAddSnippetIsVisible();
                   }}
                   titleStyle={{ fontSize: 16 }}
                 />
