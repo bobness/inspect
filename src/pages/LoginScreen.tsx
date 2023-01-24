@@ -65,7 +65,6 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
     setLoading(true);
     userLogin(postData)
       .then(async (res) => {
-        setLoading(false);
         if (!res.data) {
           // @ts-expect-error 'response does not exit on type' -- but it does
           switch (res.response.status) {
@@ -92,6 +91,9 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
       })
       .catch((err) => {
         Alert.alert("Error: ", err);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
