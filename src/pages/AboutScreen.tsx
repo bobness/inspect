@@ -78,22 +78,6 @@ export default function AboutScreen(props: Props) {
           </Text>{" "}
           -- where you can ask questions or just chat!
         </Text>
-        <Text style={{ margin: 10 }}>
-          <Avatar source={{ uri: "patreon.png" }} />
-          If you can, please consider donating on our{" "}
-          <Text
-            style={{
-              color: "blue",
-              textDecorationLine: "underline",
-              margin: 10,
-            }}
-            onPress={() =>
-              Linking.openURL("https://www.patreon.com/datagotchi")
-            }
-          >
-            Patreon page
-          </Text>
-        </Text>
         <Button
           title="Logout"
           onPress={() => confirmLogout()}
