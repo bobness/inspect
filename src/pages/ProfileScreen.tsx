@@ -468,8 +468,8 @@ export default function ProfileScreen(props: Props) {
                 />
                 <Input
                   ref={usernameRef}
-                  label="User Name"
-                  placeholder="User Name"
+                  label="Your Name"
+                  placeholder="Your Name"
                   leftIcon={<Icon name="user" size={24} color="black" />}
                   editable={!loading}
                   value={profileData?.username}
