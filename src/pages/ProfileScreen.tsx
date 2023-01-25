@@ -139,6 +139,7 @@ export default function ProfileScreen(props: Props) {
 
   // TOOD: make this more intelligent to only save items that have been updated
   const handleSave = async () => {
+    console.log("*** saving...");
     if (profileData) {
       setLoading(true);
       const updateBlock = {
@@ -147,7 +148,7 @@ export default function ProfileScreen(props: Props) {
         avatar_uri: profileData.avatar_uri,
         enable_push_notifications: profileData.enable_push_notifications,
         enable_email_notifications: profileData.enable_email_notifications,
-      };
+      } as any;
       if (profileData.password && profileData.confirmPassword) {
         if (profileData.password !== profileData.confirmPassword) {
           Alert.alert("Please make sure your passwords match.");
@@ -155,11 +156,10 @@ export default function ProfileScreen(props: Props) {
           confirmPasswordRef.current.focus();
           return;
         }
-        await updateProfile({
-          ...updateBlock,
-          password: profileData.password,
-        });
+        updateBlock.password = profileData.password;
       }
+      console.log("*** updating with block: ", updateBlock);
+      await updateProfile(updateBlock);
       setProfileData({ ...profileData, password: "", confirmPassword: "" });
       setLoading(false);
     }
@@ -172,6 +172,7 @@ export default function ProfileScreen(props: Props) {
         profile: profileData.profile,
       };
       await updateProfile(updateBlock);
+      setProfileOverlayVisible(false);
       setLoading(false);
     }
   };
