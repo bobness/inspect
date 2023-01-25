@@ -139,7 +139,6 @@ export default function ProfileScreen(props: Props) {
 
   // TOOD: make this more intelligent to only save items that have been updated
   const handleSave = async () => {
-    console.log("*** saving...");
     if (profileData) {
       setLoading(true);
       const updateBlock = {
@@ -158,7 +157,6 @@ export default function ProfileScreen(props: Props) {
         }
         updateBlock.password = profileData.password;
       }
-      console.log("*** updating with block: ", updateBlock);
       await updateProfile(updateBlock);
       setProfileData({ ...profileData, password: "", confirmPassword: "" });
       setLoading(false);
