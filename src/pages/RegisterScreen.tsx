@@ -60,16 +60,24 @@ export default function RegisterScreen({ navigation }: any) {
     };
     setLoading(true);
     userRegister(postData)
-      .then(async (res) => {
+      .then(async (result: any) => {
         setLoading(false);
-        if (res.code > 201) {
-          Alert.alert(res.message);
-          return;
+        if (result.data) {
+          // AxiosResponse: ["data", "status", "statusText", "headers", "config", "request"]
+          const { data } = result;
+          await AsyncStorage.setItem("access_token", data.token);
+          await AsyncStorage.setItem("user", JSON.stringify(data));
+          setToken(data.token);
+          navigation.navigate("Home");
+        } else {
+          // Express response from errors: ["message", "name", "code", "config", "request", "response"]
+          // response -> status
+          if (result.response.status == 403) {
+            Alert.alert("Error logging in: email already exists");
+          } else {
+            Alert.alert("Error logging in: " + result.message);
+          }
         }
-        await AsyncStorage.setItem("access_token", res.token);
-        await AsyncStorage.setItem("user", JSON.stringify(res));
-        setToken(res.token);
-        navigation.navigate("Home");
       })
       .catch((err) => {
         alert(`Error! - ${err}`);
@@ -91,6 +99,7 @@ export default function RegisterScreen({ navigation }: any) {
               value={username}
               editable={!loading}
               autoCorrect={false}
+              autoComplete="off"
             />
             <TextInput
               ref={emailRef}
@@ -102,6 +111,7 @@ export default function RegisterScreen({ navigation }: any) {
               editable={!loading}
               autoCapitalize="none"
               autoCorrect={false}
+              autoComplete="off"
             />
             <TextInput
               ref={passwordRef}
@@ -114,6 +124,7 @@ export default function RegisterScreen({ navigation }: any) {
               editable={!loading}
               autoCapitalize="none"
               autoCorrect={false}
+              autoComplete="off"
             />
             <TextInput
               ref={confirmPasswordRef}
@@ -126,6 +137,7 @@ export default function RegisterScreen({ navigation }: any) {
               editable={!loading}
               autoCapitalize="none"
               autoCorrect={false}
+              autoComplete="off"
             />
             <Button
               buttonStyle={styles.registerButton}

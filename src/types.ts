@@ -15,6 +15,7 @@ export interface User {
   followers?: User[];
   summaries?: Summary[];
   expo_token?: string;
+  token: string;
   profile?: string;
   trusted_sources?: Source[];
 }
