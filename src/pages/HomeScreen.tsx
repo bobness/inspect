@@ -184,6 +184,9 @@ export default function HomeScreen(props: Props) {
               flex: 1,
             }}
           >
+            <Text style={{ color: "#ccc", textAlign: "center" }}>
+              Swipe left or right to archive
+            </Text>
             <FlatList
               data={newsData}
               renderItem={renderNewsItem}
