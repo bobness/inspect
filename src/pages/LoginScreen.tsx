@@ -75,14 +75,14 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
               alert("Error from the server");
           }
           return;
-        } else if (
-          !instance.defaults.baseURL?.includes("localhost") &&
-          !res.data.expo_token
-        ) {
-          Alert.alert("Error: unable to obtain push notification token ");
-          return;
         }
         const data = res.data;
+        if (!data.verified) {
+          alert(
+            "Your email is not verified. Please check your email address and go to the provided link."
+          );
+          return;
+        }
         await AsyncStorage.setItem("@access_token", data.token);
         await AsyncStorage.setItem("@user", JSON.stringify(data));
         await AsyncStorage.setItem("@password", password);

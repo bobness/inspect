@@ -18,6 +18,7 @@ export interface User {
   token: string;
   profile?: string;
   trusted_sources?: Source[];
+  verified: boolean;
 }
 
 export interface AuthUser extends User {
