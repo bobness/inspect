@@ -162,7 +162,10 @@ export default function App() {
   }, [user]);
 
   useEffect(() => {
-    registerForPushNotificationsAsync().then((token) => setExpoToken(token));
+    registerForPushNotificationsAsync().then((token) => {
+      updateUserExpoToken(token);
+      setExpoToken(token);
+    });
 
     // FIXME: addNotificationReceivedListener may not be necessary; I don't even use the resulting 'notification' object
     notificationListener.current =
@@ -193,12 +196,14 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (expoToken && user && !user.expo_token) {
+      user.expo_token = expoToken;
+    }
+  }, [expoToken, user]);
+
   const handleOnLogin = useCallback(
     (userObject: AuthUser) => {
-      if (expoToken && !userObject.expo_token) {
-        updateUserExpoToken(expoToken);
-        userObject.expo_token = expoToken;
-      }
       if (
         userObject.expo_token ||
         instance.defaults.baseURL?.includes("localhost")

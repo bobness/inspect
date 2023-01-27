@@ -88,8 +88,6 @@ export default function HomeScreen(props: Props) {
   const renderAuthorItem = ({ item }: any) => (
     <ListItem
       bottomDivider
-      hasTVPreferredFocus={undefined}
-      tvParallaxProperties={undefined}
       style={{ flex: 1, width: "100%" }}
       // style={animatedStyles}
       onPress={(e) => {
