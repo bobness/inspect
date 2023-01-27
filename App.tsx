@@ -162,14 +162,22 @@ export default function App() {
   }, [user]);
 
   useEffect(() => {
+    if (user && !user.expo_token && expoToken) {
+      updateUserExpoToken(expoToken);
+      user.expo_token = expoToken;
+      setUser({ ...user });
+      AsyncStorage.setItem("@user", JSON.stringify(user));
+    }
+  }, [user, expoToken]);
+
+  useEffect(() => {
     registerForPushNotificationsAsync().then((token) => {
       if (token) {
-        updateUserExpoToken(token);
         setExpoToken(token);
       }
     });
 
-    // FIXME: addNotificationReceivedListener may not be necessary; I don't even use the resulting 'notification' object
+    // TODO: addNotificationReceivedListener may not be necessary; I don't even use the resulting 'notification' object
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
         setNotification(notification);

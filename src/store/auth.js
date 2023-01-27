@@ -1,6 +1,6 @@
 import { instance } from "./api";
 
-// FIXME: remove the res.data thens because that breaks debugging
+// TODO: remove the res.data thens because that breaks debugging
 
 const userLogin = (data) => {
   return instance.post("/login", data);
