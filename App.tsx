@@ -163,8 +163,10 @@ export default function App() {
 
   useEffect(() => {
     registerForPushNotificationsAsync().then((token) => {
-      updateUserExpoToken(token);
-      setExpoToken(token);
+      if (token) {
+        updateUserExpoToken(token);
+        setExpoToken(token);
+      }
     });
 
     // FIXME: addNotificationReceivedListener may not be necessary; I don't even use the resulting 'notification' object
@@ -202,21 +204,11 @@ export default function App() {
     }
   }, [expoToken, user]);
 
-  const handleOnLogin = useCallback(
-    (userObject: AuthUser) => {
-      if (
-        userObject.expo_token ||
-        instance.defaults.baseURL?.includes("localhost")
-      ) {
-        AsyncStorage.setItem("@user", JSON.stringify(userObject));
-        setUser(userObject);
-        navigationRef.navigate("Home");
-      } else {
-        alert("Error: no push notification token available");
-      }
-    },
-    [expoToken]
-  );
+  const handleOnLogin = (userObject: AuthUser) => {
+    AsyncStorage.setItem("@user", JSON.stringify(userObject));
+    setUser(userObject);
+    navigationRef.navigate("Home");
+  };
 
   // TODO: save `deepLinkUrl` for the login page if they aren't logged in
   useEffect(() => {
@@ -333,7 +325,7 @@ async function registerForPushNotificationsAsync() {
       finalStatus = status;
     }
     if (finalStatus !== "granted") {
-      alert("Failed to get push token for push notification!");
+      alert("Failed to get push token for push notification");
       return;
     }
     try {
