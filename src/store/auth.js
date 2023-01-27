@@ -7,7 +7,7 @@ const userLogin = (data) => {
 };
 
 const userRegister = (data) => {
-  return instance.post("/register", data).then((res) => res.data);
+  return instance.post("/register", data);
 };
 
 const userLogout = () => {
