@@ -205,7 +205,7 @@ export default function App() {
       ) {
         AsyncStorage.setItem("@user", JSON.stringify(userObject));
         setUser(userObject);
-        setDesiredRoute({ path: "Home" });
+        navigationRef.navigate("Home");
       } else {
         alert("Error: no push notification token available");
       }

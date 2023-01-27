@@ -71,15 +71,12 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
             case 401:
               alert("Invalid credentials");
               break;
+            case 404:
+              alert("User does not exist");
+              break;
             default:
               alert("Error from the server");
           }
-          return;
-        } else if (
-          !instance.defaults.baseURL?.includes("localhost") &&
-          !res.data.expo_token
-        ) {
-          Alert.alert("Error: unable to obtain push notification token ");
           return;
         }
         const data = res.data;
