@@ -71,18 +71,17 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
             case 401:
               alert("Invalid credentials");
               break;
+            case 403:
+              alert(
+                "Your email is not verified. Please check your email address and go to the provided link."
+              );
+              break;
             default:
               alert("Error from the server");
           }
           return;
         }
         const data = res.data;
-        if (!data.verified) {
-          alert(
-            "Your email is not verified. Please check your email address and go to the provided link."
-          );
-          return;
-        }
         await AsyncStorage.setItem("@access_token", data.token);
         await AsyncStorage.setItem("@user", JSON.stringify(data));
         await AsyncStorage.setItem("@password", password);
