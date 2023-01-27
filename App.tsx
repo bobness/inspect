@@ -198,12 +198,6 @@ export default function App() {
     };
   }, []);
 
-  useEffect(() => {
-    if (expoToken && user && !user.expo_token) {
-      user.expo_token = expoToken;
-    }
-  }, [expoToken, user]);
-
   const handleOnLogin = (userObject: AuthUser) => {
     AsyncStorage.setItem("@user", JSON.stringify(userObject));
     setUser(userObject);
