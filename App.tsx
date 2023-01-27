@@ -162,9 +162,22 @@ export default function App() {
   }, [user]);
 
   useEffect(() => {
-    registerForPushNotificationsAsync().then((token) => setExpoToken(token));
+    if (user && !user.expo_token && expoToken) {
+      updateUserExpoToken(expoToken);
+      user.expo_token = expoToken;
+      setUser({ ...user });
+      AsyncStorage.setItem("@user", JSON.stringify(user));
+    }
+  }, [user, expoToken]);
 
-    // FIXME: addNotificationReceivedListener may not be necessary; I don't even use the resulting 'notification' object
+  useEffect(() => {
+    registerForPushNotificationsAsync().then((token) => {
+      if (token) {
+        setExpoToken(token);
+      }
+    });
+
+    // TODO: addNotificationReceivedListener may not be necessary; I don't even use the resulting 'notification' object
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
         setNotification(notification);
@@ -193,25 +206,11 @@ export default function App() {
     };
   }, []);
 
-  const handleOnLogin = useCallback(
-    (userObject: AuthUser) => {
-      if (expoToken && !userObject.expo_token) {
-        updateUserExpoToken(expoToken);
-        userObject.expo_token = expoToken;
-      }
-      if (
-        userObject.expo_token ||
-        instance.defaults.baseURL?.includes("localhost")
-      ) {
-        AsyncStorage.setItem("@user", JSON.stringify(userObject));
-        setUser(userObject);
-        navigationRef.navigate("Home");
-      } else {
-        alert("Error: no push notification token available");
-      }
-    },
-    [expoToken]
-  );
+  const handleOnLogin = (userObject: AuthUser) => {
+    AsyncStorage.setItem("@user", JSON.stringify(userObject));
+    setUser(userObject);
+    navigationRef.navigate("Home");
+  };
 
   // TODO: save `deepLinkUrl` for the login page if they aren't logged in
   useEffect(() => {
@@ -328,7 +327,7 @@ async function registerForPushNotificationsAsync() {
       finalStatus = status;
     }
     if (finalStatus !== "granted") {
-      alert("Failed to get push token for push notification!");
+      alert("Failed to get push token for push notification");
       return;
     }
     try {

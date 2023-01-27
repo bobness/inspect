@@ -62,7 +62,7 @@ export default function HomeScreen(props: Props) {
     });
   };
 
-  /* FIXME: VirtualizedList: You have a large list that is slow to update 
+  /* TODO: VirtualizedList: You have a large list that is slow to update 
   - make sure your renderItem function renders components that follow React 
   performance best practices like PureComponent, shouldComponentUpdate, etc
   */
@@ -88,8 +88,6 @@ export default function HomeScreen(props: Props) {
   const renderAuthorItem = ({ item }: any) => (
     <ListItem
       bottomDivider
-      hasTVPreferredFocus={undefined}
-      tvParallaxProperties={undefined}
       style={{ flex: 1, width: "100%" }}
       // style={animatedStyles}
       onPress={(e) => {
