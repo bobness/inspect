@@ -56,7 +56,9 @@ export default function ProfileScreen(props: Props) {
   const confirmPasswordRef = useRef<any | undefined>();
   const profileRef = useRef<any | undefined>();
 
-  const [profileData, setProfileData] = useState<AuthUser | undefined>();
+  const [currentProfileData, setCurrentProfileData] = useState<
+    AuthUser | undefined
+  >();
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [isRefreshing, setRefreshing] = useState(false);
@@ -79,7 +81,7 @@ export default function ProfileScreen(props: Props) {
 
   useEffect(() => {
     if (currentUser) {
-      setProfileData({
+      setCurrentProfileData({
         ...currentUser,
         password: "",
         confirmPassword: "",
@@ -100,7 +102,7 @@ export default function ProfileScreen(props: Props) {
         if (response.data) {
           const user = response.data as AuthUser;
           setCurrentUser(user);
-          setProfileData({
+          setCurrentProfileData({
             ...user,
             password: "",
             confirmPassword: "",
@@ -137,37 +139,64 @@ export default function ProfileScreen(props: Props) {
     });
   }, [navigation]);
 
-  // TOOD: make this more intelligent to only save items that have been updated
   const handleSave = async () => {
-    if (profileData) {
+    if (currentUser && currentProfileData) {
       setLoading(true);
       const updateBlock = {
-        email: profileData.email,
-        username: profileData.username,
-        avatar_uri: profileData.avatar_uri,
-        enable_push_notifications: profileData.enable_push_notifications,
-        enable_email_notifications: profileData.enable_email_notifications,
+        email:
+          currentProfileData.email === currentUser.email
+            ? undefined
+            : currentProfileData.email, // only send email if it changed
+        username:
+          currentProfileData.username === currentUser.username
+            ? undefined
+            : currentProfileData.username,
+        avatar_uri:
+          currentProfileData.avatar_uri === currentUser.avatar_uri
+            ? undefined
+            : currentProfileData.avatar_uri,
+        enable_push_notifications:
+          currentProfileData.enable_push_notifications ===
+          currentUser.enable_push_notifications
+            ? undefined
+            : currentProfileData.enable_push_notifications,
+        enable_email_notifications:
+          currentProfileData.enable_email_notifications ===
+          currentUser.enable_email_notifications
+            ? undefined
+            : currentProfileData.enable_email_notifications,
       } as any;
-      if (profileData.password && profileData.confirmPassword) {
-        if (profileData.password !== profileData.confirmPassword) {
+      if (currentProfileData.password && currentProfileData.confirmPassword) {
+        if (
+          currentProfileData.password !== currentProfileData.confirmPassword
+        ) {
           Alert.alert("Please make sure your passwords match.");
-          setProfileData({ ...profileData, confirmPassword: "" });
+          setCurrentProfileData({ ...currentProfileData, confirmPassword: "" });
           confirmPasswordRef.current.focus();
           return;
         }
-        updateBlock.password = profileData.password;
+        updateBlock.password =
+          currentProfileData.password === currentUser.password
+            ? undefined
+            : currentProfileData.password; // only send password if it changed
       }
-      await updateProfile(updateBlock);
-      setProfileData({ ...profileData, password: "", confirmPassword: "" });
+      if (Object.keys(updateBlock).length > 0) {
+        await updateProfile(updateBlock);
+        setCurrentProfileData({
+          ...currentProfileData,
+          password: "",
+          confirmPassword: "",
+        });
+      }
       setLoading(false);
     }
   };
 
   const handleProfileSave = async () => {
-    if (profileData) {
+    if (currentProfileData) {
       setLoading(true);
       const updateBlock = {
-        profile: profileData.profile,
+        profile: currentProfileData.profile,
       };
       await updateProfile(updateBlock);
       setProfileOverlayVisible(false);
@@ -218,13 +247,13 @@ export default function ProfileScreen(props: Props) {
   );
 
   useEffect(() => {
-    if (profileData?.avatar_uri) {
+    if (currentProfileData?.avatar_uri) {
       handleSave();
     }
-  }, [profileData?.avatar_uri]);
+  }, [currentProfileData?.avatar_uri]);
 
   const handlePickPicture = useCallback(() => {
-    if (profileData && ImagePicker?.openPicker) {
+    if (currentProfileData && ImagePicker?.openPicker) {
       ImagePicker.openPicker({
         width: 200,
         height: 200,
@@ -233,8 +262,8 @@ export default function ProfileScreen(props: Props) {
       }).then(async (image) => {
         if (image.path) {
           const base64 = await RNFS.readFile(image.path, "base64");
-          setProfileData({
-            ...profileData,
+          setCurrentProfileData({
+            ...currentProfileData,
             avatar_uri: `data:image/png;base64,${base64}`,
           });
         }
@@ -249,8 +278,13 @@ export default function ProfileScreen(props: Props) {
   }, []);
 
   const doInsertLink = useCallback(() => {
-    if (profileData && profileRef.current && insertLinkHref && insertLinkText) {
-      const { profile } = profileData;
+    if (
+      currentProfileData &&
+      profileRef.current &&
+      insertLinkHref &&
+      insertLinkText
+    ) {
+      const { profile } = currentProfileData;
       const link = `<a href="${insertLinkHref}">${insertLinkText}</a>`;
       // TODO: insert link where their cursor is/where text is selected
       profileRef.current.setContentHTML(`${profile}\n${link}`);
@@ -259,20 +293,20 @@ export default function ProfileScreen(props: Props) {
   }, [insertLinkHref, insertLinkText]);
 
   useEffect(() => {
-    if (profileData && articleSearch) {
+    if (currentProfileData && articleSearch) {
       setCurrentSummaries(
-        profileData.summaries?.filter((summary: Summary) =>
+        currentProfileData.summaries?.filter((summary: Summary) =>
           summary.title
             .toLocaleLowerCase()
             .includes(articleSearch.toLocaleLowerCase())
         )
       );
     }
-  }, [profileData, articleSearch]);
+  }, [currentProfileData, articleSearch]);
 
   useEffect(() => {
-    if (profileData && authorSearch) {
-      const newAuthors = profileData.following?.filter((user: any) =>
+    if (currentProfileData && authorSearch) {
+      const newAuthors = currentProfileData.following?.filter((user: any) =>
         user.username
           .toLocaleLowerCase()
           .includes(authorSearch.toLocaleLowerCase())
@@ -319,7 +353,7 @@ export default function ProfileScreen(props: Props) {
         <TouchableOpacity onPress={handlePickPicture}>
           <Avatar
             size={180}
-            source={{ uri: profileData?.avatar_uri }}
+            source={{ uri: currentProfileData?.avatar_uri }}
             avatarStyle={{
               borderWidth: 2,
               borderColor: "black",
@@ -339,7 +373,7 @@ export default function ProfileScreen(props: Props) {
             buttonStyle={{ backgroundColor: "red" }}
           />
         </View>
-        {profileData && (
+        {currentProfileData && (
           <Overlay
             isVisible={profileOverlayVisible}
             onBackdropPress={() => setProfileOverlayVisible(false)}
@@ -360,7 +394,7 @@ export default function ProfileScreen(props: Props) {
             <RichEditor
               ref={profileRef}
               placeholder="Your Profile"
-              initialContentHTML={profileData?.profile}
+              initialContentHTML={currentProfileData?.profile}
               initialHeight={250}
               disabled={profileEditorDisabled}
               style={{
@@ -368,7 +402,7 @@ export default function ProfileScreen(props: Props) {
               }}
               editorInitializedCallback={() => setProfileEditorDisabled(false)}
               onChange={(text: string) => {
-                setProfileData({ ...profileData, profile: text });
+                setCurrentProfileData({ ...currentProfileData, profile: text });
               }}
             />
             <Button title="Save" onPress={() => handleProfileSave()} />
@@ -456,11 +490,14 @@ export default function ProfileScreen(props: Props) {
                   label="Email Address"
                   placeholder="Email Address"
                   leftIcon={<Icon name="envelope" size={24} color="black" />}
-                  value={profileData?.email}
+                  value={currentProfileData?.email}
                   editable={!loading}
                   onChangeText={(text: string) => {
-                    if (profileData) {
-                      setProfileData({ ...profileData, email: text });
+                    if (currentProfileData) {
+                      setCurrentProfileData({
+                        ...currentProfileData,
+                        email: text,
+                      });
                     }
                   }}
                   autoCompleteType={undefined}
@@ -472,10 +509,13 @@ export default function ProfileScreen(props: Props) {
                   placeholder="Your Name"
                   leftIcon={<Icon name="user" size={24} color="black" />}
                   editable={!loading}
-                  value={profileData?.username}
+                  value={currentProfileData?.username}
                   onChangeText={(text: string) => {
-                    if (profileData) {
-                      setProfileData({ ...profileData, username: text });
+                    if (currentProfileData) {
+                      setCurrentProfileData({
+                        ...currentProfileData,
+                        username: text,
+                      });
                     }
                   }}
                   autoCompleteType={undefined}
@@ -487,10 +527,13 @@ export default function ProfileScreen(props: Props) {
                   placeholder="Password"
                   leftIcon={<Icon name="lock" size={24} color="black" />}
                   editable={!loading}
-                  value={profileData?.password ?? ""}
+                  value={currentProfileData?.password ?? ""}
                   onChangeText={(text: string) => {
-                    if (profileData) {
-                      setProfileData({ ...profileData, password: text });
+                    if (currentProfileData) {
+                      setCurrentProfileData({
+                        ...currentProfileData,
+                        password: text,
+                      });
                     }
                   }}
                   secureTextEntry={true}
@@ -504,10 +547,13 @@ export default function ProfileScreen(props: Props) {
                   placeholder="Confirm Password"
                   leftIcon={<Icon name="lock" size={24} color="black" />}
                   editable={!loading}
-                  value={profileData?.confirmPassword ?? ""}
+                  value={currentProfileData?.confirmPassword ?? ""}
                   onChangeText={(text: string) => {
-                    if (profileData) {
-                      setProfileData({ ...profileData, confirmPassword: text });
+                    if (currentProfileData) {
+                      setCurrentProfileData({
+                        ...currentProfileData,
+                        confirmPassword: text,
+                      });
                     }
                   }}
                   secureTextEntry={true}
@@ -517,26 +563,26 @@ export default function ProfileScreen(props: Props) {
                 />
                 <CheckBox
                   title="Enable push notifications"
-                  checked={profileData?.enable_push_notifications}
+                  checked={currentProfileData?.enable_push_notifications}
                   onPress={() => {
-                    if (profileData) {
-                      setProfileData({
-                        ...profileData,
+                    if (currentProfileData) {
+                      setCurrentProfileData({
+                        ...currentProfileData,
                         enable_push_notifications:
-                          !profileData.enable_push_notifications,
+                          !currentProfileData.enable_push_notifications,
                       });
                     }
                   }}
                 />
                 <CheckBox
                   title="Enable email notifications"
-                  checked={profileData?.enable_email_notifications}
+                  checked={currentProfileData?.enable_email_notifications}
                   onPress={() => {
-                    if (profileData) {
-                      setProfileData({
-                        ...profileData,
+                    if (currentProfileData) {
+                      setCurrentProfileData({
+                        ...currentProfileData,
                         enable_email_notifications:
-                          !profileData.enable_email_notifications,
+                          !currentProfileData.enable_email_notifications,
                       });
                     }
                   }}
@@ -550,47 +596,49 @@ export default function ProfileScreen(props: Props) {
               onMoveShouldSetResponder={(e) => e.stopPropagation()}
             >
               <View style={{ flex: 1 }}>
-                {profileData?.summaries && profileData.summaries.length > 0 && (
-                  <>
-                    <SearchBar
-                      placeholder="Filter on your summaries..."
-                      // @ts-expect-error wtf is this complaining? it's working
-                      onChangeText={(text: string) => setArticleSearch(text)}
-                      value={articleSearch}
-                      showCancel={false}
-                      lightTheme={false}
-                      round={false}
-                      onBlur={() => {}}
-                      onFocus={() => {}}
-                      platform={"ios"}
-                      onClear={() => {}}
-                      loadingProps={{}}
-                      autoCompleteType={undefined}
-                      clearIcon={{ name: "close" }}
-                      searchIcon={{ name: "search" }}
-                      showLoading={false}
-                      onCancel={() => {}}
-                      cancelButtonTitle={""}
-                      cancelButtonProps={{}}
-                      autoCapitalize="none"
-                      autoComplete="off"
-                      autoCorrect={false}
-                    />
-                    <FlatList
-                      data={currentSummaries}
-                      renderItem={renderNewsItem}
-                      style={{ flex: 1, width: "100%" }}
-                      refreshing={isRefreshing}
-                      onRefresh={handleRefresh}
-                    />
-                  </>
-                )}
-                {!profileData?.summaries ||
-                  (profileData.summaries.length === 0 && (
+                {currentProfileData?.summaries &&
+                  currentProfileData.summaries.length > 0 && (
+                    <>
+                      <SearchBar
+                        placeholder="Filter on your summaries..."
+                        // @ts-expect-error wtf is this complaining? it's working
+                        onChangeText={(text: string) => setArticleSearch(text)}
+                        value={articleSearch}
+                        showCancel={false}
+                        lightTheme={false}
+                        round={false}
+                        onBlur={() => {}}
+                        onFocus={() => {}}
+                        platform={"ios"}
+                        onClear={() => {}}
+                        loadingProps={{}}
+                        autoCompleteType={undefined}
+                        clearIcon={{ name: "close" }}
+                        searchIcon={{ name: "search" }}
+                        showLoading={false}
+                        onCancel={() => {}}
+                        cancelButtonTitle={""}
+                        cancelButtonProps={{}}
+                        autoCapitalize="none"
+                        autoComplete="off"
+                        autoCorrect={false}
+                      />
+                      <FlatList
+                        data={currentSummaries}
+                        renderItem={renderNewsItem}
+                        style={{ flex: 1, width: "100%" }}
+                        refreshing={isRefreshing}
+                        onRefresh={handleRefresh}
+                      />
+                    </>
+                  )}
+                {!currentProfileData?.summaries ||
+                  (currentProfileData.summaries.length === 0 && (
                     <Text>
                       You have no article summaries. To create one, view the
                       article in another app like Safari, Apple News, or Google
-                      News, and share it into Inspect.
+                      News, and share it into Inspect, OR enter the URL on the
+                      Create Summary screen accessible by tapping the + icon.
                     </Text>
                   ))}
               </View>
