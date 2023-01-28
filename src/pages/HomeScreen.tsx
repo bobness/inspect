@@ -37,6 +37,12 @@ export default function HomeScreen(props: Props) {
   const [searchOverlayVisible, setSearchOverlayVisible] = useState(false);
 
   useEffect(() => {
+    if (error) {
+      alert("Error in getting unread news: " + error.toString());
+    }
+  }, [error]);
+
+  useEffect(() => {
     if (isFocused) {
       clearCurrentSummaryId();
       refreshNewsData();

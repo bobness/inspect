@@ -8,25 +8,18 @@ const useUnreadArticles = () => {
   const [loading, setLoading] = useState(false);
 
   const refresh = () => {
-    console.log("*** in useUnreadArticles::refresh()");
     setLoading(true);
     getUnreadNews()
       .then((response) => {
         if (response.data) {
-          console.log(
-            "*** in useUnreadArticles::refresh() -- got data: ",
-            response.data.length
-          );
           setArticles(response.data);
         } else {
-          console.log(
-            "*** in useUnreadArticles::refresh() -- no data! ",
-            response
+          throw new Error(
+            "Response does not contain data: " + response.toString()
           );
         }
       })
       .catch((err) => {
-        console.log("*** in useUnreadArticles::refresh() -- catch err: ", err);
         setError(err);
       })
       .finally(() => {
