@@ -219,6 +219,10 @@ export default function SummaryScreen(props: Props) {
       "Are you sure you want to cancel?",
       [
         {
+          text: "No",
+          style: "cancel",
+        },
+        {
           text: "Yes",
           onPress: () => {
             cleanup();
