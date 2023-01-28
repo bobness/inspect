@@ -1,7 +1,7 @@
 import { instance } from "./api";
 
 const getUnreadNews = () => {
-  return instance.get("/unread_summaries").then((res) => res.data);
+  return instance.get("/unread_summaries");
 };
 
 const markAsRead = (id) => {
