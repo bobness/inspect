@@ -368,7 +368,7 @@ export default function SummaryScreen(props: Props) {
               )}
               {!currentSummaryId && (
                 <Button
-                  disabled={!(currentUser && title)}
+                  disabled={!(currentUser && title) || loading}
                   title="Create Summary"
                   onPress={submitShare}
                 />

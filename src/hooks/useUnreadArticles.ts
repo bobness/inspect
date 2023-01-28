@@ -10,8 +10,14 @@ const useUnreadArticles = () => {
   const refresh = () => {
     setLoading(true);
     getUnreadNews()
-      .then((data) => {
-        setArticles(data);
+      .then((response) => {
+        if (response.data) {
+          setArticles(response.data);
+        } else {
+          throw new Error(
+            "Response does not contain data: " + response.toString()
+          );
+        }
       })
       .catch((err) => {
         setError(err);
