@@ -146,7 +146,7 @@ export default function ProfileScreen(props: Props) {
         username: profileData.username,
         avatar_uri: profileData.avatar_uri,
         enable_push_notifications: profileData.enable_push_notifications,
-        enable_email_notifications: profileData.enable_email_notifications,
+        // enable_email_notifications: profileData.enable_email_notifications,
       } as any;
       if (profileData.password && profileData.confirmPassword) {
         if (profileData.password !== profileData.confirmPassword) {
@@ -528,7 +528,7 @@ export default function ProfileScreen(props: Props) {
                     }
                   }}
                 />
-                <CheckBox
+                {/* <CheckBox
                   title="Enable email notifications"
                   checked={profileData?.enable_email_notifications}
                   onPress={() => {
@@ -540,7 +540,7 @@ export default function ProfileScreen(props: Props) {
                       });
                     }
                   }}
-                />
+                /> */}
                 <Button title="Save" onPress={() => handleSave()} />
               </ScrollView>
             </TabView.Item>
