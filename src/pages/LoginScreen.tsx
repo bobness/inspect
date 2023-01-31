@@ -107,10 +107,16 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
   const doResetPassword = () => {
     if (forgotPasswordEmail) {
       resetPassword(forgotPasswordEmail)
-        .then(() => {
+        .then((result) => {
+          // @ts-expect-error it doesn't exist, but it does
+          if (result?.response?.status == 404) {
+            throw new Error("Email does not exist");
+          }
           alert(
             "An email has been sent if the address is registered. Go to the URL in the email to reset your password."
           );
+          setForgotPasswordOverlayVisible(false);
+          setForgotPasswordEmail(undefined);
         })
         .catch((err) => {
           alert(err);

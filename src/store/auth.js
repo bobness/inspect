@@ -35,7 +35,7 @@ const updateUserExpoToken = (expo_token) => {
 };
 
 const resetPassword = (email) => {
-  return instance.post("/users/reset-password", { email });
+  return instance.post("/reset-password", { email });
 };
 
 export {
