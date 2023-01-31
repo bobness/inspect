@@ -240,7 +240,7 @@ export default function ProfileScreen(props: Props) {
         }
       });
     }
-  }, [ImagePicker?.openPicker]);
+  }, [profileData, ImagePicker?.openPicker]);
 
   const hideInsertLinkModal = useCallback(() => {
     setInsertLinkHref(undefined);
