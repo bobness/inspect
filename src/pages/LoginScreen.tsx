@@ -4,17 +4,18 @@ import {
   Alert,
   Keyboard,
   KeyboardAvoidingView,
+  SafeAreaView,
   Text,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { Button, SocialIcon } from "react-native-elements";
+import { Button, Input, Overlay, SocialIcon } from "react-native-elements";
 // import * as Facebook from "expo-facebook";
 
 import styles from "../styles/LoginStyle";
-import { userLogin } from "../store/auth";
+import { resetPassword, userLogin } from "../store/auth";
 import { instance, setToken } from "../store/api";
 import { User } from "../types";
 
@@ -32,6 +33,11 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState<string | undefined>();
   const [password, setPassword] = useState<string | undefined>();
+  const [forgotPasswordOverlayVisible, setForgotPasswordOverlayVisible] =
+    useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState<
+    string | undefined
+  >();
 
   useEffect(() => {
     AsyncStorage.getItem("@password").then((pw) => {
@@ -94,6 +100,33 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
       });
   };
 
+  const hanldeForgotPassword = () => {
+    setForgotPasswordOverlayVisible(true);
+  };
+
+  const doResetPassword = () => {
+    if (forgotPasswordEmail) {
+      resetPassword(forgotPasswordEmail)
+        .then((result) => {
+          // @ts-expect-error it doesn't exist, but it does
+          if (result?.response?.status == 404) {
+            throw new Error("Email does not exist");
+          }
+          alert(
+            "An email has been sent. Go to the URL in the email to reset your password."
+          );
+          setForgotPasswordOverlayVisible(false);
+          setForgotPasswordEmail(undefined);
+        })
+        .catch((err) => {
+          alert(err);
+        });
+    }
+  };
+
+  const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+  const validEmail = (email: string) => email.match(emailRegex);
+
   // const onFbLoginPress = async () => {
   //   try {
   //     await Facebook.initializeAsync({
@@ -115,43 +148,44 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
   // };
 
   return (
-    <KeyboardAvoidingView style={styles.containerView} behavior="padding">
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.loginScreenContainer}>
-          <View style={styles.loginFormView}>
-            <Text style={styles.logoText}>INSPECT</Text>
-            <TextInput
-              ref={emailRef}
-              placeholder="Email"
-              placeholderTextColor="#c4c3cb"
-              style={styles.loginFormTextInput}
-              value={email}
-              onChangeText={(value: string) => setEmail(value)}
-              editable={!loading}
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoComplete="off"
-            />
-            <TextInput
-              ref={passwordRef}
-              placeholder="Password"
-              placeholderTextColor="#c4c3cb"
-              style={styles.loginFormTextInput}
-              secureTextEntry={true}
-              value={password}
-              onChangeText={(value: string) => setPassword(value)}
-              editable={!loading}
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoComplete="off"
-            />
-            <Button
-              buttonStyle={styles.loginButton}
-              onPress={() => onLoginPress()}
-              title="Login"
-              disabled={loading}
-            />
-            {/* <View style={[{ marginTop: 10, alignItems: "center" }]}>
+    <>
+      <KeyboardAvoidingView style={styles.containerView} behavior="padding">
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.loginScreenContainer}>
+            <View style={styles.loginFormView}>
+              <Text style={styles.logoText}>INSPECT</Text>
+              <TextInput
+                ref={emailRef}
+                placeholder="Email"
+                placeholderTextColor="#c4c3cb"
+                style={styles.loginFormTextInput}
+                value={email}
+                onChangeText={(value: string) => setEmail(value)}
+                editable={!loading}
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="off"
+              />
+              <TextInput
+                ref={passwordRef}
+                placeholder="Password"
+                placeholderTextColor="#c4c3cb"
+                style={styles.loginFormTextInput}
+                secureTextEntry={true}
+                value={password}
+                onChangeText={(value: string) => setPassword(value)}
+                editable={!loading}
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="off"
+              />
+              <Button
+                buttonStyle={styles.loginButton}
+                onPress={() => onLoginPress()}
+                title="Login"
+                disabled={loading}
+              />
+              {/* <View style={[{ marginTop: 10, alignItems: "center" }]}>
               <Text
                 style={{ color: "#c4c3cb", fontSize: 16, fontWeight: "700" }}
               >
@@ -169,25 +203,78 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
                 </TouchableOpacity>
               </View>
             </View> */}
-            <View style={[{ marginTop: 10, alignItems: "center" }]}>
-              <Text
-                style={{ color: "#c4c3cb", fontSize: 16, fontWeight: "700" }}
-              >
-                {" "}
-                - OR -{" "}
-              </Text>
-              <View style={styles.row}>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate("Register")}
-                  disabled={loading}
+              <View style={[{ marginTop: 10, alignItems: "center" }]}>
+                <Text
+                  style={{ color: "#c4c3cb", fontSize: 16, fontWeight: "700" }}
                 >
-                  <Text>Signup</Text>
-                </TouchableOpacity>
+                  {" "}
+                  - OR -{" "}
+                </Text>
+                <View
+                  style={{
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("Register")}
+                    disabled={loading}
+                    style={{ marginVertical: 10 }}
+                  >
+                    <Text>Signup</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={hanldeForgotPassword}
+                    disabled={loading}
+                    style={{ marginVertical: 10 }}
+                  >
+                    <Text>Forgot Password</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           </View>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+      <Overlay
+        isVisible={forgotPasswordOverlayVisible}
+        onBackdropPress={() => {
+          setForgotPasswordOverlayVisible(false);
+          setForgotPasswordEmail(undefined);
+        }}
+        overlayStyle={{ width: "100%" }}
+      >
+        <SafeAreaView>
+          <View
+            style={{
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: 10,
+              width: "100%",
+            }}
+          >
+            <Text style={{ fontSize: 20 }}>Reset Password</Text>
+            <Input
+              label="Email"
+              value={forgotPasswordEmail}
+              onChangeText={(text: string) => {
+                setForgotPasswordEmail(text);
+              }}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <Button
+              title="Rest Password"
+              onPress={doResetPassword}
+              disabled={
+                !forgotPasswordEmail || !validEmail(forgotPasswordEmail)
+              }
+            />
+          </View>
+        </SafeAreaView>
+      </Overlay>
+    </>
   );
 }

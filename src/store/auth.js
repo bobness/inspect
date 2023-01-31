@@ -34,6 +34,10 @@ const updateUserExpoToken = (expo_token) => {
   return instance.put("/notification", { expo_token }).then((res) => res.data);
 };
 
+const resetPassword = (email) => {
+  return instance.post("/reset-password", { email });
+};
+
 export {
   userLogin,
   userRegister,
@@ -43,4 +47,5 @@ export {
   updateProfile,
   updateUserExpoToken,
   deleteAccount,
+  resetPassword,
 };
