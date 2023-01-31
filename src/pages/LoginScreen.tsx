@@ -113,7 +113,7 @@ export default function LoginScreen({ navigation, onLoginCallback }: Props) {
             throw new Error("Email does not exist");
           }
           alert(
-            "An email has been sent if the address is registered. Go to the URL in the email to reset your password."
+            "An email has been sent. Go to the URL in the email to reset your password."
           );
           setForgotPasswordOverlayVisible(false);
           setForgotPasswordEmail(undefined);
