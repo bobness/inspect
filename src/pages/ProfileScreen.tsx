@@ -177,6 +177,7 @@ export default function ProfileScreen(props: Props) {
 
   const renderNewsItem = ({ item }: any) => (
     <NewsRow
+      onFavoriteToggle={handleRefresh}
       item={item}
       onPress={() => {
         navigation.navigate("NewsView", { data: { id: item.id } });
