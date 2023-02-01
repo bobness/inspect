@@ -3,7 +3,7 @@
     "name": "Inspect",
     "slug": "inspect",
     "owner": "bobstark",
-    "version": "1.0.4",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -14,9 +14,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "plugins": [
       [
         "expo-notifications",
@@ -29,10 +27,8 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "net.datagotchi.inspect",
-      "buildNumber": "1",
-      "associatedDomains": [
-        "applinks:inspect.datagotchi.net"
-      ]
+      "buildNumber": "0",
+      "associatedDomains": ["applinks:inspect.datagotchi.net"]
     },
     "android": {
       "adaptiveIcon": {

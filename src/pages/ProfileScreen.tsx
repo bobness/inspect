@@ -177,6 +177,7 @@ export default function ProfileScreen(props: Props) {
 
   const renderNewsItem = ({ item }: any) => (
     <NewsRow
+      onFavoriteToggle={handleRefresh}
       item={item}
       onPress={() => {
         navigation.navigate("NewsView", { data: { id: item.id } });
@@ -193,8 +194,6 @@ export default function ProfileScreen(props: Props) {
   const renderFollowingUser = ({ item }: any) => (
     <ListItem
       bottomDivider
-      hasTVPreferredFocus={undefined}
-      tvParallaxProperties={undefined}
       style={{ flex: 1, width: "100%" }}
       onPress={() => {
         navigation.navigate("AuthorView", { data: { id: item.user_id } });
@@ -240,7 +239,7 @@ export default function ProfileScreen(props: Props) {
         }
       });
     }
-  }, [ImagePicker?.openPicker]);
+  }, [profileData, ImagePicker?.openPicker]);
 
   const hideInsertLinkModal = useCallback(() => {
     setInsertLinkHref(undefined);
@@ -398,8 +397,8 @@ export default function ProfileScreen(props: Props) {
                 onChangeText={(text: string) => {
                   setInsertLinkHref(text);
                 }}
-                autoCompleteType={undefined}
                 autoCapitalize="none"
+                autoComplete="off"
                 autoCorrect={false}
               />
               <Input
@@ -408,8 +407,8 @@ export default function ProfileScreen(props: Props) {
                 onChangeText={(text: string) => {
                   setInsertLinkText(text);
                 }}
-                autoCompleteType={undefined}
                 autoCapitalize="none"
+                autoComplete="off"
                 autoCorrect={false}
               />
               <Button title="Insert" onPress={doInsertLink} />
@@ -463,8 +462,9 @@ export default function ProfileScreen(props: Props) {
                       setProfileData({ ...profileData, email: text });
                     }
                   }}
-                  autoCompleteType={undefined}
                   autoCapitalize="none"
+                  autoComplete="off"
+                  autoCorrect={false}
                 />
                 <Input
                   ref={usernameRef}
@@ -478,8 +478,9 @@ export default function ProfileScreen(props: Props) {
                       setProfileData({ ...profileData, username: text });
                     }
                   }}
-                  autoCompleteType={undefined}
                   autoCapitalize="none"
+                  autoComplete="off"
+                  autoCorrect={false}
                 />
                 <Input
                   ref={passwordRef}
@@ -494,9 +495,9 @@ export default function ProfileScreen(props: Props) {
                     }
                   }}
                   secureTextEntry={true}
-                  autoCompleteType={undefined}
                   autoCapitalize="none"
                   autoComplete="off"
+                  autoCorrect={false}
                 />
                 <Input
                   ref={confirmPasswordRef}
@@ -511,9 +512,9 @@ export default function ProfileScreen(props: Props) {
                     }
                   }}
                   secureTextEntry={true}
-                  autoCompleteType={undefined}
                   autoCapitalize="none"
                   autoComplete="off"
+                  autoCorrect={false}
                 />
                 <CheckBox
                   title="Enable push notifications"

@@ -17,6 +17,7 @@ export interface User {
   expo_token?: string;
   profile?: string;
   trusted_sources?: Source[];
+  show_favorites: boolean;
 }
 
 export interface AuthUser extends User {
@@ -89,4 +90,5 @@ export interface Summary {
   author_id: number;
   followers: Follower[];
   flagged_by?: number;
+  is_favorited?: boolean;
 }

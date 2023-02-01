@@ -2,14 +2,18 @@ import { useEffect, useState } from "react";
 import { getUnreadNews } from "../store/news";
 import { Summary } from "../types";
 
-const useUnreadArticles = () => {
+interface Props {
+  showFavorites: boolean;
+}
+
+const useUnreadArticles = ({ showFavorites }: Props) => {
   const [articles, setArticles] = useState<Summary[] | undefined>();
   const [error, setError] = useState<Error | undefined>();
   const [loading, setLoading] = useState(false);
 
-  const refresh = () => {
+  const refresh = (showFavorites: boolean) => {
     setLoading(true);
-    getUnreadNews()
+    getUnreadNews(showFavorites)
       .then((response) => {
         if (response.data) {
           setArticles(response.data);
@@ -28,8 +32,8 @@ const useUnreadArticles = () => {
   };
 
   useEffect(() => {
-    refresh();
-  }, []);
+    refresh(showFavorites);
+  }, [showFavorites]);
 
   return {
     articles,

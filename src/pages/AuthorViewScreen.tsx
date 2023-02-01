@@ -121,6 +121,7 @@ export default function AuthorViewScreen(props: any) {
   const renderSummaryItem = ({ item }: any) => (
     <NewsRow
       item={item}
+      onFavoriteToggle={handleRefresh}
       onPress={() => {
         navigation.navigate("NewsView", { data: item });
       }}
@@ -178,11 +179,7 @@ export default function AuthorViewScreen(props: any) {
                 navigation.goBack();
               }}
             >
-              <Icon
-                type="material"
-                name="chevron-left"
-                tvParallaxProperties={undefined}
-              />
+              <Icon type="material" name="chevron-left" />
             </TouchableOpacity>
           </View>
           <View

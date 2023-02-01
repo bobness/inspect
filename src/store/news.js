@@ -1,7 +1,7 @@
 import { instance } from "./api";
 
-const getUnreadNews = () => {
-  return instance.get("/unread_summaries");
+const getUnreadNews = (showFavorites) => {
+  return instance.get(`/unread_summaries?favorites=${showFavorites}`);
 };
 
 const markAsRead = (id) => {
@@ -90,6 +90,14 @@ const postShare = (summaryId, service, message) => {
     .then((res) => res.data);
 };
 
+const toggleSummaryFavorite = (summaryId, favorited) => {
+  if (favorited) {
+    return instance.post("/favorites", { summary_id: summaryId });
+  } else {
+    return instance.delete("/favorites/" + summaryId);
+  }
+};
+
 export {
   getUnreadNews,
   markAsRead,
@@ -112,4 +120,5 @@ export {
   postShare,
   blockUser,
   unblockUser,
+  toggleSummaryFavorite,
 };

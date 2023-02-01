@@ -8,6 +8,7 @@ import Animated, {
 } from "react-native-reanimated";
 import FontistoIcon from "react-native-vector-icons/Fontisto";
 import IonIcon from "react-native-vector-icons/Ionicons";
+import { toggleSummaryFavorite } from "../store/news";
 
 import { Summary } from "../types";
 import { convertDate } from "../util";
@@ -15,13 +16,14 @@ import SourceLogo from "./SourceLogo";
 
 interface Props {
   item: Summary;
+  onFavoriteToggle: () => void;
   onPress?: (e: any) => void;
   onSwipeLeft?: (id: number) => void;
 }
 
 const FULL_HORIZONTAL_THRESHOLD = 100; // px
 
-const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
+const NewsRow = ({ item, onFavoriteToggle, onPress, onSwipeLeft }: Props) => {
   const offset = useSharedValue({ x: 0, y: 0 });
   const start = useSharedValue({ x: 0, y: 0 });
   const mainAnimatedStyles = useAnimatedStyle(() => ({
@@ -113,6 +115,10 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
       }
     });
 
+  const toggleFavorite = (item: Summary) =>
+    toggleSummaryFavorite(item.id, !item.is_favorited).then(() => {
+      onFavoriteToggle();
+    });
   return (
     <>
       <GestureDetector
@@ -122,8 +128,6 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
         <Animated.View style={mainAnimatedStyles}>
           <ListItem
             bottomDivider
-            hasTVPreferredFocus={undefined}
-            tvParallaxProperties={undefined}
             style={{
               flexDirection: "row",
               justifyContent: "space-between",
@@ -135,6 +139,14 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
             }}
             onPress={onPress}
           >
+            <Icon
+              name="star"
+              type="font-awesome-5"
+              color={item.is_favorited ? "yellow" : "black"}
+              solid={item.is_favorited ? true : false}
+              onPress={() => toggleFavorite(item)}
+              size={30}
+            />
             <View
               style={{
                 flex: 1,
@@ -207,7 +219,6 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
                     type="font-awesome-5"
                     color="black"
                     size={16}
-                    tvParallaxProperties={undefined}
                   />
                 </Text>
                 <Text
@@ -237,7 +248,6 @@ const NewsRow = ({ item, onPress, onSwipeLeft }: Props) => {
                     type="font-awesome-5"
                     color="black"
                     size={16}
-                    tvParallaxProperties={undefined}
                   />
                 </Text>
               </View>
