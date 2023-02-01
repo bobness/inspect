@@ -76,6 +76,7 @@ export default function HomeScreen(props: Props) {
     ({ item }: any) => (
       <NewsRow
         item={item}
+        onFavoriteToggle={refreshNewsData}
         onPress={() => {
           navigation.navigate("NewsView", { data: item });
         }}
