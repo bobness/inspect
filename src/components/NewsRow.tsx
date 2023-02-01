@@ -8,7 +8,7 @@ import Animated, {
 } from "react-native-reanimated";
 import FontistoIcon from "react-native-vector-icons/Fontisto";
 import IonIcon from "react-native-vector-icons/Ionicons";
-import { toggleSummaryFavorite, updateSummary } from "../store/news";
+import { toggleSummaryFavorite } from "../store/news";
 
 import { Summary } from "../types";
 import { convertDate } from "../util";
