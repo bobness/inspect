@@ -282,11 +282,7 @@ export default function NewsViewScreen(props: Props) {
             navigation.goBack();
           }}
         >
-          <Icon
-            type="material"
-            name="chevron-left"
-            tvParallaxProperties={undefined}
-          />
+          <Icon type="material" name="chevron-left" />
         </TouchableOpacity>
       ),
       title: "INSPECT",
@@ -587,7 +583,6 @@ export default function NewsViewScreen(props: Props) {
                       title: text,
                     });
                   }}
-                  autoCompleteType={undefined}
                   multiline={true}
                 />
               )}
@@ -858,7 +853,6 @@ export default function NewsViewScreen(props: Props) {
                   type="font-awesome-5"
                   color={commentText?.length > 0 ? "black" : "#ccc"}
                   style={{ paddingHorizontal: 10 }}
-                  tvParallaxProperties={undefined}
                 />
                 <Text
                   style={{

@@ -17,6 +17,7 @@ export interface User {
   expo_token?: string;
   profile?: string;
   trusted_sources?: Source[];
+  show_favorites: boolean;
 }
 
 export interface AuthUser extends User {
