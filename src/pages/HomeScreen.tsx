@@ -152,12 +152,6 @@ export default function HomeScreen(props: Props) {
 
         <Button title="Search" onPress={toggleSearchOverlay} />
 
-        {newsData && newsData.length === 0 && (
-          <Text style={{ textAlign: "center", margin: 10 }}>
-            No news right now!
-          </Text>
-        )}
-
         {(!newsData || newsData.length === 0) &&
           authorsData &&
           authorsData.length > 0 && (
@@ -183,23 +177,22 @@ export default function HomeScreen(props: Props) {
             </View>
           )}
 
-        {newsData && newsData.length > 0 && (
-          <View
-            style={{
-              flex: 1,
-            }}
-          >
-            <Text style={{ color: "#ccc", textAlign: "center" }}>
-              Swipe left or right to archive
-            </Text>
-            <FlatList
-              data={newsData}
-              renderItem={renderNewsItem}
-              refreshing={isRefreshingNewsData}
-              onRefresh={() => refreshNewsData()}
-            />
-          </View>
-        )}
+        <View
+          style={{
+            flex: 1,
+          }}
+        >
+          <Text style={{ color: "#ccc", textAlign: "center" }}>
+            Swipe left or right to archive
+          </Text>
+          <FlatList
+            data={newsData}
+            renderItem={renderNewsItem}
+            refreshing={isRefreshingNewsData}
+            onRefresh={() => refreshNewsData()}
+            style={{ minHeight: 100 }}
+          />
+        </View>
 
         {!newsData && isRefreshingNewsData && <ActivityIndicator />}
 
