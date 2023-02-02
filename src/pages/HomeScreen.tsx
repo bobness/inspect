@@ -14,7 +14,6 @@ import NewsRow from "../components/NewsRow";
 import useUnreadArticles from "../hooks/useUnreadArticles";
 import SummaryListItem from "../components/SummaryListItem";
 import SearchOverlay from "../components/SearchOverlay";
-import useCurrentUserContext from "../hooks/useCurrentUserContext";
 
 interface Props {
   navigation: any;
@@ -23,26 +22,18 @@ interface Props {
 
 export default function HomeScreen(props: Props) {
   const isFocused = useIsFocused();
-  const currentUser = useCurrentUserContext();
 
   const { clearCurrentSummaryId, navigation } = props;
   const [authorsData, setAuthorsData] = useState<any[] | undefined>();
   const [isRefreshingAuthors, setRefreshingAuthors] = useState<boolean>(false);
   const [searchOverlayVisible, setSearchOverlayVisible] = useState(false);
-  const [showFavorites, setShowFavorites] = useState(true);
 
   const {
     articles: newsData,
     error,
     loading: isRefreshingNewsData,
     refresh: refreshNewsData,
-  } = useUnreadArticles({ showFavorites });
-
-  useEffect(() => {
-    if (currentUser) {
-      setShowFavorites(currentUser.show_favorites);
-    }
-  }, [currentUser]);
+  } = useUnreadArticles();
 
   useEffect(() => {
     if (error) {
@@ -53,10 +44,10 @@ export default function HomeScreen(props: Props) {
   useEffect(() => {
     if (isFocused) {
       clearCurrentSummaryId();
-      refreshNewsData(showFavorites);
+      refreshNewsData();
       handleAuthorRefresh();
     }
-  }, [isFocused, showFavorites]);
+  }, [isFocused]);
 
   const handleAuthorRefresh = () => {
     setRefreshingAuthors(true);
@@ -66,18 +57,15 @@ export default function HomeScreen(props: Props) {
     });
   };
 
-  const handleFollow = useCallback(
-    (user_id: number) => {
-      const postData = {
-        follower_id: user_id,
-      };
-      followAuthor(postData).then(() => {
-        handleAuthorRefresh();
-        refreshNewsData(showFavorites);
-      });
-    },
-    [showFavorites]
-  );
+  const handleFollow = useCallback((user_id: number) => {
+    const postData = {
+      follower_id: user_id,
+    };
+    followAuthor(postData).then(() => {
+      handleAuthorRefresh();
+      refreshNewsData();
+    });
+  }, []);
 
   /* TODO: VirtualizedList: You have a large list that is slow to update 
   - make sure your renderItem function renders components that follow React 
@@ -87,7 +75,7 @@ export default function HomeScreen(props: Props) {
     ({ item }: any) => (
       <NewsRow
         item={item}
-        onFavoriteToggle={() => refreshNewsData(showFavorites)}
+        onFavoriteToggle={() => refreshNewsData()}
         onPress={() => {
           navigation.navigate("NewsView", { data: item });
         }}
@@ -95,12 +83,12 @@ export default function HomeScreen(props: Props) {
           "worklet";
           // TODO: is called twice or more
           markAsRead(id).then(() => {
-            refreshNewsData(showFavorites);
+            refreshNewsData();
           });
         }}
       />
     ),
-    [showFavorites]
+    []
   );
 
   const renderAuthorItem = ({ item }: any) => (
@@ -204,18 +192,11 @@ export default function HomeScreen(props: Props) {
             <Text style={{ color: "#ccc", textAlign: "center" }}>
               Swipe left or right to archive
             </Text>
-            <CheckBox
-              title="Show Favorites"
-              checked={showFavorites}
-              onPress={() => {
-                setShowFavorites(!showFavorites);
-              }}
-            />
             <FlatList
               data={newsData}
               renderItem={renderNewsItem}
               refreshing={isRefreshingNewsData}
-              onRefresh={() => refreshNewsData(showFavorites)}
+              onRefresh={() => refreshNewsData()}
             />
           </View>
         )}
