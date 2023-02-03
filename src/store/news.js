@@ -1,7 +1,7 @@
 import { instance } from "./api";
 
-const getUnreadNews = (showFavorites) => {
-  return instance.get(`/unread_summaries?favorites=${showFavorites}`);
+const getUnreadNews = () => {
+  return instance.get(`/unread_summaries`);
 };
 
 const markAsRead = (id) => {
