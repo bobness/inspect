@@ -67,53 +67,54 @@ const NewsRow = ({ item, onFavoriteToggle, onPress, onSwipeLeft }: Props) => {
     }
   }, 100);
 
-  const horizontalPanGesture = Gesture.Pan()
-    .manualActivation(true)
-    .onTouchesDown((event, manager) => {
-      startPosition.value = {
-        x: event.changedTouches[0].x,
-        y: event.changedTouches[0].y,
-      };
-    })
-    .onTouchesMove((event, manager) => {
-      const lastPosition = {
-        x: event.changedTouches[0].x,
-        y: event.changedTouches[0].y,
-      };
-      const xMovement = lastPosition.x - startPosition.value.x;
-      const slope = (lastPosition.y - startPosition.value.y) / xMovement;
-      if (slope > -Infinity && Math.abs(slope) <= 1) {
-        manager.activate();
-      } else {
-        manager.fail();
-      }
-    })
-    .onUpdate((event) => {
-      if (event.state === State.ACTIVE && Math.abs(event.translationX) > 0) {
-        offset.value = {
-          x: event.translationX + start.value.x,
-          y: start.value.y,
+  const horizontalPanGesture = (item: Summary) =>
+    Gesture.Pan()
+      .manualActivation(true)
+      .onTouchesDown((event, manager) => {
+        startPosition.value = {
+          x: event.changedTouches[0].x,
+          y: event.changedTouches[0].y,
         };
-      }
-    })
-    .onEnd(() => {
-      if (Math.abs(offset.value.x) > FULL_HORIZONTAL_THRESHOLD) {
-        articleIdToArchive.value = item.id!;
-        if (offset.value.x < 0) {
-          offset.value = {
-            x: offset.value.x - 3000,
-            y: start.value.y,
-          };
+      })
+      .onTouchesMove((event, manager) => {
+        const lastPosition = {
+          x: event.changedTouches[0].x,
+          y: event.changedTouches[0].y,
+        };
+        const xMovement = lastPosition.x - startPosition.value.x;
+        const slope = (lastPosition.y - startPosition.value.y) / xMovement;
+        if (!item.is_favorited && slope > -Infinity && Math.abs(slope) <= 1) {
+          manager.activate();
         } else {
+          manager.fail();
+        }
+      })
+      .onUpdate((event) => {
+        if (event.state === State.ACTIVE && Math.abs(event.translationX) > 0) {
           offset.value = {
-            x: offset.value.x + 3000,
+            x: event.translationX + start.value.x,
             y: start.value.y,
           };
         }
-      } else {
-        offset.value = start.value;
-      }
-    });
+      })
+      .onEnd(() => {
+        if (Math.abs(offset.value.x) > FULL_HORIZONTAL_THRESHOLD) {
+          articleIdToArchive.value = item.id!;
+          if (offset.value.x < 0) {
+            offset.value = {
+              x: offset.value.x - 3000,
+              y: start.value.y,
+            };
+          } else {
+            offset.value = {
+              x: offset.value.x + 3000,
+              y: start.value.y,
+            };
+          }
+        } else {
+          offset.value = start.value;
+        }
+      });
 
   const toggleFavorite = (item: Summary) =>
     toggleSummaryFavorite(item.id, !item.is_favorited).then(() => {
@@ -122,7 +123,7 @@ const NewsRow = ({ item, onFavoriteToggle, onPress, onSwipeLeft }: Props) => {
   return (
     <>
       <GestureDetector
-        gesture={horizontalPanGesture}
+        gesture={horizontalPanGesture(item)}
         key={`summary #${item.id}`}
       >
         <Animated.View style={mainAnimatedStyles}>
