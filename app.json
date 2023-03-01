@@ -28,13 +28,25 @@
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 33,
+            "targetSdkVersion": 33,
+            "buildToolsVersion": "33.0.1",
+            "kotlinVersion": "1.6.10"
+          }
+        }
       ]
     ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "net.datagotchi.inspect",
       "buildNumber": "1",
-      "associatedDomains": ["applinks:inspect.datagotchi.net"]
+      "associatedDomains": ["applinks:inspect.datagotchi.net"],
+      "jsEngine": "jsc"
     },
     "android": {
       "adaptiveIcon": {
@@ -42,10 +54,7 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "net.datagotchi.inspect",
-      "compileSdkVersion": 33,
-      "targetSdkVersion": 33,
-      "buildToolsVersion": "33.0.0",
-      "kotlinVersion": "1.6.10"
+      "jsEngine": "hermes"
     },
     "description": "",
     "githubUrl": "https://github.com/bobness/inspect-app",
