@@ -68,6 +68,7 @@ interface RouteObejct {
 }
 
 export default function App() {
+  // TODO: figure out how to type this
   const navigationRef = useNavigationContainerRef();
   const [user, setUser] = useState<AuthUser | undefined>();
   const [notification, setNotification] = useState<Notification | undefined>();
@@ -180,6 +181,7 @@ export default function App() {
     // TODO: addNotificationReceivedListener may not be necessary; I don't even use the resulting 'notification' object
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
+        // @ts-expect-error not sure how to fix: Argument of type 'Notification' is not assignable to parameter of type 'SetStateAction<Notification | undefined>'
         setNotification(notification);
       });
 
@@ -209,6 +211,7 @@ export default function App() {
   const handleOnLogin = (userObject: AuthUser) => {
     AsyncStorage.setItem("@user", JSON.stringify(userObject));
     setUser(userObject);
+    // @ts-expect-error not sure how to type navigationRef
     navigationRef.navigate("Home");
   };
 

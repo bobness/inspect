@@ -61,11 +61,9 @@ export default function SummaryScreen(props: Props) {
   const [source, setSource] = useState<Source | undefined>();
   const titleInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
-  const [title, setTitle] = useState<string | undefined>();
   const [snippets, setSnippets] = useState<any[]>([]);
   const [newSnippet, setNewSnippet] = useState<any | undefined>();
-  const [defaultTitle, setDefaultTitle] = useState<string | undefined>();
-  const [useDefaultTitle, setUseDefaultTitle] = useState(false);
+  const [title, setTitle] = useState<string | undefined>();
 
   const currentUser = useCurrentUserContext();
 
@@ -116,7 +114,7 @@ export default function SummaryScreen(props: Props) {
     setCleanedUrl(cleanUrl(url));
     const baseUrl = parseBaseUrl(url);
     const title = await usePageTitle(url);
-    setDefaultTitle(title);
+    setTitle(title);
 
     await getSource(baseUrl).then((data) => {
       if (data) {
@@ -150,8 +148,6 @@ export default function SummaryScreen(props: Props) {
   const cleanup = useCallback(() => {
     setSource(undefined);
     setCleanedUrl(undefined);
-    setDefaultTitle(undefined);
-    setUseDefaultTitle(false);
     setTitle(undefined);
     delete data.weblink;
     delete data.text;
@@ -165,6 +161,7 @@ export default function SummaryScreen(props: Props) {
         title,
         user_id: currentUser.id,
         source_id: source?.id,
+        is_favorited: true,
       };
       const result = await createSummary(summary);
       if (
@@ -179,7 +176,7 @@ export default function SummaryScreen(props: Props) {
       }
       cleanup();
       setLoading(false);
-      navigation.navigate("Home");
+      navigation.navigate("NewsView", result);
     } else {
       Alert.alert("Please specify a title for your summary");
     }
@@ -236,12 +233,6 @@ export default function SummaryScreen(props: Props) {
     );
   };
 
-  useEffect(() => {
-    if (useDefaultTitle && defaultTitle) {
-      setTitle(defaultTitle);
-    }
-  }, [useDefaultTitle]);
-
   return (
     <KeyboardAvoidingView
       style={{
@@ -276,96 +267,37 @@ export default function SummaryScreen(props: Props) {
               {!loading && (
                 <>
                   <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
-                    {defaultTitle}
+                    {title}
                   </Text>
-
-                  <VoiceInput
-                    resultCallback={(text: string) => setTitle(text)}
-                  />
-                  <Input
-                    ref={titleInputRef}
-                    label="New Title"
-                    placeholder="New title that explains the factual contribution"
-                    value={title}
-                    editable={!currentSummaryId}
-                    onChangeText={(text: string) => {
-                      if (text !== defaultTitle) {
-                        setUseDefaultTitle(false);
-                      }
-                      setTitle(text);
-                    }}
-                    autoCompleteType={undefined}
-                    multiline={true}
-                  />
                 </>
-              )}
-              {title && title.length > 50 && (
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: "column",
-                    margin: 5,
-                    padding: 5,
-                    justifyContent: "flex-start",
-                    alignItems: "center",
-                    maxHeight: 70,
-                  }}
-                >
-                  <Icon
-                    name="exclamation-triangle"
-                    type="font-awesome-5"
-                    color="orange"
-                    size={16}
-                    tvParallaxProperties={undefined}
-                  />
-                  <Text style={{ color: "orange", textAlign: "center" }}>
-                    Length is greater than 50 {"\n"}
-                    So it may not show up correctly on Facebook
-                  </Text>
-                </View>
-              )}
-              {!currentSummaryId && defaultTitle && (
-                <CheckBox
-                  title="Use existing title?"
-                  checked={useDefaultTitle}
-                  onPress={() => setUseDefaultTitle(!useDefaultTitle)}
-                />
               )}
               {/* TODO: turn into its own component */}
               {currentSummaryId && (
-                <>
-                  <ScrollView>
-                    {snippets.map((snippet) => (
-                      <Text
-                        key={`snippet #${snippet.id}`}
-                        style={{
-                          opacity: 0.5,
-                        }}
-                      >
-                        {snippet.value}
-                      </Text>
-                    ))}
-                    <View
-                      key="new snippet"
+                <ScrollView>
+                  {snippets.map((snippet) => (
+                    <Text
+                      key={`snippet #${snippet.id}`}
                       style={{
-                        borderRadius: 5,
-                        borderWidth: 1,
-                        borderColor: "black",
-                        borderStyle: "dashed",
-                        backgroundColor: "#ccc",
-                        padding: 10,
+                        opacity: 0.5,
                       }}
                     >
-                      <Text>{newSnippet?.value}</Text>
-                    </View>
-                    {newSnippet?.value.length > 1000 && (
-                      <Text style={{ color: "red" }}>
-                        WARNING: your selection is greater than the max length
-                        (1000), so updating may not work
-                      </Text>
-                    )}
-                  </ScrollView>
-                </>
+                      {snippet.value}
+                    </Text>
+                  ))}
+                  <View
+                    key="new snippet"
+                    style={{
+                      borderRadius: 5,
+                      borderWidth: 1,
+                      borderColor: "black",
+                      borderStyle: "dashed",
+                      backgroundColor: "#ccc",
+                      padding: 10,
+                    }}
+                  >
+                    <Text>{newSnippet?.value}</Text>
+                  </View>
+                </ScrollView>
               )}
               {currentSummaryId && (
                 <Button title="Update Summary" onPress={submitUpdate} />

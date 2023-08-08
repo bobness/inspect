@@ -50,6 +50,7 @@ import {
   postComment,
   postReaction,
   postShare,
+  toggleSummaryFavorite,
   unfollowAuthor,
   updateSummary,
 } from "../store/news";
@@ -80,7 +81,7 @@ export default function NewsViewScreen(props: Props) {
     setCurrentSummaryId,
   } = props;
   let richText: any = useRef(null);
-  const [newsData, setNewsData] = useState<Summary | undefined>();
+  const [newsData, setNewsData] = useState<Summary | undefined>(data);
   const [selectedCommentId, setSelectedCommentId] = useState<
     number | undefined
   >();
@@ -139,8 +140,9 @@ export default function NewsViewScreen(props: Props) {
   }, []);
 
   useEffect(() => {
-    // TODO: add logic to possibly not refresh when navigating here from HomeScreen because `data` already contains everything
-    handleRefresh();
+    if (!newsData?.title) {
+      handleRefresh();
+    }
   }, [data]);
 
   useEffect(() => {
@@ -329,6 +331,11 @@ export default function NewsViewScreen(props: Props) {
     }
   };
 
+  const handleFollowerShare = async (summary: Summary) => {
+    await toggleSummaryFavorite(summary.id, false);
+    navigation.navigate("Home");
+  };
+
   const handleEmojiSelect = async (emoji: string, snippetId?: number) => {
     setEmojiSelectorIsVisible(false);
     await postReaction({
@@ -433,15 +440,15 @@ export default function NewsViewScreen(props: Props) {
                 width: "100%",
               }}
             >
-              <View style={{ flex: 1 }}>
-                {/* <Icon
+              {/* <View style={{ flex: 1 }}>
+              <Icon
                   name="file-alt"
                   type="font-awesome-5"
                   color="black"
                   size={50}
                   tvParallaxProperties={undefined}
-                /> */}
-              </View>
+                />
+              </View> */}
 
               <TouchableOpacity
                 onPress={() => {
@@ -478,6 +485,24 @@ export default function NewsViewScreen(props: Props) {
                   </Text>
                 </View>
               </TouchableOpacity>
+
+              {newsData?.is_favorited && (
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: "green" }}>
+                    Summary successfully created! {"\n\n"}
+                    Now you can add a reaction, a comment, or a snippet from the
+                    article, along with a new title that explains what it's
+                    actually about.{"\n\n"}
+                    When you're done:
+                  </Text>
+                  <Button
+                    title="Click here to share with your followers"
+                    titleStyle={{ color: "black" }}
+                    buttonStyle={{ backgroundColor: "green" }}
+                    onPress={() => handleFollowerShare(newsData)}
+                  />
+                </View>
+              )}
 
               <View style={{ flex: 1 }}>
                 {newsData &&

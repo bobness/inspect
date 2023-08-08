@@ -90,5 +90,5 @@ export interface Summary {
   author_id: number;
   followers: Follower[];
   flagged_by?: number;
-  is_favorited?: boolean;
+  is_favorited?: boolean; // TODO: rename
 }
