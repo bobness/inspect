@@ -161,7 +161,7 @@ export default function SummaryScreen(props: Props) {
         title,
         user_id: currentUser.id,
         source_id: source?.id,
-        is_favorited: true,
+        is_public: false,
       };
       const result = await createSummary(summary);
       if (

@@ -83,7 +83,7 @@ const NewsRow = ({ item, onFavoriteToggle, onPress, onSwipeLeft }: Props) => {
         };
         const xMovement = lastPosition.x - startPosition.value.x;
         const slope = (lastPosition.y - startPosition.value.y) / xMovement;
-        if (!item.is_favorited && slope > -Infinity && Math.abs(slope) <= 1) {
+        if (item.is_public && slope > -Infinity && Math.abs(slope) <= 1) {
           manager.activate();
         } else {
           manager.fail();
@@ -116,10 +116,6 @@ const NewsRow = ({ item, onFavoriteToggle, onPress, onSwipeLeft }: Props) => {
         }
       });
 
-  const toggleFavorite = (item: Summary) =>
-    toggleSummaryFavorite(item.id, !item.is_favorited).then(() => {
-      onFavoriteToggle();
-    });
   return (
     <>
       <GestureDetector
@@ -140,14 +136,9 @@ const NewsRow = ({ item, onFavoriteToggle, onPress, onSwipeLeft }: Props) => {
             }}
             onPress={onPress}
           >
-            <Icon
-              name="star"
-              type="font-awesome-5"
-              color={item.is_favorited ? "yellow" : "black"}
-              solid={item.is_favorited ? true : false}
-              onPress={() => toggleFavorite(item)}
-              size={30}
-            />
+            {item.is_public && (
+              <Icon name="wrench" type="font-awesome-5" size={30} />
+            )}
             <View
               style={{
                 flex: 1,

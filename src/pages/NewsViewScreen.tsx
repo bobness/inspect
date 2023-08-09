@@ -486,7 +486,7 @@ export default function NewsViewScreen(props: Props) {
                 </View>
               </TouchableOpacity>
 
-              {newsData?.is_favorited && (
+              {!newsData?.is_public && (
                 <View style={{ flex: 1 }}>
                   <Text style={{ color: "green" }}>
                     Summary successfully created! {"\n\n"}
