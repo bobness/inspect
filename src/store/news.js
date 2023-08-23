@@ -90,12 +90,8 @@ const postShare = (summaryId, service, message) => {
     .then((res) => res.data);
 };
 
-const toggleSummaryFavorite = (summaryId, favorited) => {
-  if (favorited) {
-    return instance.post("/favorites", { summary_id: summaryId });
-  } else {
-    return instance.delete("/favorites/" + summaryId);
-  }
+const makeSummaryPublic = (summaryId) => {
+  return instance.delete("/favorites/" + summaryId);
 };
 
 export {
@@ -120,5 +116,5 @@ export {
   postShare,
   blockUser,
   unblockUser,
-  toggleSummaryFavorite,
+  makeSummaryPublic as toggleSummaryFavorite,
 };

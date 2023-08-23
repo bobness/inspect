@@ -1,7 +1,12 @@
 import React, { useCallback } from "react";
 import { View } from "react-native";
 import { Avatar, Icon, ListItem, Text } from "react-native-elements";
-import { Gesture, GestureDetector, State } from "react-native-gesture-handler";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+  State,
+} from "react-native-gesture-handler";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -34,8 +39,8 @@ const NewsRow = ({ item, onFavoriteToggle, onPress, onSwipeLeft }: Props) => {
       width: Math.abs(offset.value.x),
       borderColor: "gray",
       borderWidth: Math.abs(offset.value.x) >= 2 ? 1 : 0,
-      left: offset.value.x > 0 ? -offset.value.x : "auto",
-      right: offset.value.x < 0 ? offset.value.x : "auto",
+      left: offset.value.x > 0 ? -offset.value.x : ("auto" as "auto"),
+      right: offset.value.x < 0 ? offset.value.x : ("auto" as "auto"),
       position: "absolute" as const,
       top: -1,
       bottom: -1,
@@ -117,7 +122,7 @@ const NewsRow = ({ item, onFavoriteToggle, onPress, onSwipeLeft }: Props) => {
       });
 
   return (
-    <>
+    <GestureHandlerRootView>
       <GestureDetector
         gesture={horizontalPanGesture(item)}
         key={`summary #${item.id}`}
@@ -136,8 +141,8 @@ const NewsRow = ({ item, onFavoriteToggle, onPress, onSwipeLeft }: Props) => {
             }}
             onPress={onPress}
           >
-            {item.is_public && (
-              <Icon name="wrench" type="font-awesome-5" size={30} />
+            {!item.is_public && (
+              <Icon name="wrench" type="font-awesome-5" size={30} color="red" />
             )}
             <View
               style={{
@@ -262,7 +267,7 @@ const NewsRow = ({ item, onFavoriteToggle, onPress, onSwipeLeft }: Props) => {
           </ListItem>
         </Animated.View>
       </GestureDetector>
-    </>
+    </GestureHandlerRootView>
   );
 };
 

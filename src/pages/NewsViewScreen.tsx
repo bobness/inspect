@@ -379,7 +379,7 @@ export default function NewsViewScreen(props: Props) {
   }, [newsData, newSnippetValue]);
 
   const followerIds = useMemo(() => {
-    if (newsData) {
+    if (newsData?.followers) {
       return newsData.followers.map((f) => Number(f.follower_id));
     }
   }, [newsData]);
@@ -432,6 +432,24 @@ export default function NewsViewScreen(props: Props) {
               flexDirection: "column",
             }}
           >
+            {!newsData?.is_public && (
+              <View style={{ flex: 1, marginBottom: 5 }}>
+                <Text style={{ color: "green" }}>
+                  Summary successfully created! {"\n\n"}
+                  Now you can add a reaction, a comment, or a snippet from the
+                  article, along with a new title that explains what it's
+                  actually about.{"\n\n"}
+                  When you're done:
+                </Text>
+                <Button
+                  title="Click here to share with your followers"
+                  titleStyle={{ color: "white" }}
+                  buttonStyle={{ backgroundColor: "green" }}
+                  onPress={() => handleFollowerShare(newsData)}
+                />
+              </View>
+            )}
+
             <View
               style={{
                 flexShrink: 1,
@@ -449,7 +467,6 @@ export default function NewsViewScreen(props: Props) {
                   tvParallaxProperties={undefined}
                 />
               </View> */}
-
               <TouchableOpacity
                 onPress={() => {
                   navigation.navigate("AuthorView", {
@@ -485,25 +502,6 @@ export default function NewsViewScreen(props: Props) {
                   </Text>
                 </View>
               </TouchableOpacity>
-
-              {!newsData?.is_public && (
-                <View style={{ flex: 1 }}>
-                  <Text style={{ color: "green" }}>
-                    Summary successfully created! {"\n\n"}
-                    Now you can add a reaction, a comment, or a snippet from the
-                    article, along with a new title that explains what it's
-                    actually about.{"\n\n"}
-                    When you're done:
-                  </Text>
-                  <Button
-                    title="Click here to share with your followers"
-                    titleStyle={{ color: "black" }}
-                    buttonStyle={{ backgroundColor: "green" }}
-                    onPress={() => handleFollowerShare(newsData)}
-                  />
-                </View>
-              )}
-
               <View style={{ flex: 1 }}>
                 {newsData &&
                   currentUser &&
@@ -701,7 +699,7 @@ export default function NewsViewScreen(props: Props) {
                   }}
                 >
                   <IonIcon name="share-social" /> Share (
-                  {newsData.shares.length})
+                  {newsData.shares?.length})
                 </Text>
               </View>
             </View>
