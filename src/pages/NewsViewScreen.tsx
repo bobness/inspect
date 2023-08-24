@@ -50,7 +50,6 @@ import {
   postComment,
   postReaction,
   postShare,
-  toggleSummaryFavorite,
   unfollowAuthor,
   updateSummary,
 } from "../store/news";
@@ -332,7 +331,7 @@ export default function NewsViewScreen(props: Props) {
   };
 
   const handleFollowerShare = async (summary: Summary) => {
-    await toggleSummaryFavorite(summary.id, false);
+    await updateSummary(summary.id, { is_public: true });
     navigation.navigate("Home");
   };
 

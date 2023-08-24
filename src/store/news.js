@@ -90,10 +90,6 @@ const postShare = (summaryId, service, message) => {
     .then((res) => res.data);
 };
 
-const makeSummaryPublic = (summaryId) => {
-  return instance.delete("/favorites/" + summaryId);
-};
-
 export {
   getUnreadNews,
   markAsRead,
@@ -116,5 +112,4 @@ export {
   postShare,
   blockUser,
   unblockUser,
-  makeSummaryPublic as toggleSummaryFavorite,
 };
