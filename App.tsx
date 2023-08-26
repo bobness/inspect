@@ -28,12 +28,19 @@ import NewsViewScreen from "./src/pages/NewsViewScreen";
 import AuthorViewScreen from "./src/pages/AuthorViewScreen";
 import ProfileScreen from "./src/pages/ProfileScreen";
 import { updateUserExpoToken } from "./src/store/auth";
-import SummaryScreen from "./src/pages/SummaryScreen";
 import { Subscription } from "expo-modules-core";
 import { instance } from "./src/store/api";
 import { AuthUser, User } from "./src/types";
 import CurrentUserContext from "./src/contexts/CurrentUserContext";
 import AboutScreen from "./src/pages/AboutScreen";
+import {
+  createSource,
+  createSummary,
+  getSource,
+  updateSummary,
+} from "./src/store/news";
+import { cleanUrl, parseBaseUrl } from "./src/util";
+import usePageTitle from "./src/hooks/usePageTitle";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -132,18 +139,50 @@ export default function App() {
     }
   );
 
-  const handleShare = useCallback(([shareObject]: ShareObject[]) => {
-    setDesiredRoute({
-      path: "CreateSummary",
-      args: {
-        data: shareObject,
-      },
-    });
-  }, []);
+  const processSharedUrl = async (url: string) => {
+    const cleanedUrl = cleanUrl(url);
+    const baseUrl = parseBaseUrl(url);
+    if (baseUrl && cleanedUrl) {
+      let source = await getSource(baseUrl);
+      if (!source) {
+        source = await createSource(baseUrl);
+      }
+      const title = await usePageTitle(baseUrl);
+      const newSummary = await createSummary({
+        url: cleanedUrl,
+        title,
+        source_id: source.id,
+      });
+      // @ts-expect-error not sure how to type navigationRef
+      navigationRef.navigate("NewsView", { data: { id: newSummary.id } });
+    }
+  };
+
+  const urlRegex = useMemo(() => RegExp(/https?:\/\S+/), []);
+
   ReceiveSharingIntent.getReceivedFiles(
-    handleShare,
+    async ([shareObject]: ShareObject[]) => {
+      if (currentSummaryId && shareObject.text) {
+        await updateSummary(currentSummaryId, {
+          snippets: [shareObject.text],
+        });
+        setCurrentSummaryId(undefined);
+        // @ts-expect-error not sure how to type navigationRef
+        navigationRef.navigate("NewsView", { data: { id: newSummary.id } });
+      } else {
+        if (shareObject.weblink) {
+          processSharedUrl(shareObject.weblink);
+        } else if (shareObject.text) {
+          // Google News returns the url in the text object, not weblink
+          const match = shareObject.text.match(urlRegex);
+          if (match) {
+            processSharedUrl(match[0]);
+          }
+        }
+      }
+    },
     (error: any) => {
-      console.error(error);
+      console.error(`Error sharing into Inspect: ${error}`);
     },
     "net.datagotchi.inspect"
   );
@@ -300,11 +339,6 @@ export default function App() {
           <Stack.Screen name="My Profile" options={{ headerShown: true }}>
             {(props: any) => (
               <ProfileScreen {...props} setCurrentUser={setUser} />
-            )}
-          </Stack.Screen>
-          <Stack.Screen name="CreateSummary" options={{ headerShown: false }}>
-            {(props: any) => (
-              <SummaryScreen {...props} currentSummaryId={currentSummaryId} />
             )}
           </Stack.Screen>
           <Stack.Screen

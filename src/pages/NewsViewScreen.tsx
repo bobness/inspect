@@ -50,6 +50,7 @@ import {
   postComment,
   postReaction,
   postShare,
+  sendNotification,
   unfollowAuthor,
   updateSummary,
 } from "../store/news";
@@ -61,6 +62,7 @@ import Snippet from "../components/Snippet";
 import useCurrentUserContext from "../hooks/useCurrentUserContext";
 import VoiceInput from "../components/VoiceInput";
 import SourceLogo from "../components/SourceLogo";
+import { instance } from "../store/api";
 
 interface Props {
   route: {
@@ -332,6 +334,18 @@ export default function NewsViewScreen(props: Props) {
 
   const handleFollowerShare = async (summary: Summary) => {
     await updateSummary(summary.id, { is_public: true });
+    if (
+      instance.defaults.baseURL &&
+      !instance.defaults.baseURL.includes("localhost")
+    ) {
+      await sendNotification({
+        notification_title: `A summary was created${
+          currentUser?.username ? ` by ${currentUser.username}` : ""
+        }!`,
+        summary_title: summary.title,
+        summary_id: summary.id,
+      });
+    }
     navigation.navigate("Home");
   };
 
