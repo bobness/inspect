@@ -16,7 +16,6 @@ export default function BottomToolbar({ navigation }: any) {
   const doCreateSummary = useCallback(async () => {
     if (summaryUrl) {
       setLoading(true);
-      // navigation.navigate("CreateSummary", { data: { weblink: summaryUrl } });
       const baseUrl = parseBaseUrl(summaryUrl);
       await getSource(baseUrl).then((data) => {
         if (data) {
@@ -34,10 +33,11 @@ export default function BottomToolbar({ navigation }: any) {
     if (summaryUrl && source?.id) {
       usePageTitle(summaryUrl).then((title) => {
         createSummary({ url: summaryUrl, title, source_id: source.id }).then(
-          () => {
+          (newSummary) => {
             setLoading(false);
             setSummaryUrlModalVisible(false);
             setSummaryUrl(undefined);
+            navigation.navigate("NewsView", { data: newSummary });
           }
         );
       });

@@ -82,7 +82,7 @@ export interface Summary {
   updated_at: string;
   comments: Comment[];
   reactions: Reaction[];
-  snippets: Snippet[];
+  snippets?: Snippet[];
   shares: Share[];
   author: User;
   is_watched?: boolean;

@@ -764,12 +764,13 @@ export default function NewsViewScreen(props: Props) {
                   style={{ flex: 1, height: 1, backgroundColor: "black" }}
                 />
               </View>
-              {newsData.snippets.length === 0 && (
-                <Text style={{ textAlign: "center", padding: 10 }}>
-                  (None yet added)
-                </Text>
-              )}
-              {newsData.snippets.map((snippet) => (
+              {!newsData.snippets ||
+                (newsData.snippets.length === 0 && (
+                  <Text style={{ textAlign: "center", padding: 10 }}>
+                    (None yet added)
+                  </Text>
+                ))}
+              {newsData.snippets?.map((snippet) => (
                 <Snippet
                   snippet={snippet}
                   comments={newsData.comments.filter(
