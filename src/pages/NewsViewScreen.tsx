@@ -105,13 +105,11 @@ export default function NewsViewScreen(props: Props) {
   const currentUser = useCurrentUserContext();
 
   const handleRefresh = async () => {
-    setLoading(true);
     if (data.id) {
       await getNewsDataById(data.id);
     } else if (data.uid) {
       await getNewsDataByUid(data.uid);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -122,18 +120,20 @@ export default function NewsViewScreen(props: Props) {
 
   const getNewsDataById = (id: number) => {
     setLoading(true);
-    return getNewsById(id).then((result) => {
-      setNewsData(result);
-      setLoading(false);
-    });
+    return getNewsById(id)
+      .then((result) => {
+        setNewsData(result);
+      })
+      .finally(() => setLoading(false));
   };
 
   const getNewsDataByUid = (uid: string) => {
     setLoading(true);
-    return getNewsByUid(uid).then((result) => {
-      setNewsData(result);
-      setLoading(false);
-    });
+    return getNewsByUid(uid)
+      .then((result) => {
+        setNewsData(result);
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -196,16 +196,12 @@ export default function NewsViewScreen(props: Props) {
     return responseArray;
   }, [topReactionsMap]);
 
-  const toggleCommentOverlay = (openState?: boolean, snippetId?: number) => {
+  const toggleCommentOverlay = (openState: boolean, snippetId?: number) => {
     if (openState === false || visibleCommentModal) {
       setCommentText("");
       setSelectedCommentId(undefined);
     }
-    if (openState !== undefined) {
-      setVisibleCommentModal(openState);
-    } else {
-      setVisibleCommentModal(!visibleCommentModal);
-    }
+    setVisibleCommentModal(openState);
     if (snippetId) {
       setSelectedSnippetId(snippetId);
     }
@@ -243,7 +239,7 @@ export default function NewsViewScreen(props: Props) {
     };
     postComment(commentData).then(() => {
       toggleCommentOverlay(false);
-      getNewsDataById(data.id);
+      handleRefresh();
     });
   };
 
