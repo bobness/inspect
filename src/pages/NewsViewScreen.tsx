@@ -141,7 +141,7 @@ export default function NewsViewScreen(props: Props) {
   }, []);
 
   useEffect(() => {
-    if (!newsData?.title) {
+    if (!newsData) {
       handleRefresh();
     }
   }, [data]);
@@ -640,14 +640,16 @@ export default function NewsViewScreen(props: Props) {
                 alignItems: "center",
               }}
             >
-              <Text style={{ color: "gray" }}>
-                {newsData.updated_at &&
-                  newsData.updated_at === newsData.created_at &&
-                  `Created ${convertDate(newsData.updated_at)}`}
-                {newsData.updated_at &&
-                  newsData.updated_at !== newsData.created_at &&
-                  `Updated ${convertDate(newsData.updated_at)}`}
-              </Text>
+              <View style={{ flex: 1, flexDirection: "column" }}>
+                <Text style={{ color: "gray" }}>
+                  Created {convertDate(newsData.created_at)}
+                </Text>
+                <Text style={{ color: "gray" }}>
+                  {newsData.updated_at &&
+                    newsData.updated_at !== newsData.created_at &&
+                    `Updated ${convertDate(newsData.updated_at)}`}
+                </Text>
+              </View>
               <CheckBox
                 title="Watch"
                 checked={watchIsEnabled}
