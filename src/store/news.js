@@ -44,6 +44,10 @@ const postComment = (commentData) => {
   return instance.post("/comments", commentData);
 };
 
+const deleteComment = (commentId) => {
+  return instance.delete(`/comments/${commentId}`);
+};
+
 const postReaction = (reactionData) => {
   return instance.post("/reactions", reactionData);
 };
@@ -99,6 +103,7 @@ export {
   getNewsById,
   createSummary,
   postComment,
+  deleteComment,
   postReaction,
   deleteSummary,
   getSuggestAuthors,

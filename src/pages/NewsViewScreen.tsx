@@ -675,6 +675,7 @@ export default function NewsViewScreen(props: Props) {
                     <CommentRow
                       item={comment}
                       navigation={navigation}
+                      refreshFunc={handleRefresh}
                       key={`comment #${comment.id}`}
                     />
                   ))}
