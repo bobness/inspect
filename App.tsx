@@ -134,6 +134,7 @@ export default function App() {
     (error) => {
       if (error?.response?.status === 401) {
         setDesiredRoute({ path: "Login" });
+        return;
       }
       return error;
     }

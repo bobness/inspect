@@ -28,8 +28,8 @@ instance.interceptors.response.use(
   async (error) => {
     const { status } = error.response;
     if (status === 401) {
-      // await AsyncStorage.removeItem("@user");
       await AsyncStorage.removeItem("@access_token");
+      return;
     }
     throw error;
   }
