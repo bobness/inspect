@@ -356,6 +356,7 @@ export default function NewsViewScreen(props: Props) {
   };
 
   const goToUrl = (newsData: Summary) => {
+    console.log("*** setting currentSummaryId to: ", newsData.id);
     setCurrentSummaryId(newsData.id);
     Linking.openURL(newsData.url);
   };

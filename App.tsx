@@ -57,7 +57,7 @@ Notifications.setNotificationHandler({
 TaskManager.defineTask(
   BACKGROUND_NOTIFICATION_TASK,
   ({ data, error, executionInfo }) => {
-    console.log("Received a notification in the background!");
+    // console.log("Received a notification in the background!");
     // Do something with the notification data
   }
 );
@@ -148,14 +148,14 @@ export default function App() {
       if (!source) {
         source = await createSource(baseUrl);
       }
-      const title = await usePageTitle(baseUrl);
+      const title = await usePageTitle(cleanedUrl);
       const newSummary = await createSummary({
         url: cleanedUrl,
         title,
         source_id: source.id,
       });
       // @ts-expect-error not sure how to type navigationRef
-      navigationRef.navigate("NewsView", { data: { id: newSummary.id } });
+      navigationRef.navigate("NewsView", { data: newSummary });
     }
   };
 
@@ -181,6 +181,7 @@ export default function App() {
           }
         }
       }
+      ReceiveSharingIntent.clearReceivedFiles();
     },
     (error: any) => {
       console.error(`Error sharing into Inspect: ${error}`);
@@ -264,8 +265,6 @@ export default function App() {
       setDesiredRoute({ path: "NewsView", args: { data: { uid } } });
     }
   }, [deepLinkUrl]);
-
-  // ReceiveSharingIntent.clearReceivedFiles();
 
   useEffect(() => {
     if (

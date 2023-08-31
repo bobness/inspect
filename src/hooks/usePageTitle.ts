@@ -6,9 +6,11 @@ const usePageTitle = async (url: string) => {
   const isTitleEnd = (html: string, i: number) =>
     html.substring(i, i + 8) === "</title>";
 
+  console.log("*** getting url: ", url);
   const result = await instance.get<string>(url, {
     headers: { "Content-Type": "text/html" },
   });
+  console.log("*** html GET result: ", result);
   const html = result.data;
   let withinTitleTag = false;
   let titleString = "";
