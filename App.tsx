@@ -41,6 +41,7 @@ import {
 } from "./src/store/news";
 import { cleanUrl, parseBaseUrl } from "./src/util";
 import usePageTitle from "./src/hooks/usePageTitle";
+import { useSharedValue } from "react-native-reanimated";
 
 const Stack: any = createNativeStackNavigator();
 
@@ -161,23 +162,33 @@ export default function App() {
 
   const urlRegex = useMemo(() => RegExp(/https?:\/\S+/), []);
 
+  let currentShare = useSharedValue("");
   ReceiveSharingIntent.getReceivedFiles(
     async ([shareObject]: ShareObject[]) => {
       if (currentSummaryId && shareObject.text) {
-        await updateSummary(currentSummaryId, {
-          snippets: [shareObject.text],
-        });
-        setCurrentSummaryId(undefined);
-        // @ts-expect-error not sure how to type navigationRef
-        navigationRef.navigate("NewsView", { data: { id: newSummary.id } });
+        if (!currentShare.value) {
+          currentShare.value = shareObject.text;
+          await updateSummary(currentSummaryId, {
+            snippets: [shareObject.text],
+          });
+          setCurrentSummaryId(undefined);
+          // @ts-expect-error not sure how to type navigationRef
+          navigationRef.navigate("NewsView", { data: { id: newSummary.id } });
+        }
       } else {
         if (shareObject.weblink) {
-          processSharedUrl(shareObject.weblink);
+          if (!currentShare.value) {
+            currentShare.value = shareObject.weblink;
+            processSharedUrl(shareObject.weblink);
+          }
         } else if (shareObject.text) {
           // Google News returns the url in the text object, not weblink
           const match = shareObject.text.match(urlRegex);
           if (match) {
-            processSharedUrl(match[0]);
+            if (!currentShare.value) {
+              currentShare.value = match[0];
+              processSharedUrl(match[0]);
+            }
           }
         }
       }
