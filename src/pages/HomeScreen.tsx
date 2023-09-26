@@ -59,7 +59,7 @@ export default function HomeScreen(props: Props) {
 
   const handleFollow = useCallback((user_id: number) => {
     const postData = {
-      follower_id: user_id,
+      author_id: user_id,
     };
     followAuthor(postData).then(() => {
       handleAuthorRefresh();
