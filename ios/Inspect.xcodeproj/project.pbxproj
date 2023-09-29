@@ -243,13 +243,13 @@
 				LastUpgradeCheck = 1410;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
+						DevelopmentTeam = 77L3RUTG3X;
 						LastSwiftMigration = 1250;
-						DevelopmentTeam = "77L3RUTG3X";
 						ProvisioningStyle = Automatic;
 					};
 					F7A714BA28B3235400EE0082 = {
 						CreatedOnToolsVersion = 13.4.1;
-						DevelopmentTeam = "77L3RUTG3X";
+						DevelopmentTeam = 77L3RUTG3X;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -506,7 +506,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "77L3RUTG3X";
+				DEVELOPMENT_TEAM = 77L3RUTG3X;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -549,7 +549,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "77L3RUTG3X";
+				DEVELOPMENT_TEAM = 77L3RUTG3X;
 				INFOPLIST_FILE = Inspect/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -707,10 +707,11 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = inspect_share/inspect_share.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "77L3RUTG3X";
+				DEVELOPMENT_TEAM = 77L3RUTG3X;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 77L3RUTG3X;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -738,7 +739,6 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CODE_SIGN_IDENTITY = "Apple Development";
 			};
 			name = Debug;
 		};
@@ -753,11 +753,12 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = inspect_share/inspect_share.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "77L3RUTG3X";
+				DEVELOPMENT_TEAM = 77L3RUTG3X;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 77L3RUTG3X;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -784,7 +785,6 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CODE_SIGN_IDENTITY = "Apple Development";
 			};
 			name = Release;
 		};
