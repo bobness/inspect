@@ -37,7 +37,12 @@ export default function HomeScreen(props: Props) {
 
   useEffect(() => {
     if (error) {
-      alert("Error in getting unread news: " + error.toString());
+      // TODO: check an error code rather than message
+      if (error.message.includes("401")) {
+        return navigation.navigate("Login", {});
+      } else {
+        return alert("Error in getting unread news: " + error.toString());
+      }
     }
   }, [error]);
 

@@ -134,8 +134,8 @@ export default function App() {
     (response) => response,
     (error) => {
       if (error?.response?.status === 401) {
-        setDesiredRoute({ path: "Login" });
-        return;
+        AsyncStorage.removeItem("@access_token");
+        return setDesiredRoute({ path: "Login" });
       }
       return error;
     }
@@ -374,6 +374,7 @@ async function registerForPushNotificationsAsync() {
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
     }
+    // FIXME: put in a loop until it is granted
     if (finalStatus !== "granted") {
       alert("Failed to get push token for push notification");
       return;

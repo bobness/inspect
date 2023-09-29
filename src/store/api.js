@@ -23,16 +23,4 @@ const removeToken = () => {
 
 setToken();
 
-instance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const { status } = error.response;
-    if (status === 401) {
-      await AsyncStorage.removeItem("@access_token");
-      return;
-    }
-    throw error;
-  }
-);
-
 export { instance, setToken, removeToken };
