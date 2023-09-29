@@ -440,9 +440,9 @@ export default function NewsViewScreen(props: Props) {
               <View style={{ flex: 1, marginBottom: 5 }}>
                 <Text style={{ color: "green" }}>
                   Summary successfully created! {"\n\n"}
-                  Now you can add a reaction, a comment, or a snippet from the
-                  article, along with a new title that explains what it's
-                  actually about.{"\n\n"}
+                  After reading the article, you should add a reaction, a
+                  comment, and/or a snippet from it, along with setting a new
+                  title that explains what it's actually about.{"\n\n"}
                   When you're done:
                 </Text>
                 <Button
