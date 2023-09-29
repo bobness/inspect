@@ -290,7 +290,7 @@ export default function NewsViewScreen(props: Props) {
 
   const handleFollow = useCallback((user_id: number) => {
     const postData = {
-      follower_id: user_id,
+      author_id: user_id,
     };
     followAuthor(postData).then(() => {
       handleRefresh();
@@ -330,18 +330,13 @@ export default function NewsViewScreen(props: Props) {
 
   const handleFollowerShare = async (summary: Summary) => {
     await updateSummary(summary.id, { is_public: true });
-    if (
-      instance.defaults.baseURL &&
-      !instance.defaults.baseURL.includes("localhost")
-    ) {
-      await sendNotification({
-        notification_title: `A summary was created${
-          currentUser?.username ? ` by ${currentUser.username}` : ""
-        }!`,
-        summary_title: summary.title,
-        summary_id: summary.id,
-      });
-    }
+    await sendNotification({
+      notification_title: `A summary was created${
+        currentUser?.username ? ` by ${currentUser.username}` : ""
+      }!`,
+      summary_title: summary.title,
+      summary_id: summary.id,
+    });
     navigation.navigate("Home");
   };
 
