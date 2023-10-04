@@ -438,31 +438,35 @@ export default function NewsViewScreen(props: Props) {
             }}
           >
             {!newsData?.is_public && (
-              <View style={{ flex: 1, marginBottom: 5 }}>
+              <View style={{ flex: 1, flexDirection: "row", marginBottom: 5 }}>
                 <Text style={{ color: "green" }}>
                   Summary successfully created! {"\n\n"}
                   After reading the article, you should set a new title that
                   explains what it's actually about, add a snippet from it, your
                   reaction, and a comment.{"\n\n"}
                   <CheckBox
-                    title="Edited Title so it's clear what the article is about"
+                    title="Edited Title - so it's clear what the article is about"
                     checked={titleWasEdited}
                     disabled={true}
+                    style={{ height: 20 }}
                   />
                   <CheckBox
-                    title="Added a snippet as evidence for what the article is about"
+                    title="Added a snippet - as evidence for what the article is about"
                     checked={newsData.snippets && newsData.snippets.length > 0}
                     disabled={true}
+                    style={{ height: 20 }}
                   />
                   <CheckBox
-                    title="Reacted to make users care"
+                    title="Reacted - to make users care"
                     checked={newsData.reactions.length > 0}
                     disabled={true}
+                    style={{ height: 20 }}
                   />
                   <CheckBox
-                    title="Commented to make it clear WHY users should care"
+                    title="Commented - to make it clear WHY users should care"
                     checked={newsData.comments.length > 0}
                     disabled={true}
+                    style={{ height: 20 }}
                   />
                 </Text>
                 {titleWasEdited &&
