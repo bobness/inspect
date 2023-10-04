@@ -449,25 +449,25 @@ export default function NewsViewScreen(props: Props) {
                     title="Edited Title - so it's clear what the article is about"
                     checked={titleWasEdited}
                     disabled={true}
-                    style={{ height: 20 }}
+                    style={{ height: 20, width: "100%" }}
                   />
                   <CheckBox
                     title="Added a snippet - as evidence for what the article is about"
                     checked={newsData.snippets && newsData.snippets.length > 0}
                     disabled={true}
-                    style={{ height: 20 }}
+                    style={{ height: 20, width: "100%" }}
                   />
                   <CheckBox
                     title="Reacted - to make users care"
                     checked={newsData.reactions.length > 0}
                     disabled={true}
-                    style={{ height: 20 }}
+                    style={{ height: 20, width: "100%" }}
                   />
                   <CheckBox
                     title="Commented - to make it clear WHY users should care"
                     checked={newsData.comments.length > 0}
                     disabled={true}
-                    style={{ height: 20 }}
+                    style={{ height: 20, width: "100%" }}
                   />
                 </Text>
                 {titleWasEdited &&
