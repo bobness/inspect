@@ -441,9 +441,9 @@ export default function NewsViewScreen(props: Props) {
               <View style={{ flex: 1, marginBottom: 5 }}>
                 <Text style={{ color: "green" }}>
                   Summary successfully created! {"\n\n"}
-                  After reading the article, you should add a reaction, a
-                  comment, and/or a snippet from it, along with setting a new
-                  title that explains what it's actually about.{"\n\n"}
+                  After reading the article, you should set a new title that
+                  explains what it's actually about, add a snippet from it, your
+                  reaction, and a comment.{"\n\n"}
                   <CheckBox
                     title="Edited Title so it's clear what the article is about"
                     checked={titleWasEdited}
