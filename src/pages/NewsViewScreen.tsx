@@ -101,6 +101,7 @@ export default function NewsViewScreen(props: Props) {
   const [watchIsEnabled, setWatchIsEnabled] = useState(false);
   const [addSnippetIsVisible, setAddSnippetVisible] = useState(false);
   const [newSnippetValue, setNewSnippetValue] = useState<string | undefined>();
+  const [titleWasEdited, setTitleWasEdited] = useState(false);
 
   const currentUser = useCurrentUserContext();
 
@@ -443,14 +444,45 @@ export default function NewsViewScreen(props: Props) {
                   After reading the article, you should add a reaction, a
                   comment, and/or a snippet from it, along with setting a new
                   title that explains what it's actually about.{"\n\n"}
-                  When you're done:
+                  <CheckBox
+                    title="Edited Title so it's clear what the article is about"
+                    checked={titleWasEdited}
+                    disabled={true}
+                  />
+                  <CheckBox
+                    title="Added a snippet as evidence for what the article is about"
+                    checked={newsData.snippets && newsData.snippets.length > 0}
+                    disabled={true}
+                  />
+                  <CheckBox
+                    title="Reacted to make users care"
+                    checked={newsData.reactions.length > 0}
+                    disabled={true}
+                  />
+                  <CheckBox
+                    title="Commented to make it clear WHY users should care"
+                    checked={newsData.comments.length > 0}
+                    disabled={true}
+                  />
                 </Text>
-                <Button
-                  title="Click here to share with your followers"
-                  titleStyle={{ color: "white" }}
-                  buttonStyle={{ backgroundColor: "green" }}
-                  onPress={() => handleFollowerShare(newsData)}
-                />
+                {titleWasEdited &&
+                  newsData.snippets &&
+                  newsData.snippets.length > 0 &&
+                  newsData.reactions?.length > 0 &&
+                  newsData.comments?.length > 0 && (
+                    <>
+                      <Text>
+                        {"\n\n"}
+                        When you're done:
+                      </Text>
+                      <Button
+                        title="Click here to share with your followers"
+                        titleStyle={{ color: "white" }}
+                        buttonStyle={{ backgroundColor: "green" }}
+                        onPress={() => handleFollowerShare(newsData)}
+                      />
+                    </>
+                  )}
               </View>
             )}
 
@@ -605,6 +637,7 @@ export default function NewsViewScreen(props: Props) {
                     // if (text !== defaultTitle) {
                     //   setUseDefaultTitle(false);
                     // }
+                    setTitleWasEdited(true);
                     setNewsData({
                       ...newsData,
                       title: text,
