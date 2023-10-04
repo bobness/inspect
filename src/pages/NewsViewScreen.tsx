@@ -360,6 +360,7 @@ export default function NewsViewScreen(props: Props) {
     if (openState) {
       setEditTitleMode(true);
     } else {
+      setTitleWasEdited(true);
       setEditTitleMode(false);
       await updateSummary(newsData.id, {
         title: newsData.title,
@@ -641,7 +642,6 @@ export default function NewsViewScreen(props: Props) {
                     // if (text !== defaultTitle) {
                     //   setUseDefaultTitle(false);
                     // }
-                    setTitleWasEdited(true);
                     setNewsData({
                       ...newsData,
                       title: text,
