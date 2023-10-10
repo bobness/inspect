@@ -440,7 +440,7 @@ export default function NewsViewScreen(props: Props) {
           >
             {!newsData?.is_public && (
               <View style={{ flex: 1, flexDirection: "row", marginBottom: 5 }}>
-                <Text style={{ color: "green" }}>
+                <Text style={{ flex: 1, color: "green" }}>
                   Summary successfully created! {"\n\n"}
                   After reading the article, you should set a new title that
                   explains what it's actually about, add a snippet from it, your
@@ -449,33 +449,50 @@ export default function NewsViewScreen(props: Props) {
                     title="Edited Title - so it's clear what the article is about"
                     checked={titleWasEdited}
                     disabled={true}
-                    style={{ height: 20, width: "100%" }}
+                    style={{
+                      height: 20,
+                      alignSelf: "flex-start",
+                      width: "100%",
+                    }}
                   />
                   <CheckBox
                     title="Added a snippet - as evidence for what the article is about"
                     checked={newsData.snippets && newsData.snippets.length > 0}
                     disabled={true}
-                    style={{ height: 20, width: "100%" }}
+                    style={{
+                      height: 20,
+                      alignSelf: "flex-start",
+                      width: "100%",
+                    }}
                   />
                   <CheckBox
                     title="Reacted - to make users care"
                     checked={newsData.reactions.length > 0}
                     disabled={true}
-                    style={{ height: 20, width: "100%" }}
+                    style={{
+                      height: 20,
+                      alignSelf: "flex-start",
+                      width: "100%",
+                    }}
                   />
                   <CheckBox
                     title="Commented - to make it clear WHY users should care"
                     checked={newsData.comments.length > 0}
                     disabled={true}
-                    style={{ height: 20, width: "100%" }}
+                    style={{
+                      height: 20,
+                      alignSelf: "flex-start",
+                      width: "100%",
+                    }}
                   />
                 </Text>
+                {/* FIXME: doesn't show up -- it's on the right, not below */}
                 {titleWasEdited &&
                   newsData.snippets &&
                   newsData.snippets.length > 0 &&
-                  newsData.reactions?.length > 0 &&
-                  newsData.comments?.length > 0 && (
-                    <>
+                  newsData.reactions.length > 0 &&
+                  newsData.comments.length > 0 && (
+                    <View style={{ flex: 1 }}>
                       <Text>
                         {"\n\n"}
                         When you're done:
@@ -486,7 +503,7 @@ export default function NewsViewScreen(props: Props) {
                         buttonStyle={{ backgroundColor: "green" }}
                         onPress={() => handleFollowerShare(newsData)}
                       />
-                    </>
+                    </View>
                   )}
               </View>
             )}
