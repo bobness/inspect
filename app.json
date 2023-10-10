@@ -30,7 +30,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "net.datagotchi.inspect",
-      "buildNumber": "14",
+      "buildNumber": "18",
       "associatedDomains": [
         "applinks:inspect.datagotchi.net"
       ]
