@@ -71,6 +71,7 @@ export interface Summary {
   id?: number;
   url: string;
   title: string;
+  original_title: string;
   user_id: number;
   source_id: number;
   logo_uri: string;

@@ -360,7 +360,6 @@ export default function NewsViewScreen(props: Props) {
     if (openState) {
       setEditTitleMode(true);
     } else {
-      setTitleWasEdited(true);
       setEditTitleMode(false);
       await updateSummary(newsData.id, {
         title: newsData.title,
@@ -447,7 +446,7 @@ export default function NewsViewScreen(props: Props) {
                   reaction, and a comment.{"\n\n"}
                   <CheckBox
                     title="Edited Title - so it's clear what the article is about"
-                    checked={titleWasEdited}
+                    checked={newsData.title !== newsData.original_title}
                     disabled={true}
                     style={{
                       height: 20,
@@ -487,7 +486,7 @@ export default function NewsViewScreen(props: Props) {
                   />
                 </Text>
                 {/* FIXME: doesn't show up -- it's on the right, not below */}
-                {titleWasEdited &&
+                {newsData.title !== newsData.original_title &&
                   newsData.snippets &&
                   newsData.snippets.length > 0 &&
                   newsData.reactions.length > 0 &&
