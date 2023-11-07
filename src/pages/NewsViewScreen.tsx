@@ -41,6 +41,7 @@ import {
 import commonStyle from "../styles/CommonStyle";
 import BottomToolbar from "../components/BottomToolbar";
 import {
+  addToDigests,
   blockUser,
   deleteSummary,
   followAuthor,
@@ -50,7 +51,6 @@ import {
   postComment,
   postReaction,
   postShare,
-  sendNotification,
   unfollowAuthor,
   updateSummary,
 } from "../store/news";
@@ -101,7 +101,6 @@ export default function NewsViewScreen(props: Props) {
   const [watchIsEnabled, setWatchIsEnabled] = useState(false);
   const [addSnippetIsVisible, setAddSnippetVisible] = useState(false);
   const [newSnippetValue, setNewSnippetValue] = useState<string | undefined>();
-  const [titleWasEdited, setTitleWasEdited] = useState(false);
 
   const currentUser = useCurrentUserContext();
 
@@ -331,7 +330,7 @@ export default function NewsViewScreen(props: Props) {
 
   const handleFollowerShare = async (summary: Summary) => {
     await updateSummary(summary.id, { is_public: true });
-    await sendNotification({
+    await addToDigests({
       notification_title: `A summary was created${
         currentUser?.username ? ` by ${currentUser.username}` : ""
       }!`,
@@ -427,7 +426,6 @@ export default function NewsViewScreen(props: Props) {
         {newsData && (
           <ScrollView
             style={{
-              flex: 1,
               padding: 10,
             }}
             refreshControl={
@@ -438,53 +436,53 @@ export default function NewsViewScreen(props: Props) {
             }}
           >
             {!newsData?.is_public && (
-              <View style={{ flex: 1, flexDirection: "row", marginBottom: 5 }}>
-                <Text style={{ flex: 1, color: "green" }}>
-                  Summary successfully created! {"\n\n"}
-                  After reading the article, you should set a new title that
-                  explains what it's actually about, add a snippet from it, your
-                  reaction, and a comment.{"\n\n"}
-                  <CheckBox
-                    title="Edited Title - so it's clear what the article is about"
-                    checked={newsData.title !== newsData.original_title}
-                    disabled={true}
-                    style={{
-                      height: 20,
-                      alignSelf: "flex-start",
-                      width: "100%",
-                    }}
-                  />
-                  <CheckBox
-                    title="Added a snippet - as evidence for what the article is about"
-                    checked={newsData.snippets && newsData.snippets.length > 0}
-                    disabled={true}
-                    style={{
-                      height: 20,
-                      alignSelf: "flex-start",
-                      width: "100%",
-                    }}
-                  />
-                  <CheckBox
-                    title="Reacted - to make users care"
-                    checked={newsData.reactions.length > 0}
-                    disabled={true}
-                    style={{
-                      height: 20,
-                      alignSelf: "flex-start",
-                      width: "100%",
-                    }}
-                  />
-                  <CheckBox
-                    title="Commented - to make it clear WHY users should care"
-                    checked={newsData.comments.length > 0}
-                    disabled={true}
-                    style={{
-                      height: 20,
-                      alignSelf: "flex-start",
-                      width: "100%",
-                    }}
-                  />
-                </Text>
+              <>
+                <View
+                  style={{ flex: 1, flexDirection: "column", marginBottom: 5 }}
+                >
+                  <Text style={{ flex: 1, color: "green" }}>
+                    Summary successfully created! {"\n\n"}
+                    After reading the article, you should set a new title that
+                    explains what it's actually about, add a snippet from it,
+                    your reaction, and a comment.{"\n\n"}
+                  </Text>
+                </View>
+                <CheckBox
+                  title="Edited Title - so it's clear what the article is about"
+                  checked={newsData.title !== newsData.original_title}
+                  disabled={true}
+                  style={{
+                    maxHeight: 20,
+                    width: "100%",
+                  }}
+                />
+                <CheckBox
+                  title="Added a snippet - as evidence for what the article is about"
+                  checked={newsData.snippets && newsData.snippets.length > 0}
+                  disabled={true}
+                  style={{
+                    maxHeight: 20,
+                    width: "100%",
+                  }}
+                />
+                <CheckBox
+                  title="Reacted - to make users care"
+                  checked={newsData.reactions.length > 0}
+                  disabled={true}
+                  style={{
+                    maxHeight: 20,
+                    width: "100%",
+                  }}
+                />
+                <CheckBox
+                  title="Commented - to make it clear WHY users should care"
+                  checked={newsData.comments.length > 0}
+                  disabled={true}
+                  style={{
+                    maxHeight: 20,
+                    width: "100%",
+                  }}
+                />
                 {/* FIXME: doesn't show up -- it's on the right, not below */}
                 {newsData.title !== newsData.original_title &&
                   newsData.snippets &&
@@ -504,7 +502,7 @@ export default function NewsViewScreen(props: Props) {
                       />
                     </View>
                   )}
-              </View>
+              </>
             )}
 
             <View

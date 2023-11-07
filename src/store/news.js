@@ -80,6 +80,10 @@ const sendNotification = (data) => {
   return instance.post("/notification", data).then((res) => res.data);
 };
 
+const addToDigests = (data) => {
+  return instance.post("/digests", data).then((res) => res.data);
+}
+
 const getSource = (baseUrl) => {
   return instance.get(`/sources/${baseUrl}`).then((res) => res.data);
 };
@@ -110,6 +114,7 @@ export {
   followAuthor,
   unfollowAuthor,
   sendNotification,
+  addToDigests,
   updateSummary,
   getSource,
   createSource,
