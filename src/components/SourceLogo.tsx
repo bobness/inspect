@@ -13,7 +13,6 @@ const SHARED_STYLE = {
   borderWidth: 1,
   borderRadius: 5,
   borderColor: "black",
-  borderStyle: "solid" as const,
   width: 100,
 };
 
@@ -38,6 +37,7 @@ const SourceLogo = ({ data, style, onPress }: Props) => {
       style={{
         ...SHARED_STYLE,
         textAlign: "center",
+        borderStyle: "solid" as const,
         ...style,
       }}
       adjustsFontSizeToFit={true}
