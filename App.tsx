@@ -374,7 +374,7 @@ async function registerForPushNotificationsAsync() {
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
     }
-    // TODO: put in a loop until it is granted
+    // FIXME: put in a loop until it is granted and/or send them to the login page (their session is old)
     if (finalStatus !== "granted") {
       alert("Failed to get push token for push notification");
       return;
