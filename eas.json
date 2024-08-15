@@ -9,8 +9,7 @@
         "gradleCommand": ":app:assembleDebug"
       },
       "ios": {
-        "buildConfiguration": "Debug",
-        "resourceClass": "m1-medium"
+        "buildConfiguration": "Debug"
       },
       "channel": "development"
     },
@@ -19,16 +18,12 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
-      },
-      "ios": {
-        "resourceClass": "m1-medium"
       }
     },
     "production": {
       "channel": "production",
       "ios": {
-        "autoIncrement": "buildNumber",
-        "resourceClass": "m1-medium"
+        "autoIncrement": "buildNumber"
       }
     }
   },
