@@ -11,8 +11,9 @@
   "dependencies": {
     "@babel/preset-env": "^7.1.6",
     "@expo/config-plugins": "8.0.0",
+    "@expo/metro-runtime": "~3.2.3",
     "@react-native-async-storage/async-storage": "1.23.1",
-    "@react-native-community/clipboard": "^1.5.1",
+    "@react-native-clipboard/clipboard": "^1.14.1",
     "@react-native-voice/voice": "^3.2.4",
     "@react-navigation/native": "^6.0.10",
     "@react-navigation/native-stack": "^6.6.2",
@@ -35,8 +36,9 @@
     "moment": "^2.29.3",
     "os": "^0.1.2",
     "prop-types": "^15.8.1",
-    "react": "18.2.0",
-    "react-dom": "^18.0.0",
+    "queue-microtask": "^1.2.3",
+    "react": "^18.3.1",
+    "react-dom": "18.2.0",
     "react-native": "0.74.5",
     "react-native-autoheight-webview": "^1.6.4",
     "react-native-elements": "^3.4.2",
@@ -54,17 +56,16 @@
     "react-native-screens": "3.31.1",
     "react-native-share": "^8.0.0",
     "react-native-vector-icons": "^9.1.0",
-    "react-native-web": "~0.19.6",
+    "react-native-web": "~0.19.10",
     "react-native-webview": "13.8.6"
   },
   "resolutions": {
-    "@expo/config-plugins": "^7.2.2"
+    "@expo/config-plugins": "^8.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@types/react": "~18.2.14",
     "@types/react-dom": "~18.2.25",
     "typescript": "~5.3.3"
-  },
-  "private": true
+  }
 }
