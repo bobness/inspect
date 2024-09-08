@@ -483,7 +483,7 @@ export default function NewsViewScreen(props: Props) {
                     width: "100%",
                   }}
                 />
-                {/* FIXME: doesn't show up -- it's on the right, not below */}
+                {/* TODO: doesn't show up -- it's on the right, not below */}
                 {newsData.title !== newsData.original_title &&
                   newsData.snippets &&
                   newsData.snippets.length > 0 &&

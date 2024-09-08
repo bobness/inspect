@@ -16,6 +16,7 @@
     "preview": {
       "channel": "staging",
       "distribution": "internal",
+      "node": "22.8.0",
       "android": {
         "buildType": "apk"
       }
